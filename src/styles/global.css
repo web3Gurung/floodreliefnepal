@@ -2,6 +2,7 @@
 
 @theme inline {
 	--font-sans: var(--font-inter), system-ui, sans-serif;
+	--ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @layer base {
@@ -58,8 +59,43 @@
 		@apply mb-4 max-w-[16ch] text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.1] font-medium tracking-tight;
 	}
 
+	.center-block {
+		@apply mx-auto max-w-2xl text-center;
+	}
+
+	.center-block .lede,
+	.center-block .display {
+		@apply mx-auto;
+	}
+
 	.btn {
-		@apply inline-flex max-w-full items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white hover:bg-black/80;
+		@apply inline-flex max-w-full items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white;
+		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+	}
+
+	.btn:active {
+		transform: scale(0.97);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.btn:hover {
+			@apply bg-black/80;
+		}
+	}
+
+	.btn-outline {
+		@apply inline-flex items-center justify-center rounded-lg border border-black px-3.5 py-2 text-sm font-medium text-black no-underline;
+		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+	}
+
+	.btn-outline:active {
+		transform: scale(0.97);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.btn-outline:hover {
+			@apply bg-black/[0.05];
+		}
 	}
 
 	.btn-ghost {
@@ -73,5 +109,17 @@
 	.np {
 		font-family: var(--font-np), var(--font-inter), sans-serif;
 		@apply break-words font-medium;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.btn,
+		.btn-outline {
+			transition: background-color 160ms ease;
+		}
+
+		.btn:active,
+		.btn-outline:active {
+			transform: none;
+		}
 	}
 }

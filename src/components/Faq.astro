@@ -1,6 +1,10 @@
 ---
 const items = [
 	{
+		q: 'Is this an official government website?',
+		a: 'No. This is an independent guide. The government sites and drop-off points are listed here so you do not have to hunt them down.',
+	},
+	{
 		q: 'Can I run my own collection drive?',
 		a: 'No. The government has not authorised private groups or people to collect cash or goods for this disaster. Posts asking you to send money to a personal wallet are illegal.',
 	},
@@ -21,14 +25,20 @@ const items = [
 
 <section class="chapter" id="questions">
 	<div class="wrap">
-		<h2 class="display max-w-none text-[1.75rem]">Questions</h2>
-		{
-			items.map((item) => (
-				<details class="max-w-xl border-t border-black/10 py-4 last:border-b">
-					<summary class="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">{item.q}</summary>
-					<p class="mt-2 text-black/65">{item.a}</p>
-				</details>
-			))
-		}
+		<div class="center-block">
+			<h2 class="display max-w-none text-[1.75rem]">Questions</h2>
+		</div>
+		<div class="mx-auto max-w-xl text-left">
+			{
+				items.map((item) => (
+					<details class="border-t border-black/10 py-4 last:border-b">
+						<summary class="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
+							{item.q}
+						</summary>
+						<p class="mt-2 text-black/65">{item.a}</p>
+					</details>
+				))
+			}
+		</div>
 	</div>
 </section>

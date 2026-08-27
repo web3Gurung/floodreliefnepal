@@ -3,12 +3,15 @@ import { site } from '../data/site';
 ---
 
 <footer class="py-10 pb-14 text-[0.95rem] text-black/65">
-	<div class="wrap">
+	<div class="wrap center-block max-w-xl">
 		<p class="mb-1">Last checked {site.lastChecked}</p>
-		<p class="mb-1 max-w-xl">
-			A short guide to the government's one-door relief system for the Bhotekoshi flood.
-			See{' '}
+		<p class="mb-3">
+			Independent guide. Not a government website. See{' '}
 			<a class="underline" href="#sources">sources</a>.
+		</p>
+		<p>
+			<a class="underline" href={site.github} rel="noopener noreferrer">GitHub</a>
+			{' '}if you want to send a pull request.
 		</p>
 	</div>
 </footer>

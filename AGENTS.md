@@ -52,11 +52,13 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 
 ## Copy
 
+- This is an independent public guide, not an official government site. Do not say otherwise.
 - Hero title is Flood Relief Nepal
 - Sentence case headings
 - No em dashes
 - No curly quotes
-- Primary cash button always goes to `https://pmdrf.nchl.com.np/`
+- The government card portal is one channel, not the whole identity of the site
+- Header Give is a real button. The pmdrf link in the money section is a real button.
 
 ## Commands
 

@@ -1,6 +1,7 @@
 export const site = {
 	name: 'Flood Relief Nepal',
 	url: 'https://floodreliefnepal.com',
+	github: 'https://github.com/web3Gurung/floodreliefnepal',
 	lastChecked: '27 August 2026',
 	official: {
 		pmdrf: 'https://pmdrf.nchl.com.np/',

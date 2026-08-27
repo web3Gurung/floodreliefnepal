@@ -1,8 +1,8 @@
 # Flood Relief Nepal
 
-Public site for official Nepal flood relief after the Bhotekoshi disaster.
+Independent public guide for Bhotekoshi flood relief. Not a government website.
 
-It does not collect donations. Cash goes to the government's portal. Supplies go to the three drop-off points named by the Prime Minister's Office.
+It does not collect donations. It lists where to send money, where to drop supplies, and how to skip scams.
 
 - Cash: [pmdrf.nchl.com.np](https://pmdrf.nchl.com.np/)
 - Content: `src/data/site.ts`
