@@ -10,21 +10,12 @@
 }
 
 :root {
+	color-scheme: light;
 	--canvas: #f6f6f4;
 	--surface: #ffffff;
 	--ink: #1a1a18;
 	--muted: #5e5e5a;
 	--line: #e4e4e0;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--canvas: #161615;
-		--surface: #1c1c1a;
-		--ink: #f3f3f0;
-		--muted: #a4a4a0;
-		--line: #2c2c28;
-	}
 }
 
 @layer base {
