@@ -2,22 +2,22 @@
 import { sources } from '../data/site';
 ---
 
-<section class="chapter chapter-wash" id="sources">
+<section class="chapter hairline" id="sources">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none text-[1.75rem]">Sources</h2>
+			<h2 class="display max-w-none">Sources</h2>
 			<p class="lede">
-				Pulled from government notices and reporting dated 27 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal. Some outlets spell Avishkar as Aabishkar, and Bhattarai as Bhatta. The phone numbers match across those reports.
+				Government notices and reporting dated 27 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal.
 			</p>
 		</div>
-		<ul class="mx-auto max-w-xl space-y-4 text-left">
+		<ul class="mx-auto mt-10 max-w-xl space-y-5 text-left">
 			{
 				sources.map((source) => (
 					<li>
 						<a class="font-medium underline" href={source.href} rel="noopener noreferrer">
 							{source.label}
 						</a>
-						<p class="mt-1 text-black/65">{source.note}</p>
+						<p class="mt-1 text-muted">{source.note}</p>
 					</li>
 				))
 			}

@@ -23,19 +23,21 @@ const items = [
 ];
 ---
 
-<section class="chapter" id="questions">
+<section class="chapter hairline" id="questions">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none text-[1.75rem]">Questions</h2>
+			<h2 class="display max-w-none">Questions</h2>
 		</div>
-		<div class="mx-auto max-w-xl text-left">
+		<div class="mx-auto mt-10 max-w-xl text-left">
 			{
 				items.map((item) => (
-					<details class="border-t border-black/10 py-4 last:border-b">
-						<summary class="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
+					<details class="group border-t border-line py-5 last:border-b">
+						<summary class="flex cursor-pointer list-none items-baseline justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
 							{item.q}
+							<span class="text-muted group-open:hidden" aria-hidden="true">+</span>
+							<span class="hidden text-muted group-open:inline" aria-hidden="true">-</span>
 						</summary>
-						<p class="mt-2 text-black/65">{item.a}</p>
+						<p class="mt-3 max-w-[65ch] text-muted">{item.a}</p>
 					</details>
 				))
 			}

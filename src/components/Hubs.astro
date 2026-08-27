@@ -2,29 +2,29 @@
 import { hubs } from '../data/site';
 ---
 
-<section class="chapter chapter-wash" id="supplies">
+<section class="chapter hairline" id="supplies">
 	<div class="wrap">
 		<div class="center-block">
 			<h2 class="display max-w-[14ch]">If you want to send supplies</h2>
 			<p class="lede">
-				Hand goods to the government, or work with the Chief District Officer in the district you mean to help. These are the three collection points named so far.
+				Hand goods to the government, or work with the Chief District Officer in the district you mean to help.
 			</p>
 		</div>
-		<div class="mx-auto mt-10 grid max-w-5xl gap-10 text-center md:grid-cols-3 md:gap-x-12">
+		<ul class="mx-auto mt-12 max-w-xl divide-y divide-line text-left">
 			{
 				hubs.map((hub) => (
-					<div>
-						<h3 class="mb-1 text-lg font-medium">{hub.title}</h3>
-						<p class="mb-1 text-black/65">{hub.place}</p>
-						<p class="text-black/65">
+					<li class="py-6 first:pt-0">
+						<h3 class="mb-1 font-medium">{hub.title}</h3>
+						<p class="text-muted">{hub.place}</p>
+						<p class="mt-1 text-muted">
 							{hub.who},{' '}
 							<a class="whitespace-nowrap underline" href={`tel:${hub.phone.replaceAll(' ', '')}`}>
 								{hub.phone}
 							</a>
 						</p>
-					</div>
+					</li>
 				))
 			}
-		</div>
+		</ul>
 	</div>
 </section>

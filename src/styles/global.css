@@ -1,8 +1,30 @@
 @import 'tailwindcss';
 
 @theme inline {
-	--font-sans: var(--font-inter), system-ui, sans-serif;
-	--ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+	--font-sans: var(--font-outfit), 'Helvetica Neue', system-ui, sans-serif;
+	--color-canvas: var(--canvas);
+	--color-ink: var(--ink);
+	--color-muted: var(--muted);
+	--color-line: var(--line);
+	--color-surface: var(--surface);
+}
+
+:root {
+	--canvas: #f6f6f4;
+	--surface: #ffffff;
+	--ink: #1a1a18;
+	--muted: #5e5e5a;
+	--line: #e4e4e0;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--canvas: #161615;
+		--surface: #1c1c1a;
+		--ink: #f3f3f0;
+		--muted: #a4a4a0;
+		--line: #2c2c28;
+	}
 }
 
 @layer base {
@@ -17,7 +39,7 @@
 	}
 
 	body {
-		@apply max-w-full bg-white font-sans text-[1.0625rem] leading-relaxed text-black;
+		@apply max-w-full bg-canvas font-sans text-[1.0625rem] leading-[1.6] text-ink;
 	}
 
 	a {
@@ -26,41 +48,33 @@
 
 	a:focus-visible,
 	summary:focus-visible {
-		@apply outline-2 outline-offset-2 outline-black;
+		@apply outline-2 outline-offset-2 outline-ink;
 	}
 }
 
 @layer components {
 	.wrap {
-		@apply mx-auto w-[min(calc(100%-3rem),72rem)] min-w-0 break-words md:w-[min(calc(100%-6rem),72rem)];
+		@apply mx-auto w-[min(calc(100%-2.5rem),68rem)] min-w-0 break-words md:w-[min(calc(100%-5rem),68rem)];
 	}
 
 	.chapter {
-		@apply py-16 md:py-24;
-	}
-
-	.chapter-wash {
-		@apply bg-black/[0.04];
+		@apply py-20 md:py-28;
 	}
 
 	.split {
-		@apply grid items-start gap-12 md:grid-cols-2 md:gap-16;
+		@apply grid items-start gap-10 md:grid-cols-2 md:gap-20;
 	}
 
 	.lede {
-		@apply mb-7 max-w-xl text-lg text-black/65;
-	}
-
-	.lede b {
-		@apply font-medium text-black;
+		@apply mb-8 max-w-[38rem] text-lg leading-relaxed text-muted text-pretty;
 	}
 
 	.display {
-		@apply mb-4 max-w-[16ch] text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.1] font-medium tracking-tight;
+		@apply mb-5 max-w-[14ch] text-[clamp(2.15rem,5vw,3.5rem)] leading-[1.08] font-medium tracking-[-0.035em] text-balance;
 	}
 
 	.center-block {
-		@apply mx-auto max-w-2xl text-center;
+		@apply mx-auto max-w-[40rem] text-center;
 	}
 
 	.center-block .lede,
@@ -69,8 +83,10 @@
 	}
 
 	.btn {
-		@apply inline-flex max-w-full items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white;
-		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+		@apply inline-flex max-w-full items-center justify-center rounded-[6px] bg-ink px-5 py-3 font-medium text-canvas;
+		transition:
+			transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+			background-color 160ms ease;
 	}
 
 	.btn:active {
@@ -79,13 +95,15 @@
 
 	@media (hover: hover) and (pointer: fine) {
 		.btn:hover {
-			@apply bg-black/80;
+			opacity: 0.88;
 		}
 	}
 
 	.btn-outline {
-		@apply inline-flex items-center justify-center rounded-lg border border-black px-3.5 py-2 text-sm font-medium text-black no-underline;
-		transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+		@apply inline-flex items-center justify-center rounded-[6px] border border-ink px-3.5 py-2 text-sm font-medium text-ink no-underline;
+		transition:
+			transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+			background-color 160ms ease;
 	}
 
 	.btn-outline:active {
@@ -94,21 +112,16 @@
 
 	@media (hover: hover) and (pointer: fine) {
 		.btn-outline:hover {
-			@apply bg-black/[0.05];
+			background: color-mix(in srgb, var(--ink) 6%, transparent);
 		}
 	}
 
-	.btn-ghost {
-		@apply text-black/65 underline-offset-4 hover:underline;
-	}
-
 	.quiet {
-		@apply mt-3 text-[0.95rem] text-black/55;
+		@apply mt-3 text-[0.95rem] text-muted;
 	}
 
-	.np {
-		font-family: var(--font-np), var(--font-inter), sans-serif;
-		@apply break-words font-medium;
+	.hairline {
+		@apply border-t border-line;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
