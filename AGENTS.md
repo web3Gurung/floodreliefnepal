@@ -6,7 +6,7 @@ Static public site at floodreliefnepal.com. It explains the government's one-doo
 
 One homepage, built as static HTML.
 
-1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `public/hero.jpg`.
+1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg` (Astro `<Picture />`, AVIF/WebP).
 2. Policy. What the one-door rule is, and that private collection drives are not allowed.
 3. Give. Cash via `https://pmdrf.nchl.com.np/`. Bank-transfer numbers are not on the page yet.
 4. Supplies. Three government drop-off points, with contacts.

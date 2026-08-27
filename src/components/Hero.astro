@@ -1,4 +1,6 @@
 ---
+import { Picture } from 'astro:assets';
+import hero from '../assets/hero.jpg';
 ---
 
 <section class="relative isolate">
@@ -15,12 +17,17 @@
 			</div>
 		</div>
 		<figure class="mx-auto mt-14 max-w-5xl">
-			<img
-				src="/hero.jpg"
+			<Picture
+				src={hero}
+				formats={['avif', 'webp']}
+				fallbackFormat="jpg"
 				alt="Snow peaks and a hillside stupa in the Nepal Himalaya"
-				width="1920"
-				height="1280"
-				class="aspect-[16/9] w-full object-cover"
+				widths={[640, 960, 1280, 1600]}
+				sizes="(min-width: 64rem) 64rem, calc(100vw - 2.5rem)"
+				quality="mid"
+				class="aspect-[16/9] h-auto w-full object-cover"
+				pictureAttributes={{ class: 'block w-full' }}
+				priority
 			/>
 			<figcaption class="quiet mt-3 text-center">Nepal Himalaya</figcaption>
 		</figure>
