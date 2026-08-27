@@ -2,7 +2,7 @@
 
 See `AGENTS.md` for stack, content rules, and commands.
 
-This is a static Astro site with Tailwind. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
+This is a static Astro site with Tailwind. Light mode only. Outfit for type. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
 
 Cash: `https://pmdrf.nchl.com.np/`
 

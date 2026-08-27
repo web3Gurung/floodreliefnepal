@@ -31,7 +31,8 @@ Layout and chrome:
 - Astro, static output (`astro build` writes `dist/`)
 - Tailwind CSS v4 through `@tailwindcss/vite`
 - `@astrojs/sitemap`
-- Inter and Noto Sans Devanagari via Astro's `fonts` config
+- Outfit and Noto Sans Devanagari via Astro's `fonts` config
+- Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
 - Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets.
 
 Node 22.12 or newer.

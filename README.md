@@ -10,7 +10,7 @@ It does not collect donations. It lists where to send money, where to drop suppl
 
 ## Stack
 
-Astro (static HTML) and Tailwind CSS v4. Deploy from GitHub on Cloudflare. Build command `npx astro build`, output directory `dist`.
+Astro (static HTML) and Tailwind CSS v4. Light mode only. Outfit for type. Deploy from GitHub on Cloudflare. Build command `npx astro build`, output directory `dist`.
 
 ## Develop
 
