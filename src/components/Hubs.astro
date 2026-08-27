@@ -1,0 +1,28 @@
+---
+import { hubs } from '../data/site';
+---
+
+<section class="chapter chapter-wash" id="supplies">
+	<div class="wrap">
+		<h2 class="display">If you want to send supplies</h2>
+		<p class="lede">
+			Hand goods to the government, or work with the Chief District Officer in the district you mean to help. These are the three collection points named so far.
+		</p>
+		<div class="mt-10 grid gap-10 md:grid-cols-3 md:gap-x-12">
+			{
+				hubs.map((hub) => (
+					<div>
+						<h3 class="mb-1 text-lg font-medium">{hub.title}</h3>
+						<p class="mb-1 max-w-sm text-black/65">{hub.place}</p>
+						<p class="text-black/65">
+							{hub.who},{' '}
+							<a class="whitespace-nowrap underline" href={`tel:${hub.phone.replaceAll(' ', '')}`}>
+								{hub.phone}
+							</a>
+						</p>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>

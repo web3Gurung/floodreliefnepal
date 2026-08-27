@@ -1,0 +1,34 @@
+---
+const items = [
+	{
+		q: 'Can I run my own collection drive?',
+		a: 'No. The government has not authorised private groups or people to collect cash or goods for this disaster. Posts asking you to send money to a personal wallet are illegal.',
+	},
+	{
+		q: 'Do I have to give cash?',
+		a: 'No. You can drop supplies at the airport warehouse or the army barracks listed above. You can also talk to the Chief District Officer of the affected district.',
+	},
+	{
+		q: 'Is there a limit on how much I can send?',
+		a: 'No. The Finance Ministry said there is no ceiling on cash or goods. Nepal Rastra Bank also lifted digital-transfer caps into the two Prime Minister funds.',
+	},
+	{
+		q: 'Who hands the aid to people on the ground?',
+		a: 'Civil administration, the Nepali Army, Nepal Police, and local and provincial governments. The point of the one-door rule is that one desk tracks what came in, so a village is less likely to be skipped.',
+	},
+];
+---
+
+<section class="chapter" id="questions">
+	<div class="wrap">
+		<h2 class="display max-w-none text-[1.75rem]">Questions</h2>
+		{
+			items.map((item) => (
+				<details class="max-w-xl border-t border-black/10 py-4 last:border-b">
+					<summary class="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">{item.q}</summary>
+					<p class="mt-2 text-black/65">{item.a}</p>
+				</details>
+			))
+		}
+	</div>
+</section>

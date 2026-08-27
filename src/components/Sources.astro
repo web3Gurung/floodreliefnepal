@@ -1,0 +1,24 @@
+---
+import { sources } from '../data/site';
+---
+
+<section class="chapter chapter-wash" id="sources">
+	<div class="wrap">
+		<h2 class="display max-w-none text-[1.75rem]">Sources</h2>
+		<p class="lede">
+			We pulled this page from government notices and reporting dated 27 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal. Some outlets spell Avishkar as Aabishkar, and Bhattarai as Bhatta. The phone numbers match across those reports.
+		</p>
+		<ul class="max-w-2xl space-y-4">
+			{
+				sources.map((source) => (
+					<li>
+						<a class="font-medium underline" href={source.href} rel="noopener noreferrer">
+							{source.label}
+						</a>
+						<p class="mt-1 text-black/65">{source.note}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
