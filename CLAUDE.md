@@ -8,6 +8,8 @@ Cash: `https://pmdrf.nchl.com.np/`
 
 Content (links, drop-off hubs, sources): `src/data/site.ts`
 
+Photos live in `src/assets/`, not `public/`. Use `<Picture />` from `astro:assets`. `npm run build` (`astro build`) emits AVIF and WebP into `dist/_astro/`. Do not hand-convert, do not commit `dist/`, and do not add AP, Reuters, AFP, or Getty photos.
+
 Do not add SWIFT codes, bank account numbers, or QR codes until a teammate PR brings verified details.
 
 Do not commit `.agents/`, `.claude/`, `.opencode/`, or skill lockfiles.

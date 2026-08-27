@@ -12,6 +12,8 @@ It does not collect donations. It lists where to send money, where to drop suppl
 
 Astro (static HTML) and Tailwind CSS v4. Light mode only. Outfit for type. Deploy from GitHub on Cloudflare. Build command `npx astro build`, output directory `dist`.
 
+Hero photo: `src/assets/hero.jpg`. `astro build` turns it into AVIF and WebP. Do not put the original in `public/`.
+
 ## Develop
 
 ```bash
