@@ -20,6 +20,7 @@ export const site = {
 		moha: 'https://moha.gov.np/en/post/ha-ra-tha-ka-apa-l-11',
 		kathmanduPostExplainer:
 			'https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far',
+		ifrc: 'https://www.ifrc.org/press-release/nepal-ifrc-releases-emergency-funds-flash-floods-leave-communities-isolated',
 	},
 	routes: {
 		en: '/',
@@ -101,10 +102,19 @@ export const sources = [
 		note: 'What is known about the Bhotekoshi flood. Follow it for current figures.',
 		href: site.official.kathmanduPostExplainer,
 	},
+	{
+		label: 'IFRC press release',
+		note: 'Operational source for the shelter, water and first aid items listed under supplies.',
+		href: site.official.ifrc,
+	},
 ] as const;
 
 /** Newest first. The footer shows the three most recent entries. */
 export const changelog = [
+	{
+		date: '28 August 2026',
+		note: 'Added what responders are handing out, framed as not a government list.',
+	},
 	{
 		date: '28 August 2026',
 		note: 'Added the Nepali version and the share block.',
@@ -117,6 +127,20 @@ export const changelog = [
 		date: '28 August 2026',
 		note: 'Rewrote the money section and added the scam checks.',
 	},
+] as const;
+
+/**
+ * Not a government list. The Home Ministry appeal asks for money, not goods.
+ * These are the goods responders are distributing and the collection points
+ * report needing. Translations override the labels by index.
+ */
+export const needs = [
+	{ group: 'Shelter', items: ['Tents', 'Tarpaulins', 'Blankets', 'Sleeping mats'] },
+	{ group: 'Food and water', items: ['Drinking water', 'Dry food items'] },
+	{ group: 'Health', items: ['First aid kits', 'Medicines'] },
+	{ group: 'Hygiene', items: ['Sanitary pads', 'Toothpaste and hygiene essentials'] },
+	{ group: 'Clothing', items: ['Clothes', 'Essential items for children'] },
+	{ group: 'Power', items: ['Power banks and chargers'] },
 ] as const;
 
 export const en = {
@@ -234,6 +258,13 @@ export const en = {
 	supplies: {
 		heading: 'Send supplies',
 		lede: 'Hand goods to the government, or work with the Chief District Officer in the district you mean to help.',
+		needs: {
+			heading: 'What responders are handing out',
+			note: 'The government has published no list of goods, and the Home Ministry appeal asks for money into the fund rather than things. The list below is what responders are distributing on the ground and what the collection points report needing.',
+			groups: needs,
+			callFirst:
+				'Call the contact for your nearest point before you load a vehicle, since they know what they are short of today.',
+		},
 		hubs,
 	},
 	faq: {
