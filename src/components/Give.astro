@@ -1,19 +1,41 @@
 ---
-import { site } from '../data/site';
+import { give } from '../data/site';
 ---
 
 <section class="chapter hairline" id="give">
-	<div class="wrap split">
-		<div>
-			<h2 class="display">If you want to send money</h2>
-			<p class="lede">
-				One option is the government's card portal. There is no cap. Bank-transfer details will land here in a later update.
-			</p>
+	<div class="wrap">
+		<div class="center-block">
+			<h2 class="display max-w-none">{give.heading}</h2>
+			<p class="lede">{give.lede}</p>
 		</div>
-		<div class="max-w-[38rem]">
-			<p class="mb-6 text-muted">The portal takes cards. It sits on the government's own domain, not this one.</p>
-			<a class="btn" href={site.official.pmdrf} rel="noopener noreferrer">Open pmdrf.nchl.com.np</a>
-			<p class="quiet">Leaves this site.</p>
+
+		<div class="mt-12 grid gap-6 md:grid-cols-2">
+			{
+				give.cards.map((card) => (
+					<article class="card">
+						<p class="eyebrow">{card.eyebrow}</p>
+						<h3 class="card-title mt-3">{card.title}</h3>
+						<p class="mt-4 text-muted">{card.body}</p>
+						<div class="mt-auto pt-8">
+							<a class="btn btn-stack w-full" href={card.action.href} rel="noopener noreferrer">
+								<span>{card.action.label}</span>
+								<span class="btn-sub">{card.action.sub}</span>
+							</a>
+							<p class="quiet">{card.note}</p>
+						</div>
+					</article>
+				))
+			}
+		</div>
+
+		<div class="mx-auto mt-12 max-w-[42rem] space-y-5 text-muted">
+			<p>
+				{give.alternate.text}{' '}
+				<a class="break-words underline" href={give.alternate.href} rel="noopener noreferrer">
+					{give.alternate.linkLabel}
+				</a>
+			</p>
+			<p>{give.closing}</p>
 		</div>
 	</div>
 </section>

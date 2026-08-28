@@ -1,0 +1,25 @@
+---
+import { verify } from '../data/site';
+---
+
+<section class="chapter hairline" id="verify">
+	<div class="wrap">
+		<div class="center-block">
+			<h2 class="display max-w-none">{verify.heading}</h2>
+			<p class="lede">{verify.lede}</p>
+		</div>
+		<ul class="mx-auto mt-12 max-w-xl divide-y divide-line text-left">
+			{
+				verify.checks.map((check) => (
+					<li class="py-6 first:pt-0">
+						<h3 class="mb-1 font-medium">{check.title}</h3>
+						<p class="text-muted">{check.body}</p>
+					</li>
+				))
+			}
+		</ul>
+		<p class="mx-auto mt-8 max-w-xl text-left">
+			<a class="underline" href={verify.link.href} rel="noopener noreferrer">{verify.link.label}</a>
+		</p>
+	</div>
+</section>

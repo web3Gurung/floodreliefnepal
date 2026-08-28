@@ -84,3 +84,84 @@ export const sources = [
 		href: site.official.cyberBureau,
 	},
 ] as const;
+
+export const hero = {
+	eyebrow: 'Independent public guide',
+	title: site.name,
+	lede: 'Where to give, where to drop supplies, and how to skip fake QR codes. Not a government site.',
+	primary: { label: 'See how to help', href: '#give' },
+	links: [
+		{ label: 'One door system', href: '#policy' },
+		{ label: 'Spot a fake page', href: '#verify' },
+	],
+	photoAlt: 'Snow peaks and a hillside stupa in the Nepal Himalaya',
+	photoCaption: 'Nepal Himalaya',
+} as const;
+
+export const give = {
+	heading: 'Send money',
+	lede: "One government portal, works from anywhere in the world, both routes below end in the Prime Minister's Disaster Relief Fund.",
+	cards: [
+		{
+			eyebrow: 'Pay by card',
+			title: 'From anywhere in the world',
+			body: 'The portal takes Nepali banking apps and wallets, and international Visa and Mastercard. It charges in Nepali rupees, so your own bank handles the conversion.',
+			action: {
+				label: 'Open the government portal',
+				sub: 'pmdrf.nchl.com.np',
+				href: site.official.pmdrf,
+			},
+			note: 'Government channel. Leaves this site.',
+		},
+		{
+			eyebrow: 'Pay with stablecoins',
+			title: 'If you hold crypto',
+			body: 'There is no direct crypto route into the fund yet, so the path runs through a card. Load a crypto debit card with USDC or USDT using KAST, Solflare, RedotPay or similar, then pay on the same government portal. Check that the payment lands on pmdrf.nchl.com.np.',
+			action: {
+				label: 'Open the government portal',
+				sub: 'pmdrf.nchl.com.np',
+				href: site.official.pmdrf,
+			},
+			note: 'Government channel. Leaves this site.',
+		},
+	],
+	alternate: {
+		text: 'Himalayan Bank runs a second government gateway for the same fund that quotes in USD, useful if you would rather not be charged in rupees or if the main portal is busy.',
+		linkLabel: 'pmrelieffund.himalayanbank.com',
+		href: site.official.himalayan,
+	},
+	closing:
+		'There is no ceiling on what you can send. Nepal Rastra Bank lifted digital transfer caps into the two Prime Minister funds. Bank transfer details will land here once a verified notice publishes them.',
+} as const;
+
+export const verify = {
+	heading: 'Check before you send',
+	lede: 'Four checks that take ten seconds.',
+	checks: [
+		{
+			title: 'Read the address bar',
+			body: 'For this fund the payment pages live on pmdrf.nchl.com.np and pmrelieffund.himalayanbank.com. Type a card number only when one of those two is in the address bar.',
+		},
+		{
+			title: 'A QR image in a chat is a stranger, not a fund',
+			body: 'The Nepal Police Cyber Bureau has warned about fake QR codes and cloned relief pages going around after the flood. A screenshot of a QR code carries whoever made it.',
+		},
+		{
+			title: 'Personal accounts are the tell',
+			body: 'The fund receives on government channels. A request to send to a personal bank account, a personal wallet or a crypto address belongs to a person, and private collection for this disaster is not authorised.',
+		},
+		{
+			title: 'Slow down in the first 72 hours',
+			body: 'That window is when fake pages spread fastest. Check the domain against this page or the government notices in Sources before you send.',
+		},
+	],
+	link: {
+		label: 'Nepal Police Cyber Bureau warning on relief scams',
+		href: site.official.cyberBureau,
+	},
+} as const;
+
+export const supplies = {
+	heading: 'Send supplies',
+	lede: 'Hand goods to the government, or work with the Chief District Officer in the district you mean to help.',
+} as const;

@@ -107,6 +107,26 @@
 		}
 	}
 
+	.card {
+		@apply flex flex-col rounded-[10px] border border-line bg-surface p-7 md:p-9;
+	}
+
+	.card-title {
+		@apply text-2xl leading-tight font-medium tracking-[-0.02em];
+	}
+
+	.eyebrow {
+		@apply text-xs font-medium tracking-[0.14em] text-muted uppercase;
+	}
+
+	.btn-stack {
+		@apply flex-col gap-0.5 leading-tight;
+	}
+
+	.btn-sub {
+		@apply block max-w-full truncate text-sm font-normal opacity-70;
+	}
+
 	.quiet {
 		@apply mt-3 text-[0.95rem] text-muted;
 	}

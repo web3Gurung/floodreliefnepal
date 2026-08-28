@@ -1,27 +1,32 @@
 ---
 import { Picture } from 'astro:assets';
-import hero from '../assets/hero.jpg';
+import heroPhoto from '../assets/hero.jpg';
+import { hero } from '../data/site';
 ---
 
 <section class="relative isolate">
 	<div class="wrap py-16 md:py-20">
 		<div class="center-block">
-			<p class="mb-4 text-sm text-muted">Independent public guide</p>
-			<h1 class="display max-w-[12ch]">Flood Relief Nepal</h1>
-			<p class="lede">
-				Where to give, where to drop supplies, and how to skip fake QR codes. Not a government site.
-			</p>
-			<div class="flex flex-wrap items-center justify-center gap-4">
-				<a class="btn" href="#give">See how to help</a>
-				<a class="text-muted underline-offset-4 hover:underline" href="#policy">One-door system</a>
+			<p class="mb-4 text-sm text-muted">{hero.eyebrow}</p>
+			<h1 class="display max-w-[12ch]">{hero.title}</h1>
+			<p class="lede">{hero.lede}</p>
+			<div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+				<a class="btn" href={hero.primary.href}>{hero.primary.label}</a>
+				{
+					hero.links.map((link) => (
+						<a class="text-muted underline-offset-4 hover:underline" href={link.href}>
+							{link.label}
+						</a>
+					))
+				}
 			</div>
 		</div>
 		<figure class="mx-auto mt-14 max-w-5xl">
 			<Picture
-				src={hero}
+				src={heroPhoto}
 				formats={['avif', 'webp']}
 				fallbackFormat="jpg"
-				alt="Snow peaks and a hillside stupa in the Nepal Himalaya"
+				alt={hero.photoAlt}
 				widths={[640, 960, 1280, 1600]}
 				sizes="(min-width: 64rem) 64rem, calc(100vw - 2.5rem)"
 				quality="mid"
@@ -29,7 +34,7 @@ import hero from '../assets/hero.jpg';
 				pictureAttributes={{ class: 'block w-full' }}
 				priority
 			/>
-			<figcaption class="quiet mt-3 text-center">Nepal Himalaya</figcaption>
+			<figcaption class="quiet mt-3 text-center">{hero.photoCaption}</figcaption>
 		</figure>
 	</div>
 </section>
