@@ -14,7 +14,7 @@ const sources = copyForPath(Astro.url.pathname).sources;
 			{
 				sources.items.map((source) => (
 					<li>
-						<a class="font-medium underline" href={source.href} rel="noopener noreferrer">
+						<a class="font-medium underline" href={source.href} target="_blank" rel="noopener noreferrer">
 							{source.label}
 						</a>
 						<p class="mt-1 text-muted">{source.note}</p>

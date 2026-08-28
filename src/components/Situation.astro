@@ -14,7 +14,7 @@ const situation = copy.situation;
 		<div class="max-w-[38rem] space-y-5 text-muted">
 			{situation.body.map((paragraph) => <p>{paragraph}</p>)}
 			<p>
-				<a class="underline" href={situation.link.href} rel="noopener noreferrer">
+				<a class="underline" href={situation.link.href} target="_blank" rel="noopener noreferrer">
 					{situation.link.label}
 				</a>
 			</p>

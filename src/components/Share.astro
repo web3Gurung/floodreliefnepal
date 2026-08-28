@@ -20,7 +20,12 @@ const share = copyForPath(Astro.url.pathname).share;
 					data-copy="share-post"
 					data-copied={share.copiedLabel}>{share.copyLabel}</button
 				>
-				<a class="inline-flex min-h-11 items-center underline" href={share.image.href}>{share.image.label}</a>
+				<a
+					class="inline-flex min-h-11 items-center underline"
+					href={share.image.href}
+					target="_blank"
+					rel="noopener noreferrer">{share.image.label}</a
+				>
 			</div>
 		</div>
 	</div>

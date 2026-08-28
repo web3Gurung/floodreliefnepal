@@ -1,9 +1,11 @@
 ---
-import { copyForPath } from '../data/copy';
+import { copyForPath, splitBy } from '../data/copy';
 
 const copy = copyForPath(Astro.url.pathname);
 const give = copy.give;
 const raised = give.raised;
+const brands = ['KAST', 'Solflare', 'RedotPay'] as const;
+const usdPhrases = ['quotes in USD', 'अमेरिकी डलरमा'] as const;
 ---
 
 <section class="chapter-peak hairline" id="give">
@@ -21,7 +23,7 @@ const raised = give.raised;
 							{raised.note}
 							{copy.ui.sentenceEnd} {copy.ui.asOf} {raised.asOf}
 							{copy.ui.sentenceEnd}{' '}
-							<a class="underline" href={raised.source} rel="noopener noreferrer">
+							<a class="underline" href={raised.source} target="_blank" rel="noopener noreferrer">
 								{give.raisedReportLabel}
 							</a>
 						</span>
@@ -36,9 +38,15 @@ const raised = give.raised;
 					<article class="card">
 						<p class="eyebrow">{card.eyebrow}</p>
 						<h3 class="card-title mt-3">{card.title}</h3>
-						<p class="mt-4 text-muted">{card.body}</p>
+						<p class="mt-4 text-muted">
+							{
+								splitBy(card.body, brands).map((chunk) =>
+									chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
+								)
+							}
+						</p>
 						<div class="mt-auto pt-8">
-							<a class="btn btn-stack w-full" href={card.action.href} rel="noopener noreferrer">
+							<a class="btn btn-stack w-full" href={card.action.href} target="_blank" rel="noopener noreferrer">
 								<span>{card.action.label}</span>
 								<span class="btn-sub">{card.action.sub}</span>
 							</a>
@@ -49,14 +57,23 @@ const raised = give.raised;
 			}
 		</div>
 
-		<div class="mx-auto mt-12 max-w-[42rem] space-y-5 text-muted">
-			<p>
-				{give.alternate.text}{' '}
-				<a class="break-words underline" href={give.alternate.href} rel="noopener noreferrer">
-					{give.alternate.linkLabel}
-				</a>
+		<aside class="callout mt-6">
+			<p class="text-muted">
+				{
+					splitBy(give.alternate.text, usdPhrases).map((chunk) =>
+						chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
+					)
+				}
 			</p>
-			<p>{give.closing}</p>
-		</div>
+			<a
+				class="btn-outline max-w-full shrink-0 self-start break-all"
+				href={give.alternate.href}
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				{give.alternate.linkLabel}
+			</a>
+		</aside>
+		<p class="mx-auto mt-8 max-w-[42rem] text-muted">{give.closing}</p>
 	</div>
 </section>

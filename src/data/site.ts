@@ -259,7 +259,7 @@ export const en = {
 			{
 				eyebrow: 'Pay with stablecoins',
 				title: 'If you hold crypto',
-				body: 'There is no direct crypto route into the fund yet, so the path runs through a card. Load a crypto debit card with USDC or USDT using KAST, Solflare, RedotPay or similar, then pay on the same government portal. Check that the payment lands on pmdrf.nchl.com.np.',
+				body: 'There is no direct crypto route into the fund yet, so the path runs through a card. Load a crypto debit card with USDC or USDT using KAST, Solflare, RedotPay or similar, then pay on the same government portal.',
 				action: {
 					label: 'Open the government portal',
 					sub: 'pmdrf.nchl.com.np',

@@ -15,3 +15,15 @@ export function copyFor(lang: Lang) {
 export function copyForPath(pathname: string) {
 	return copyFor(langFromPath(pathname));
 }
+
+/** Split copy so known names can be marked in the page without putting HTML in the strings. */
+export function splitBy(text: string, needles: readonly string[]) {
+	const pattern = new RegExp(
+		`(${needles.map((needle) => needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
+		'g',
+	);
+
+	return text.split(pattern).flatMap((part) =>
+		part === '' ? [] : [{ text: part, hit: needles.includes(part) }],
+	);
+}

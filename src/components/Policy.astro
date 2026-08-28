@@ -1,7 +1,11 @@
 ---
-import { copyForPath } from '../data/copy';
+import { copyForPath, splitBy } from '../data/copy';
 
 const policy = copyForPath(Astro.url.pathname).policy;
+const highlights = [
+	'Private groups are not allowed to collect money or goods on their own.',
+	'निजी समूहले आफ्नै तवरबाट पैसा वा सामान उठाउन पाउँदैनन्।',
+] as const;
 ---
 
 <section class="chapter hairline" id="policy">
@@ -11,7 +15,17 @@ const policy = copyForPath(Astro.url.pathname).policy;
 			<p class="lede">{policy.lede}</p>
 		</div>
 		<div class="max-w-[38rem] space-y-5 text-muted">
-			{policy.body.map((paragraph) => <p>{paragraph}</p>)}
+			{
+				policy.body.map((paragraph) => (
+					<p>
+						{
+							splitBy(paragraph, highlights).map((chunk) =>
+								chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
+							)
+						}
+					</p>
+				))
+			}
 		</div>
 	</div>
 </section>
