@@ -53,8 +53,8 @@ export const hubs = [
 ] as const;
 
 /**
- * Copied from the SWIFT table in the PMO notice dated 27 August 2026.
- * Do not add rows that are not on that table.
+ * Copied from the SWIFT table in the Nepal Embassy, India post.
+ * Do not add rows that are not on that post.
  */
 export const swiftAccounts = [
 	{
