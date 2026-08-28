@@ -113,6 +113,10 @@ export const sources = [
 export const changelog = [
 	{
 		date: '28 August 2026',
+		note: 'Added FAQ and organisation structured data.',
+	},
+	{
+		date: '28 August 2026',
 		note: 'Added what responders are handing out, framed as not a government list.',
 	},
 	{
@@ -291,6 +295,14 @@ export const en = {
 				a: 'Civil administration, the Nepali Army, Nepal Police, and local and provincial governments. The point of the one door rule is that one desk tracks what came in, so a village is less likely to be skipped.',
 			},
 		],
+	},
+	notFound: {
+		title: 'Page not found, Flood Relief Nepal public guide',
+		description: 'That page does not exist. Go back to the Flood Relief Nepal public guide.',
+		heading: 'That page is not here.',
+		before: 'Start on the ',
+		linkLabel: 'homepage',
+		after: ' for the public guide.',
 	},
 	share: {
 		heading: 'Share this page',
