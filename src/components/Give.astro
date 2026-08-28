@@ -1,5 +1,7 @@
 ---
-import { give } from '../data/site';
+import { copyForPath } from '../data/copy';
+
+const give = copyForPath(Astro.url.pathname).give;
 ---
 
 <section class="chapter hairline" id="give">

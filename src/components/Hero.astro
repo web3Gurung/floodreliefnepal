@@ -1,7 +1,9 @@
 ---
 import { Picture } from 'astro:assets';
 import heroPhoto from '../assets/hero.jpg';
-import { hero } from '../data/site';
+import { copyForPath } from '../data/copy';
+
+const hero = copyForPath(Astro.url.pathname).hero;
 ---
 
 <section class="relative isolate">

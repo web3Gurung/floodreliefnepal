@@ -1,41 +1,26 @@
 ---
-const items = [
-	{
-		q: 'Is this an official government website?',
-		a: 'No. This is an independent guide. The government sites and drop-off points are listed here so you do not have to hunt them down.',
-	},
-	{
-		q: 'Can I run my own collection drive?',
-		a: 'No. The government has not authorised private groups or people to collect cash or goods for this disaster. Posts asking you to send money to a personal wallet are illegal.',
-	},
-	{
-		q: 'Do I have to give cash?',
-		a: 'No. You can drop supplies at the airport warehouse or the army barracks listed above. You can also talk to the Chief District Officer of the affected district.',
-	},
-	{
-		q: 'Is there a limit on how much I can send?',
-		a: 'No. The Finance Ministry said there is no ceiling on cash or goods. Nepal Rastra Bank also lifted digital-transfer caps into the two Prime Minister funds.',
-	},
-	{
-		q: 'Who hands the aid to people on the ground?',
-		a: 'Civil administration, the Nepali Army, Nepal Police, and local and provincial governments. The point of the one-door rule is that one desk tracks what came in, so a village is less likely to be skipped.',
-	},
-];
+import { copyForPath } from '../data/copy';
+
+const faq = copyForPath(Astro.url.pathname).faq;
 ---
 
 <section class="chapter hairline" id="questions">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none">Questions</h2>
+			<h2 class="display max-w-none">{faq.heading}</h2>
 		</div>
 		<div class="mx-auto mt-10 max-w-xl text-left">
 			{
-				items.map((item) => (
+				faq.items.map((item) => (
 					<details class="group border-t border-line py-5 last:border-b">
 						<summary class="flex cursor-pointer list-none items-baseline justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
 							{item.q}
-							<span class="text-muted group-open:hidden" aria-hidden="true">+</span>
-							<span class="hidden text-muted group-open:inline" aria-hidden="true">-</span>
+							<span class="text-muted group-open:hidden" aria-hidden="true">
+								+
+							</span>
+							<span class="hidden text-muted group-open:inline" aria-hidden="true">
+								-
+							</span>
 						</summary>
 						<p class="mt-3 max-w-[65ch] text-muted">{item.a}</p>
 					</details>

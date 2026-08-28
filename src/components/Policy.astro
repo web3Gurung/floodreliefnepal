@@ -1,21 +1,17 @@
 ---
+import { copyForPath } from '../data/copy';
+
+const policy = copyForPath(Astro.url.pathname).policy;
 ---
 
 <section class="chapter hairline" id="policy">
 	<div class="wrap split">
 		<div>
-			<h2 class="display">The government opened one door</h2>
-			<p class="lede">
-				Cash and supplies for Bhotekoshi relief are supposed to go through the Prime Minister's Disaster Relief Fund. Not through random drives on Facebook.
-			</p>
+			<h2 class="display">{policy.heading}</h2>
+			<p class="lede">{policy.lede}</p>
 		</div>
 		<div class="max-w-[38rem] space-y-5 text-muted">
-			<p>
-				The Ministry of Finance says the rule covers people, companies, donor agencies, and foreign organisations. The Prime Minister's Office named the drop-off points. The army, police, civil offices, and local governments then move the aid out so it does not sit in one pile while another village gets nothing.
-			</p>
-			<p>
-				Private groups are not allowed to collect money or goods on their own. Finance officials called those social-media campaigns illegal. The Home Ministry has orders to shut them down.
-			</p>
+			{policy.body.map((paragraph) => <p>{paragraph}</p>)}
 		</div>
 	</div>
 </section>

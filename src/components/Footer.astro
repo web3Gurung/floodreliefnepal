@@ -1,12 +1,14 @@
 ---
-import { site, changelog } from '../data/site';
+import { site } from '../data/site';
+import { copyForPath } from '../data/copy';
 
-const recent = changelog.slice(0, 3);
+const footer = copyForPath(Astro.url.pathname).footer;
+const recent = footer.changelog.slice(0, 3);
 ---
 
 <footer class="hairline py-12 text-[0.95rem] text-muted">
 	<div class="wrap center-block max-w-xl">
-		<p class="mb-1">Last checked {site.lastChecked}</p>
+		<p class="mb-1">{footer.lastChecked} {footer.lastCheckedDate}</p>
 		{
 			recent.length > 0 && (
 				<ul class="mx-auto mb-4 max-w-sm space-y-1.5 text-left text-[0.9rem]">
@@ -18,10 +20,11 @@ const recent = changelog.slice(0, 3);
 				</ul>
 			)
 		}
-		<p class="mb-4">Independent guide. Not a government website.</p>
+		<p class="mb-4">{footer.independent}</p>
 		<p>
-			<a class="underline" href={site.github} rel="noopener noreferrer">GitHub</a>
-			{' '}if you want to send a pull request.
+			{footer.contribute.before}<a class="underline" href={site.github} rel="noopener noreferrer"
+				>{footer.contribute.linkLabel}</a
+			>{footer.contribute.after}
 		</p>
 	</div>
 </footer>

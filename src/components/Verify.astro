@@ -1,5 +1,7 @@
 ---
-import { verify } from '../data/site';
+import { copyForPath } from '../data/copy';
+
+const verify = copyForPath(Astro.url.pathname).verify;
 ---
 
 <section class="chapter hairline" id="verify">
