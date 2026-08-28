@@ -41,7 +41,7 @@ Layout and chrome:
 - `@astrojs/sitemap`
 - Outfit and Noto Sans Devanagari via Astro's `fonts` config
 - Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
-- Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets.
+- Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
 - Photos: keep sources in `src/assets/`. Hero uses Astro `<Picture />` with `formats={['avif', 'webp']}` and mid quality. Portal QR screenshots use `<Picture />` with `formats={['webp']}`, JPEG fallback, and high quality so they still scan. `astro build` writes the resized files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
 
 Node 22.12 or newer.
