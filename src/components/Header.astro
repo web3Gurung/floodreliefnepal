@@ -1,9 +1,33 @@
 ---
+import { copyForPath, langFromPath } from '../data/copy';
+
+const lang = langFromPath(Astro.url.pathname);
+const header = copyForPath(Astro.url.pathname).header;
+const home = lang === 'ne' ? '/np/' : '/';
 ---
 
 <header class="hairline">
-	<nav class="wrap flex h-16 items-center justify-between gap-4">
-		<a class="text-[0.95rem] font-medium tracking-tight no-underline" href="/">Flood Relief Nepal</a>
-		<a class="btn-outline" href="#give">Give</a>
+	<nav class="wrap flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-3 py-3">
+		<a class="text-[0.95rem] font-medium tracking-tight no-underline" href={home}>{header.brand}</a>
+		<div class="flex items-center gap-4">
+			<ul class="flex items-center gap-3 text-[0.9rem]">
+				{
+					header.languages.map((language) => (
+						<li>
+							<a
+								class="underline-offset-4 hover:underline aria-[current=true]:font-medium aria-[current=true]:underline"
+								href={language.href}
+								hreflang={language.lang}
+								lang={language.lang}
+								aria-current={language.lang === lang ? 'true' : undefined}
+							>
+								{language.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+			<a class="btn-outline" href="#give">{header.give}</a>
+		</div>
 	</nav>
 </header>

@@ -1,0 +1,23 @@
+---
+import { copyForPath } from '../data/copy';
+
+const copy = copyForPath(Astro.url.pathname);
+const situation = copy.situation;
+---
+
+<section class="chapter hairline" id="situation">
+	<div class="wrap split">
+		<div>
+			<h2 class="display">{situation.heading}</h2>
+			<p class="text-sm text-muted">{copy.ui.asOf} {situation.asOf}</p>
+		</div>
+		<div class="max-w-[38rem] space-y-5 text-muted">
+			{situation.body.map((paragraph) => <p>{paragraph}</p>)}
+			<p>
+				<a class="underline" href={situation.link.href} rel="noopener noreferrer">
+					{situation.link.label}
+				</a>
+			</p>
+		</div>
+	</div>
+</section>

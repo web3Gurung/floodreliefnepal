@@ -33,6 +33,11 @@
 		@apply max-w-full bg-canvas font-sans text-[1.0625rem] leading-[1.6] text-ink;
 	}
 
+	html.lang-np body {
+		font-family: var(--font-np), var(--font-outfit), sans-serif;
+		line-height: 1.75;
+	}
+
 	a {
 		text-underline-offset: 0.18em;
 	}
@@ -105,6 +110,36 @@
 		.btn-outline:hover {
 			background: color-mix(in srgb, var(--ink) 6%, transparent);
 		}
+	}
+
+	.card {
+		@apply flex flex-col rounded-[10px] border border-line bg-surface p-7 md:p-9;
+	}
+
+	.card-title {
+		@apply text-2xl leading-tight font-medium tracking-[-0.02em];
+	}
+
+	.eyebrow {
+		@apply text-xs font-medium tracking-[0.14em] text-muted uppercase;
+	}
+
+	/* Devanagari has no upper case, and letter spacing breaks its conjuncts. */
+	html.lang-np .eyebrow {
+		@apply text-sm tracking-normal normal-case;
+	}
+
+	html.lang-np .display,
+	html.lang-np .card-title {
+		@apply tracking-normal;
+	}
+
+	.btn-stack {
+		@apply flex-col gap-0.5 leading-tight;
+	}
+
+	.btn-sub {
+		@apply block max-w-full truncate text-sm font-normal opacity-70;
 	}
 
 	.quiet {

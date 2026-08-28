@@ -4,19 +4,56 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import { copyFor, type Lang } from '../data/copy';
 
 interface Props {
 	title: string;
 	description: string;
+	lang?: Lang;
+	/** The FAQ block only renders on the guide pages, so 404 opts out. */
+	faq?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, lang = 'en', faq = true } = Astro.props;
+const copy = copyFor(lang);
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site ?? site.url);
+const base = Astro.site ?? new URL(site.url);
+const alternates = [
+	{ hreflang: 'en', href: new URL(site.routes.en, base).href },
+	{ hreflang: 'ne', href: new URL(site.routes.ne, base).href },
+	{ hreflang: 'x-default', href: new URL(site.routes.en, base).href },
+];
+
+const organizationLd = {
+	'@context': 'https://schema.org',
+	'@type': 'Organization',
+	name: site.name,
+	alternateName: copy.header.brand,
+	url: base.href,
+	logo: new URL('/favicon.svg', base).href,
+	image: ogImage.href,
+	description: copy.meta.description,
+	sameAs: [site.github],
+};
+
+const faqLd = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	inLanguage: lang,
+	mainEntity: copy.faq.items.map((item) => ({
+		'@type': 'Question',
+		name: item.q,
+		acceptedAnswer: {
+			'@type': 'Answer',
+			text: item.a,
+		},
+	})),
+};
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang} class={lang === 'ne' ? 'lang-np' : undefined}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="color-scheme" content="light" />
@@ -25,11 +62,17 @@ const ogImage = new URL('/og.png', Astro.site ?? site.url);
 		<title>{title}</title>
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonical} />
+		{
+			alternates.map((alternate) => (
+				<link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
+			))
+		}
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={site.name} />
+		<meta property="og:locale" content={lang === 'ne' ? 'ne_NP' : 'en_US'} />
 		<meta property="og:image" content={ogImage} />
 		<meta property="og:image:width" content="1200" />
 		<meta property="og:image:height" content="630" />
@@ -40,15 +83,25 @@ const ogImage = new URL('/og.png', Astro.site ?? site.url);
 		<meta name="twitter:image" content={ogImage} />
 		<meta name="twitter:image:alt" content="Flood Relief Nepal. See how to help." />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<script
+			type="application/ld+json"
+			is:inline
+			set:html={JSON.stringify(organizationLd)}
+		/>
+		{
+			faq && (
+				<script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />
+			)
+		}
 		<Font cssVariable="--font-outfit" preload />
-		<Font cssVariable="--font-np" />
+		<Font cssVariable="--font-np" preload={lang === 'ne'} />
 	</head>
 	<body>
 		<a
 			class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-6 focus:z-20 focus:bg-canvas focus:px-3 focus:py-2"
 			href="#content"
 		>
-			Skip to content
+			{copy.ui.skipToContent}
 		</a>
 		<Header />
 		<main id="content">

@@ -22,7 +22,7 @@ export default defineConfig({
           provider: fontProviders.google(),
           name: 'Noto Sans Devanagari',
           cssVariable: '--font-np',
-          weights: [500],
+          weights: [400, 500],
           styles: ['normal'],
           subsets: ['devanagari', 'latin'],
           fallbacks: ['sans-serif'],

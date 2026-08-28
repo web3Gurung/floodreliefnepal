@@ -1,0 +1,45 @@
+---
+import { copyForPath } from '../data/copy';
+
+const share = copyForPath(Astro.url.pathname).share;
+---
+
+<section class="chapter hairline" id="share">
+	<div class="wrap">
+		<div class="center-block">
+			<h2 class="display max-w-none">{share.heading}</h2>
+			<p class="lede">{share.lede}</p>
+		</div>
+		<div class="card mx-auto mt-10 max-w-xl">
+			<p class="text-muted" id="share-post">{share.post}</p>
+			<div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+				<button
+					class="btn"
+					type="button"
+					hidden
+					data-copy="share-post"
+					data-copied={share.copiedLabel}>{share.copyLabel}</button
+				>
+				<a class="underline" href={share.image.href}>{share.image.label}</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script is:inline>
+	document.querySelectorAll('[data-copy]').forEach((button) => {
+		button.hidden = false;
+		button.addEventListener('click', async () => {
+			const source = document.getElementById(button.dataset.copy);
+			if (!source) return;
+			const label = button.textContent;
+			try {
+				await navigator.clipboard.writeText(source.textContent.trim());
+				button.textContent = button.dataset.copied;
+				setTimeout(() => (button.textContent = label), 2000);
+			} catch {
+				button.hidden = true;
+			}
+		});
+	});
+</script>

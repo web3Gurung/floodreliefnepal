@@ -1,30 +1,52 @@
 ---
-import { hubs } from '../data/site';
+import { copyForPath } from '../data/copy';
+
+const supplies = copyForPath(Astro.url.pathname).supplies;
+const needs = supplies.needs;
 ---
 
 <section class="chapter hairline" id="supplies">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-[14ch]">If you want to send supplies</h2>
-			<p class="lede">
-				Hand goods to the government, or work with the Chief District Officer in the district you mean to help.
-			</p>
+			<h2 class="display max-w-[14ch]">{supplies.heading}</h2>
+			<p class="lede">{supplies.lede}</p>
 		</div>
-		<ul class="mx-auto mt-12 max-w-xl divide-y divide-line text-left">
-			{
-				hubs.map((hub) => (
-					<li class="py-6 first:pt-0">
-						<h3 class="mb-1 font-medium">{hub.title}</h3>
-						<p class="text-muted">{hub.place}</p>
-						<p class="mt-1 text-muted">
-							{hub.who},{' '}
-							<a class="whitespace-nowrap underline" href={`tel:${hub.phone.replaceAll(' ', '')}`}>
-								{hub.phone}
-							</a>
-						</p>
-					</li>
-				))
-			}
-		</ul>
+
+		<div class="mx-auto mt-12 max-w-3xl">
+			<h3 class="card-title">{needs.heading}</h3>
+			<p class="mt-3 max-w-[46rem] text-muted">{needs.note}</p>
+			<ul class="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+				{
+					needs.groups.map((group) => (
+						<li>
+							<p class="eyebrow">{group.group}</p>
+							<ul class="mt-2 space-y-1 text-muted">
+								{group.items.map((item) => (
+									<li>{item}</li>
+								))}
+							</ul>
+						</li>
+					))
+				}
+			</ul>
+			<p class="mt-8 max-w-[46rem] text-muted">{needs.callFirst}</p>
+
+			<ul class="mt-14 divide-y divide-line border-t border-line text-left">
+				{
+					supplies.hubs.map((hub) => (
+						<li class="py-6">
+							<h3 class="mb-1 font-medium">{hub.title}</h3>
+							<p class="text-muted">{hub.place}</p>
+							<p class="mt-1 text-muted">
+								{hub.who},{' '}
+								<a class="whitespace-nowrap underline" href={`tel:${hub.phone.replaceAll(' ', '')}`}>
+									{hub.phone}
+								</a>
+							</p>
+						</li>
+					))
+				}
+			</ul>
+		</div>
 	</div>
 </section>

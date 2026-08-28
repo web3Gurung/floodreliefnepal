@@ -1,17 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { en } from '../data/site';
+
+const notFound = en.notFound;
 ---
 
-<Layout
-	title="Page not found, Flood Relief Nepal public guide"
-	description="That page does not exist. Go back to the Flood Relief Nepal public guide."
->
+<Layout title={notFound.title} description={notFound.description} lang="en" faq={false}>
 	<section class="wrap min-h-[70dvh] py-24 text-center">
-		<h1 class="display mx-auto">That page is not here.</h1>
+		<h1 class="display mx-auto">{notFound.heading}</h1>
 		<p class="lede mx-auto">
-			Start on the{' '}
-			<a class="underline" href="/">homepage</a>
-			{' '}for the public guide.
+			{notFound.before}<a class="underline" href="/">{notFound.linkLabel}</a>{notFound.after}
 		</p>
 	</section>
 </Layout>

@@ -1,18 +1,18 @@
 ---
-import { sources } from '../data/site';
+import { copyForPath } from '../data/copy';
+
+const sources = copyForPath(Astro.url.pathname).sources;
 ---
 
 <section class="chapter hairline" id="sources">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none">Sources</h2>
-			<p class="lede">
-				Government notices and reporting dated 27 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal.
-			</p>
+			<h2 class="display max-w-none">{sources.heading}</h2>
+			<p class="lede">{sources.lede}</p>
 		</div>
 		<ul class="mx-auto mt-10 max-w-xl space-y-5 text-left">
 			{
-				sources.map((source) => (
+				sources.items.map((source) => (
 					<li>
 						<a class="font-medium underline" href={source.href} rel="noopener noreferrer">
 							{source.label}

@@ -1,21 +1,25 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
+import Situation from '../components/Situation.astro';
 import Policy from '../components/Policy.astro';
 import Give from '../components/Give.astro';
+import Verify from '../components/Verify.astro';
 import Hubs from '../components/Hubs.astro';
 import Faq from '../components/Faq.astro';
+import Share from '../components/Share.astro';
 import Sources from '../components/Sources.astro';
+import { en } from '../data/site';
 ---
 
-<Layout
-	title="Flood Relief Nepal, public guide for Bhotekoshi flood relief"
-	description="Independent guide for Bhotekoshi flood relief. Where to give, drop supplies, and skip scams."
->
+<Layout title={en.meta.title} description={en.meta.description} lang="en">
 	<Hero />
+	<Situation />
 	<Policy />
 	<Give />
+	<Verify />
 	<Hubs />
 	<Faq />
+	<Share />
 	<Sources />
 </Layout>
