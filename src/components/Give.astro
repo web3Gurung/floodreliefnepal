@@ -1,11 +1,18 @@
 ---
 import { copyForPath, splitBy } from '../data/copy';
+import fonepayShot from '../assets/pmdrf-fonepay.jpg';
+import nepalpayShot from '../assets/pmdrf-nepalpay.jpg';
+import type { ImageMetadata } from 'astro';
 
 const copy = copyForPath(Astro.url.pathname);
 const give = copy.give;
 const raised = give.raised;
 const brands = ['KAST', 'Solflare', 'RedotPay'] as const;
 const usdPhrases = ['quotes in USD', 'अमेरिकी डलरमा'] as const;
+const shotFiles = {
+	fonepay: fonepayShot,
+	nepalpay: nepalpayShot,
+} satisfies Record<(typeof give.routes)[number]['shot'], ImageMetadata>;
 ---
 
 <section class="chapter-peak hairline" id="give">
@@ -13,67 +20,182 @@ const usdPhrases = ['quotes in USD', 'अमेरिकी डलरमा'] as
 		<div class="center-block">
 			<h2 class="chapter-title max-w-none">{give.heading}</h2>
 			<p class="lede">{give.lede}</p>
-			{
-				raised && (
-					<p class="mb-10">
-						<span class="raised">
-							{raised.amount} <span class="raised-usd">({raised.amountUsd})</span>
-						</span>
-						<span class="mt-2 block text-muted">
-							{raised.note}
-							{copy.ui.sentenceEnd} {copy.ui.asOf} {raised.asOf}
-							{copy.ui.sentenceEnd}{' '}
-							<a class="underline" href={raised.source} target="_blank" rel="noopener noreferrer">
-								{give.raisedReportLabel}
-							</a>
-						</span>
-					</p>
-				)
-			}
 		</div>
 
-		<div class="grid gap-6 md:grid-cols-2">
-			{
-				give.cards.map((card) => (
-					<article class="card">
-						<p class="eyebrow">{card.eyebrow}</p>
-						<h3 class="card-title mt-3">{card.title}</h3>
-						<p class="mt-4 text-muted">
+		<div class="give-switch">
+			<nav class="give-tablist" aria-label={give.tabsLabel}>
+				{
+					give.tabs.map((tab) => (
+						<a class="give-option" id={tab.id} href={`#${tab.id}`}>
+							<span class="give-option-label">{tab.label}</span>
+							<span class="give-option-detail">{tab.detail}</span>
+						</a>
+					))
+				}
+			</nav>
+
+			<div class="give-panels">
+				{
+					give.routes.map((route) => {
+						const shot = shotFiles[route.shot];
+						return (
+							<div class={`give-panel give-panel-${route.id}`}>
+								<div class="split">
+									<div>
+										<p class="eyebrow">{route.eyebrow}</p>
+										<h3 class="quiet-title mt-3 max-w-[16ch]">{route.heading}</h3>
+										<p class="max-w-[38rem] text-muted">{route.body}</p>
+										<div class="mt-8">
+											<a
+												class="btn btn-stack"
+												href={route.action.href}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												<span>{route.action.label}</span>
+												<span class="btn-sub">{route.action.sub}</span>
+											</a>
+											<p class="quiet max-w-[38rem]">{route.note}</p>
+										</div>
+									</div>
+									<figure class="min-w-0">
+										<a href={route.action.href} target="_blank" rel="noopener noreferrer">
+											<img
+												src={shot.src}
+												width={shot.width}
+												height={shot.height}
+												alt={route.alt}
+												class="photo h-auto w-full bg-surface"
+												loading="lazy"
+												decoding="async"
+											/>
+										</a>
+										<figcaption class="quiet mt-3">{route.caption}</figcaption>
+									</figure>
+								</div>
+							</div>
+						);
+					})
+				}
+
+				<div class="give-panel give-panel-card">
+					<div class="grid gap-6 md:grid-cols-2">
+						{
+							give.cards.map((card) => (
+								<article class="card">
+									<p class="eyebrow">{card.eyebrow}</p>
+									<h3 class="card-title mt-3">{card.title}</h3>
+									<p class="mt-4 max-w-[60ch] text-muted">
+										{
+											splitBy(card.body, brands).map((chunk) =>
+												chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
+											)
+										}
+									</p>
+									<div class="mt-auto pt-8">
+										<a
+											class="btn btn-stack w-full"
+											href={card.action.href}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span>{card.action.label}</span>
+											<span class="btn-sub">{card.action.sub}</span>
+										</a>
+										<p class="quiet">{card.note}</p>
+									</div>
+								</article>
+							))
+						}
+					</div>
+					<aside class="callout mt-6">
+						<p class="max-w-[60ch] text-muted">
 							{
-								splitBy(card.body, brands).map((chunk) =>
+								splitBy(give.alternate.text, usdPhrases).map((chunk) =>
 									chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
 								)
 							}
 						</p>
-						<div class="mt-auto pt-8">
-							<a class="btn btn-stack w-full" href={card.action.href} target="_blank" rel="noopener noreferrer">
-								<span>{card.action.label}</span>
-								<span class="btn-sub">{card.action.sub}</span>
-							</a>
-							<p class="quiet">{card.note}</p>
-						</div>
-					</article>
-				))
-			}
+						<a
+							class="btn-outline max-w-full shrink-0 self-start break-all"
+							href={give.alternate.href}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{give.alternate.linkLabel}
+						</a>
+					</aside>
+				</div>
+
+				<div class="give-panel give-panel-remit">
+					<h3 class="quiet-title max-w-[18ch]">{give.remit.heading}</h3>
+					<p class="max-w-[38rem] text-muted">{give.remit.lede}</p>
+					<p class="mt-8">
+						<span class="eyebrow block">{give.remit.accountNameLabel}</span>
+						<span class="mt-2 block font-medium">{give.remit.accountName}</span>
+					</p>
+					<div class="data-table-wrap mt-8">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>{give.remit.columns.bank}</th>
+									<th>{give.remit.columns.account}</th>
+									<th>{give.remit.columns.currency}</th>
+									<th>{give.remit.columns.swift}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{
+									give.remit.rows.map((row) => (
+										<tr class={row.currency === 'USD' ? 'data-table-usd' : undefined}>
+											<td class="font-medium">{row.bank}</td>
+											<td class="font-mono tabular-nums">
+												{row.accounts.map((account) => (
+													<div class="select-all">{account}</div>
+												))}
+											</td>
+											<td class="tabular-nums">
+												{row.currency === 'USD' ? (
+													<mark class="mark-brush">{row.currency}</mark>
+												) : (
+													row.currency
+												)}
+											</td>
+											<td class="font-mono tabular-nums">{row.swift}</td>
+										</tr>
+									))
+								}
+							</tbody>
+						</table>
+					</div>
+					<p class="mt-8 max-w-[38rem] text-muted">{give.remit.source}</p>
+					<p class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+						<a class="underline" href={give.remit.pdfHref} target="_blank" rel="noopener noreferrer">
+							{give.remit.pdfLabel}
+						</a>
+						<a class="underline" href={give.remit.tweetHref} target="_blank" rel="noopener noreferrer">
+							{give.remit.tweetLabel}
+						</a>
+					</p>
+				</div>
+			</div>
 		</div>
 
-		<aside class="callout mt-6">
-			<p class="text-muted">
-				{
-					splitBy(give.alternate.text, usdPhrases).map((chunk) =>
-						chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
-					)
-				}
-			</p>
-			<a
-				class="btn-outline max-w-full shrink-0 self-start break-all"
-				href={give.alternate.href}
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				{give.alternate.linkLabel}
-			</a>
-		</aside>
-		<p class="mx-auto mt-8 max-w-[42rem] text-muted">{give.closing}</p>
+		{
+			raised && (
+				<p class="mx-auto mt-16 max-w-[38rem] text-center text-muted">
+					<span class="font-medium text-ink tabular-nums">
+						{raised.amount} ({raised.amountUsd})
+					</span>
+					{copy.ui.sentenceEnd} {raised.note}
+					{copy.ui.sentenceEnd} {copy.ui.asOf} {raised.asOf}
+					{copy.ui.sentenceEnd}{' '}
+					<a class="underline" href={raised.source} target="_blank" rel="noopener noreferrer">
+						{give.raisedReportLabel}
+					</a>
+				</p>
+			)
+		}
+		<p class="mx-auto mt-6 max-w-[38rem] text-center text-muted">{give.closing}</p>
 	</div>
 </section>
