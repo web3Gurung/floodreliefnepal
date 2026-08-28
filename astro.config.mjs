@@ -8,6 +8,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://floodreliefnepal.com',
   integrations: [sitemap()],
+  build: {
+    inlineStylesheets: 'always',
+  },
 
   fonts: [
       {
