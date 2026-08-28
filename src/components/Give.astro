@@ -1,4 +1,5 @@
 ---
+import { Picture } from 'astro:assets';
 import { copyForPath, splitBy } from '../data/copy';
 import fonepayShot from '../assets/pmdrf-fonepay.jpg';
 import nepalpayShot from '../assets/pmdrf-nepalpay.jpg';
@@ -22,11 +23,11 @@ const shotFiles = {
 			<p class="lede">{give.lede}</p>
 		</div>
 
-		<div class="give-switch">
+		<div class="give-switch" data-give-switch data-pay="upi">
 			<nav class="give-tablist" aria-label={give.tabsLabel}>
 				{
 					give.tabs.map((tab) => (
-						<a class="give-option" id={tab.id} href={`#${tab.id}`}>
+						<a class="give-option" href={`#${tab.id}`} data-pay={tab.id}>
 							<span class="give-option-label">{tab.label}</span>
 							<span class="give-option-detail">{tab.detail}</span>
 						</a>
@@ -60,12 +61,16 @@ const shotFiles = {
 									</div>
 									<figure class="min-w-0">
 										<a href={route.action.href} target="_blank" rel="noopener noreferrer">
-											<img
-												src={shot.src}
-												width={shot.width}
-												height={shot.height}
+											<Picture
+												src={shot}
+												formats={['webp']}
+												fallbackFormat="jpg"
+												widths={[400, 720, 960, 1260]}
+												sizes="(min-width: 48rem) min(40rem, calc((100vw - 9rem) / 2)), calc(100vw - 2.5rem)"
+												quality="high"
 												alt={route.alt}
 												class="photo h-auto w-full bg-surface"
+												pictureAttributes={{ class: 'block w-full' }}
 												loading="lazy"
 												decoding="async"
 											/>
@@ -147,7 +152,7 @@ const shotFiles = {
 							<tbody>
 								{
 									give.remit.rows.map((row) => (
-										<tr class={row.currency === 'USD' ? 'data-table-usd' : undefined}>
+										<tr>
 											<td class="font-medium">{row.bank}</td>
 											<td class="font-mono tabular-nums">
 												{row.accounts.map((account) => (
@@ -168,13 +173,10 @@ const shotFiles = {
 							</tbody>
 						</table>
 					</div>
-					<p class="mt-8 max-w-[38rem] text-muted">{give.remit.source}</p>
-					<p class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-						<a class="underline" href={give.remit.pdfHref} target="_blank" rel="noopener noreferrer">
-							{give.remit.pdfLabel}
-						</a>
-						<a class="underline" href={give.remit.tweetHref} target="_blank" rel="noopener noreferrer">
-							{give.remit.tweetLabel}
+					<p class="mt-8 max-w-[38rem] text-muted">
+						{give.remit.sourceBefore}
+						<a class="underline" href={give.remit.sourceHref} target="_blank" rel="noopener noreferrer">
+							{give.remit.sourceLabel}
 						</a>
 					</p>
 				</div>
@@ -199,3 +201,26 @@ const shotFiles = {
 		<p class="mx-auto mt-6 max-w-[38rem] text-center text-muted">{give.closing}</p>
 	</div>
 </section>
+
+<script is:inline>
+	(() => {
+		const root = document.querySelector('[data-give-switch]');
+		if (!root) return;
+		const ids = new Set(['upi', 'alipay', 'card', 'remit']);
+		const apply = (id) => {
+			const pay = ids.has(id) ? id : 'upi';
+			root.dataset.pay = pay;
+			root.querySelectorAll('.give-option').forEach((option) => {
+				option.setAttribute('aria-current', option.dataset.pay === pay ? 'true' : 'false');
+			});
+		};
+		root.querySelector('.give-tablist')?.addEventListener('click', (event) => {
+			const option = event.target.closest('.give-option');
+			if (!option || !ids.has(option.dataset.pay)) return;
+			event.preventDefault();
+			apply(option.dataset.pay);
+			history.replaceState(null, '', '#' + option.dataset.pay);
+		});
+		apply(location.hash.replace('#', ''));
+	})();
+</script>

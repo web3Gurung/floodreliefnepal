@@ -6,8 +6,6 @@ export const site = {
 	official: {
 		pmdrf: 'https://pmdrf.nchl.com.np/',
 		himalayan: 'https://pmrelieffund.himalayanbank.com/',
-		pmoNotice:
-			'https://giwmscdnone.gov.np/media/pdf_upload/PMO%20Notice%20Final_27-08-2026_2v1so2l.pdf',
 		embassyIndia: 'https://x.com/EONIndia/status/2093249597858828784',
 		mofa: 'https://mofa.gov.np/content/1863/flash-flood-in-bhote-koshi-river/',
 		kathmanduPost:
@@ -186,13 +184,8 @@ export const sources = [
 		href: site.official.raisedReport,
 	},
 	{
-		label: "Prime Minister's Office notice",
-		note: '27 August 2026. Source for remittance apps and SWIFT accounts.',
-		href: site.official.pmoNotice,
-	},
-	{
 		label: 'Nepal Embassy, India',
-		note: 'Posted the same official notice for well-wishers in India.',
+		note: 'Posted the remittance apps and SWIFT accounts for well-wishers in India.',
 		href: site.official.embassyIndia,
 	},
 ] as const;
@@ -291,7 +284,7 @@ export const en = {
 	},
 	header: {
 		brand: site.name,
-		give: 'Give',
+		give: 'Donate',
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
 			{ label: 'नेपाली', href: site.routes.ne, lang: 'ne' },
@@ -314,7 +307,7 @@ export const en = {
 		asOf: '27 August 2026',
 		body: [
 			'A flash flood came down the Bhote Koshi river on the morning of 26 August 2026. It started on the Tibet side of the border and crossed into Nepal.',
-			'It hit Rasuwa, Nuwakot and neighbouring districts. Published counts of the dead, the missing and the displaced moved a long way inside the first 48 hours, so this page does not carry one.',
+			'It hit Rasuwa, Nuwakot and neighbouring districts.',
 		],
 		link: {
 			label: 'The Kathmandu Post, what we know about the Bhotekoshi flood so far',
@@ -404,7 +397,7 @@ export const en = {
 		},
 		remit: {
 			heading: 'Wise, Remitly, and SWIFT',
-			lede: 'GME, Remitly, Wise, TapTapSend, and other remittance apps can send to the NPR accounts below. SWIFT works worldwide from a bank or internet banking. Use an NPR row for remittance apps. The Himalayan Bank USD row is for a SWIFT transfer in dollars.',
+			lede: 'GME, Remitly, Wise, TapTapSend, and other remittance apps can send to the NPR accounts below. SWIFT works worldwide from a bank or internet banking.',
 			accountNameLabel: 'Account name for every row',
 			accountName: fundAccountName,
 			columns: {
@@ -414,11 +407,9 @@ export const en = {
 				swift: 'SWIFT',
 			},
 			rows: swiftAccounts,
-			source: "Copied from the Prime Minister's Office notice dated 27 August 2026. The Nepal Embassy in India posted the same notice.",
-			pdfLabel: 'Open the official notice',
-			tweetLabel: 'Nepal Embassy, India post',
-			pdfHref: site.official.pmoNotice,
-			tweetHref: site.official.embassyIndia,
+			sourceBefore: 'Source: ',
+			sourceLabel: 'Nepal Embassy, India post',
+			sourceHref: site.official.embassyIndia,
 		},
 		closing:
 			'There is no ceiling on what you can send. Nepal Rastra Bank lifted digital transfer caps into the two Prime Minister funds.',
@@ -494,7 +485,7 @@ export const en = {
 			},
 			{
 				q: 'Can I use Wise, Remitly, or a bank SWIFT transfer?',
-				a: 'Yes. The Prime Minister\'s Office notice lists GME, Remitly, Wise, TapTapSend, and SWIFT accounts named Prime Minister Disaster Relief Fund. Use an NPR account for remittance apps. Copy the numbers from this page or from the official notice, not from a chat.',
+				a: 'Yes. The Nepal Embassy in India posted GME, Remitly, Wise, TapTapSend, and SWIFT accounts named Prime Minister Disaster Relief Fund. Copy the numbers from this page or from that post, not from a chat.',
 			},
 		],
 	},
