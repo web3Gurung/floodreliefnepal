@@ -18,6 +18,9 @@ export const site = {
 			'https://myrepublica.nagariknetwork.com/news/govt-launches-new-portal-to-accept-disaster-relief-donations-from-abroad-84-26.html',
 		cyberBureau:
 			'https://english.onlinekhabar.com/cyber-bureau-warns-public-of-disaster-relief-scams.html',
+		moha: 'https://moha.gov.np/en/post/ha-ra-tha-ka-apa-l-11',
+		kathmanduPostExplainer:
+			'https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far',
 	},
 } as const;
 
@@ -82,6 +85,16 @@ export const sources = [
 		label: 'OnlineKhabar',
 		note: 'Nepal Police Cyber Bureau warning on fake QR codes and fake relief pages.',
 		href: site.official.cyberBureau,
+	},
+	{
+		label: 'Ministry of Home Affairs',
+		note: 'Official disaster relief appeal. Asks for money into the fund, not goods.',
+		href: site.official.moha,
+	},
+	{
+		label: 'The Kathmandu Post explainer',
+		note: 'What is known about the Bhotekoshi flood. Follow it for current figures.',
+		href: site.official.kathmanduPostExplainer,
 	},
 ] as const;
 
@@ -165,3 +178,28 @@ export const supplies = {
 	heading: 'Send supplies',
 	lede: 'Hand goods to the government, or work with the Chief District Officer in the district you mean to help.',
 } as const;
+
+export const situation = {
+	heading: 'What happened',
+	asOf: '27 August 2026',
+	body: [
+		'A flash flood came down the Bhote Koshi river on the morning of 26 August 2026. It started on the Tibet side of the border and crossed into Nepal.',
+		'It hit Rasuwa, Nuwakot and neighbouring districts. Published counts of the dead, the missing and the displaced moved a long way inside the first 48 hours, so this page does not carry one.',
+	],
+	link: {
+		label: 'The Kathmandu Post, what we know about the Bhotekoshi flood so far',
+		href: site.official.kathmanduPostExplainer,
+	},
+} as const;
+
+// Newest first. The footer shows the three most recent entries.
+export const changelog = [
+	{
+		date: '28 August 2026',
+		note: 'Added the situation summary and this changelog.',
+	},
+	{
+		date: '28 August 2026',
+		note: 'Rewrote the money section and added the scam checks.',
+	},
+] as const;

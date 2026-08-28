@@ -1,10 +1,23 @@
 ---
-import { site } from '../data/site';
+import { site, changelog } from '../data/site';
+
+const recent = changelog.slice(0, 3);
 ---
 
 <footer class="hairline py-12 text-[0.95rem] text-muted">
 	<div class="wrap center-block max-w-xl">
 		<p class="mb-1">Last checked {site.lastChecked}</p>
+		{
+			recent.length > 0 && (
+				<ul class="mx-auto mb-4 max-w-sm space-y-1.5 text-left text-[0.9rem]">
+					{recent.map((entry) => (
+						<li>
+							<span class="whitespace-nowrap text-ink">{entry.date}</span>, {entry.note}
+						</li>
+					))}
+				</ul>
+			)
+		}
 		<p class="mb-4">Independent guide. Not a government website.</p>
 		<p>
 			<a class="underline" href={site.github} rel="noopener noreferrer">GitHub</a>
