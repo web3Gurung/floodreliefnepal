@@ -1,0 +1,4 @@
+# Hashed Astro files. A new deploy gets a new filename, so these can sit in the browser for a year.
+# HTML stays on Cloudflare's default (max-age=0, must-revalidate) so a deploy shows up.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
