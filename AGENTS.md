@@ -13,14 +13,14 @@ One homepage, built as static HTML. English at `/`, Nepali at `/np/`.
 1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
 2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
 3. Policy. What the one-door rule is, and that private collection drives are not allowed. The private-collection sentence is yellow-marked.
-4. Give. Two cards: card/fiat and crypto, both to `https://pmdrf.nchl.com.np/`. Himalayan Bank USD gateway sits under the cards as a callout. The reported fund total shows rupees and a dollar conversion. Bank-transfer numbers are not on the page yet.
+4. Give. Four-option switcher: UPI, Alipay+, Card, and Wise/Remitly. Default is UPI. Tiles set `data-pay` in JS. Do not use `:target` hashes; those scroll the page. UPI and Alipay+ show official portal screenshots (`src/assets/pmdrf-fonepay.jpg`, `src/assets/pmdrf-nepalpay.jpg`) and send people to `https://pmdrf.nchl.com.np/`. Card is fiat and crypto, same portal, with the Himalayan Bank USD gateway as a callout. Wise/Remitly shows the SWIFT table from `swiftAccounts`. Source line is the Nepal Embassy, India post. Fund total sits under the switcher, rupees plus a dollar conversion.
 5. Verify. Short scam checks. The two official payment domains are bold.
 6. Supplies. What responders are handing out, then the three government drop-off points with contacts.
 7. Questions. Short FAQ.
 8. Share. Copyable post and share image.
 9. Sources. Two-column list of notices and reporting used for the copy.
 
-All URLs, hub names, phones, source links, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`. Edit those files to change content. Do not invent account numbers, QR codes, or SWIFT details. Do not add them until a teammate PR lands verified figures.
+All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures.
 
 Pages:
 
@@ -42,7 +42,7 @@ Layout and chrome:
 - Outfit and Noto Sans Devanagari via Astro's `fonts` config
 - Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
 - Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets.
-- Photos: keep sources in `src/assets/`. Use Astro `<Picture />` with `formats={['avif', 'webp']}`. `astro build` writes the resized AVIF/WebP/JPEG files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
+- Photos: keep sources in `src/assets/`. Hero uses Astro `<Picture />` with `formats={['avif', 'webp']}` and mid quality. Portal QR screenshots use `<Picture />` with `formats={['webp']}`, JPEG fallback, and high quality so they still scan. `astro build` writes the resized files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
 
 Node 22.12 or newer.
 
@@ -68,9 +68,10 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 - No em dashes
 - No curly quotes
 - The government card portal is one channel, not the whole identity of the site
-- Header Give is a real button. The pmdrf links in the money section are real buttons. The Himalayan Bank domain in the USD callout is a real button.
+- Header Donate is a real button. The pmdrf links in the money section are real buttons. The Himalayan Bank domain in the USD callout is a real button.
 - Official outbound links open in a new tab (`target="_blank"` plus `rel="noopener noreferrer"`). Same-page jumps, language switch, skip link, 404 home, and `tel:` stay in this tab.
-- Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा", and the private-collection ban. Do not mark every sentence.
+- Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा", the private-collection ban, and the USD cell in the SWIFT table. Do not mark the whole Himalayan row. Do not mark every sentence.
+- Remittance source on the page is the Nepal Embassy, India post. Do not put the PMO PDF on Give, FAQ, or Sources.
 - The dollar figure next to the fund total is a conversion of the rupee amount at the Nepal Rastra Bank USD buying rate on the `asOf` date. Recalculate it when the rupee figure changes. Do not invent a new total.
 
 ## Commands
