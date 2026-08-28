@@ -12,7 +12,7 @@ Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/sit
 
 Official outbound links open in a new tab. Yellow marker is only for the named high-stakes phrases in `AGENTS.md`. Recalculate the dollar conversion of the fund total from the NRB USD buying rate on the amount's `asOf` date.
 
-Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP. Portal QR shots: `<Picture />` with WebP plus a high-quality JPEG fallback. `npm run build` (`astro build`) emits the resized files into `dist/_astro/`. Do not hand-convert, do not commit `dist/`, and do not add AP, Reuters, AFP, or Getty photos. Do not host extra bank QRs or embassy tweet photos.
+Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP. Portal QR shots: `<Picture />` with WebP plus a high-quality JPEG fallback. `npm run build` (`astro build`) emits the resized files into `dist/_astro/`. Do not hand-convert, do not commit `dist/`, and do not add AP, Reuters, AFP, or Getty photos. Do not host extra bank QRs or embassy tweet photos. Share image is `public/og.png` (1200x630). Title on one line, button "See how to donate". Rebuild it in HTML, not with an image model.
 
 CSS is inlined (`build.inlineStylesheets: 'always'`). Do not split it back out. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the short cache so a deploy still shows up. Compression is Cloudflare. Do not gzip files in the repo. Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo.
 
