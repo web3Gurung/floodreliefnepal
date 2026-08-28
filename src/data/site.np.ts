@@ -1,4 +1,4 @@
-import { site, hubs, sources } from './site';
+import { site, hubs, sources, raised } from './site';
 
 /**
  * Nepali copy. Same shape as `en` in site.ts.
@@ -15,6 +15,7 @@ export const np = {
 	ui: {
 		skipToContent: 'मुख्य सामग्रीमा जानुहोस्',
 		asOf: 'अद्यावधिक मिति',
+		sentenceEnd: '।',
 		languageLabel: 'भाषा',
 	},
 	header: {
@@ -59,6 +60,13 @@ export const np = {
 	},
 	give: {
 		heading: 'पैसा पठाउनुहोस्',
+		raised: raised && {
+			...raised,
+			amount: 'रु २७ करोड ३३ लाख',
+			asOf: '२७ अगस्ट २०२६',
+			note: 'पहिलो छ घण्टा, अर्थ मन्त्रालयका अनुसार',
+		},
+		raisedReportLabel: 'समाचार हेर्नुहोस्',
 		lede: 'एउटै सरकारी पोर्टल, संसारको जुनसुकै ठाउँबाट चल्छ, तलका दुवै बाटो प्रधानमन्त्री विपद् राहत कोषमै पुग्छन्।',
 		cards: [
 			{
@@ -259,6 +267,11 @@ export const np = {
 				note: 'सामान खण्डमा उल्लेखित पाल, पानी र प्राथमिक उपचारसम्बन्धी सामग्रीको आधार।',
 				href: sources[10].href,
 			},
+			{
+				label: 'कोषको रकमबारे अनलाइनखबर',
+				note: 'कोषमा जम्मा भएको रकमको अर्थ मन्त्रालयको तथ्यांक। माथिको रकमको स्रोत।',
+				href: sources[11].href,
+			},
 		],
 	},
 	footer: {
@@ -271,6 +284,10 @@ export const np = {
 			after: ' मा जानुहोस्।',
 		},
 		changelog: [
+			{
+				date: '२८ अगस्ट २०२६',
+				note: 'कोषमा जम्मा भएको रकम, प्रकाशित मितिसहित थपियो।',
+			},
 			{
 				date: '२८ अगस्ट २०२६',
 				note: 'प्रश्नोत्तर र संस्थाको संरचित डेटा थपियो।',

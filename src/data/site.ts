@@ -21,6 +21,7 @@ export const site = {
 		kathmanduPostExplainer:
 			'https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far',
 		ifrc: 'https://www.ifrc.org/press-release/nepal-ifrc-releases-emergency-funds-flash-floods-leave-communities-isolated',
+		raisedReport: 'https://english.onlinekhabar.com/pms-disaster-relief-fund.html',
 	},
 	routes: {
 		en: '/',
@@ -107,10 +108,19 @@ export const sources = [
 		note: 'Operational source for the shelter, water and first aid items listed under supplies.',
 		href: site.official.ifrc,
 	},
+	{
+		label: 'OnlineKhabar on the fund total',
+		note: 'Ministry of Finance figure for what the fund took in. The source for the total above.',
+		href: site.official.raisedReport,
+	},
 ] as const;
 
 /** Newest first. The footer shows the three most recent entries. */
 export const changelog = [
+	{
+		date: '28 August 2026',
+		note: 'Added the reported fund total, with the date it was reported.',
+	},
 	{
 		date: '28 August 2026',
 		note: 'Added FAQ and organisation structured data.',
@@ -132,6 +142,26 @@ export const changelog = [
 		note: 'Rewrote the money section and added the scam checks.',
 	},
 ] as const;
+
+type RaisedFigure = {
+	amount: string;
+	asOf: string;
+	note: string;
+	source: string;
+};
+
+/**
+ * Manually updated. There is no government API or public ledger for this fund.
+ * Update the amount whenever a newer figure is reported. Set this to null,
+ * rather than leave a figure older than a week on the page. The page renders
+ * nothing when it is null, and never renders the amount without its asOf date.
+ */
+export const raised: RaisedFigure | null = {
+	amount: 'Rs 273.3 million',
+	asOf: '27 August 2026',
+	note: 'first six hours, per the Ministry of Finance',
+	source: site.official.raisedReport,
+};
 
 /**
  * Not a government list. The Home Ministry appeal asks for money, not goods.
@@ -156,6 +186,7 @@ export const en = {
 	ui: {
 		skipToContent: 'Skip to content',
 		asOf: 'As of',
+		sentenceEnd: '.',
 		languageLabel: 'Language',
 	},
 	header: {
@@ -200,6 +231,8 @@ export const en = {
 	},
 	give: {
 		heading: 'Send money',
+		raised,
+		raisedReportLabel: 'Read the report',
 		lede: "One government portal, works from anywhere in the world, both routes below end in the Prime Minister's Disaster Relief Fund.",
 		cards: [
 			{

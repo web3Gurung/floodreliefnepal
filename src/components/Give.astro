@@ -1,7 +1,9 @@
 ---
 import { copyForPath } from '../data/copy';
 
-const give = copyForPath(Astro.url.pathname).give;
+const copy = copyForPath(Astro.url.pathname);
+const give = copy.give;
+const raised = give.raised;
 ---
 
 <section class="chapter hairline" id="give">
@@ -9,6 +11,18 @@ const give = copyForPath(Astro.url.pathname).give;
 		<div class="center-block">
 			<h2 class="display max-w-none">{give.heading}</h2>
 			<p class="lede">{give.lede}</p>
+			{
+				raised && (
+					<p class="text-muted">
+						<span class="font-medium text-ink">{raised.amount}</span>, {raised.note}
+						{copy.ui.sentenceEnd} {copy.ui.asOf} {raised.asOf}
+						{copy.ui.sentenceEnd}{' '}
+						<a class="underline" href={raised.source} rel="noopener noreferrer">
+							{give.raisedReportLabel}
+						</a>
+					</p>
+				)
+			}
 		</div>
 
 		<div class="mt-12 grid gap-6 md:grid-cols-2">
