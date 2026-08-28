@@ -2,6 +2,10 @@
 
 Static public site at floodreliefnepal.com. It explains the government's one-door system for Bhotekoshi flood relief and points people to official channels. This project does not collect money.
 
+## Before you change anything
+
+Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`. Do not start from a stale checkout.
+
 ## How it works
 
 One homepage, built as static HTML.

@@ -119,6 +119,10 @@ export const sources = [
 export const changelog = [
 	{
 		date: '28 August 2026',
+		note: 'Tightened the page hierarchy so the money path and scam checks read first.',
+	},
+	{
+		date: '28 August 2026',
 		note: 'Added the reported fund total, with the date it was reported.',
 	},
 	{
@@ -145,6 +149,8 @@ export const changelog = [
 
 type RaisedFigure = {
 	amount: string;
+	/** Conversion of `amount`. Recalculate from the NRB USD buying rate on `asOf`. */
+	amountUsd: string;
 	asOf: string;
 	note: string;
 	source: string;
@@ -155,9 +161,13 @@ type RaisedFigure = {
  * Update the amount whenever a newer figure is reported. Set this to null,
  * rather than leave a figure older than a week on the page. The page renders
  * nothing when it is null, and never renders the amount without its asOf date.
+ *
+ * amountUsd is Rs 273.3 million at the Nepal Rastra Bank USD buying rate of
+ * Rs 152.37 on 27 August 2026, rounded to $1.79 million.
  */
 export const raised: RaisedFigure | null = {
 	amount: 'Rs 273.3 million',
+	amountUsd: '$1.79 million',
 	asOf: '27 August 2026',
 	note: 'first six hours, per the Ministry of Finance',
 	source: site.official.raisedReport,

@@ -7,10 +7,10 @@ const share = copyForPath(Astro.url.pathname).share;
 <section class="chapter hairline" id="share">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none">{share.heading}</h2>
+			<h2 class="quiet-title max-w-none">{share.heading}</h2>
 			<p class="lede">{share.lede}</p>
 		</div>
-		<div class="card mx-auto mt-10 max-w-xl">
+		<div class="card mx-auto mt-2 max-w-xl">
 			<p class="text-muted" id="share-post">{share.post}</p>
 			<div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
 				<button
@@ -20,7 +20,7 @@ const share = copyForPath(Astro.url.pathname).share;
 					data-copy="share-post"
 					data-copied={share.copiedLabel}>{share.copyLabel}</button
 				>
-				<a class="underline" href={share.image.href}>{share.image.label}</a>
+				<a class="inline-flex min-h-11 items-center underline" href={share.image.href}>{share.image.label}</a>
 			</div>
 		</div>
 	</div>

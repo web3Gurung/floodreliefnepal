@@ -8,18 +8,18 @@ const needs = supplies.needs;
 <section class="chapter hairline" id="supplies">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-[14ch]">{supplies.heading}</h2>
+			<h2 class="chapter-title max-w-[14ch]">{supplies.heading}</h2>
 			<p class="lede">{supplies.lede}</p>
 		</div>
 
-		<div class="mx-auto mt-12 max-w-3xl">
+		<div class="mx-auto max-w-3xl">
 			<h3 class="card-title">{needs.heading}</h3>
 			<p class="mt-3 max-w-[46rem] text-muted">{needs.note}</p>
 			<ul class="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
 				{
 					needs.groups.map((group) => (
 						<li>
-							<p class="eyebrow">{group.group}</p>
+							<p class="font-medium">{group.group}</p>
 							<ul class="mt-2 space-y-1 text-muted">
 								{group.items.map((item) => (
 									<li>{item}</li>
@@ -39,7 +39,7 @@ const needs = supplies.needs;
 							<p class="text-muted">{hub.place}</p>
 							<p class="mt-1 text-muted">
 								{hub.who},{' '}
-								<a class="whitespace-nowrap underline" href={`tel:${hub.phone.replaceAll(' ', '')}`}>
+								<a class="whitespace-nowrap underline tabular-nums" href={`tel:${hub.phone.replaceAll(' ', '')}`}>
 									{hub.phone}
 								</a>
 							</p>

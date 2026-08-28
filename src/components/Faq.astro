@@ -7,13 +7,13 @@ const faq = copyForPath(Astro.url.pathname).faq;
 <section class="chapter hairline" id="questions">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none">{faq.heading}</h2>
+			<h2 class="quiet-title max-w-none">{faq.heading}</h2>
 		</div>
-		<div class="mx-auto mt-10 max-w-xl text-left">
+		<div class="mx-auto mt-8 max-w-xl text-left">
 			{
 				faq.items.map((item) => (
-					<details class="group border-t border-line py-5 last:border-b">
-						<summary class="flex cursor-pointer list-none items-baseline justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+					<details class="group border-t border-line py-2 last:border-b">
+						<summary class="flex min-h-11 cursor-pointer list-none items-start justify-between gap-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
 							{item.q}
 							<span class="text-muted group-open:hidden" aria-hidden="true">
 								+

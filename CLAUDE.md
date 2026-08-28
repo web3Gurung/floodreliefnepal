@@ -2,6 +2,8 @@
 
 See `AGENTS.md` for stack, content rules, and commands.
 
+Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`.
+
 This is a static Astro site with Tailwind. Light mode only. Outfit for type. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
 
 Cash: `https://pmdrf.nchl.com.np/`
