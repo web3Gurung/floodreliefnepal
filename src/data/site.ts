@@ -119,6 +119,10 @@ export const sources = [
 export const changelog = [
 	{
 		date: '28 August 2026',
+		note: 'Marked the private-collection ban, the crypto wallets, and the Himalayan Bank USD gateway. Official links open in a new tab.',
+	},
+	{
+		date: '28 August 2026',
 		note: 'Tightened the page hierarchy so the money path and scam checks read first.',
 	},
 	{

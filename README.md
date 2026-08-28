@@ -5,7 +5,8 @@ Independent public guide for Bhotekoshi flood relief. Not a government website.
 It does not collect donations. It lists where to send money, where to drop supplies, and how to skip scams.
 
 - Cash: [pmdrf.nchl.com.np](https://pmdrf.nchl.com.np/)
-- Content: `src/data/site.ts`
+- USD gateway: [pmrelieffund.himalayanbank.com](https://pmrelieffund.himalayanbank.com/)
+- Content: `src/data/site.ts` (English) and `src/data/site.np.ts` (Nepali)
 - How the repo is laid out: `AGENTS.md`
 
 ## Stack

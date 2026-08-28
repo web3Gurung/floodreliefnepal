@@ -8,20 +8,24 @@ Always `git pull` on the branch you will edit before making changes. If you alre
 
 ## How it works
 
-One homepage, built as static HTML.
+One homepage, built as static HTML. English at `/`, Nepali at `/np/`.
 
-1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`.
-2. Policy. What the one-door rule is, and that private collection drives are not allowed.
-3. Give. Cash via `https://pmdrf.nchl.com.np/`. Bank-transfer numbers are not on the page yet.
-4. Supplies. Three government drop-off points, with contacts.
-5. Questions. Short FAQ.
-6. Sources. Links to the notices and reporting used for the copy.
+1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
+2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
+3. Policy. What the one-door rule is, and that private collection drives are not allowed. The private-collection sentence is yellow-marked.
+4. Give. Two cards: card/fiat and crypto, both to `https://pmdrf.nchl.com.np/`. Himalayan Bank USD gateway sits under the cards as a callout. The reported fund total shows rupees and a dollar conversion. Bank-transfer numbers are not on the page yet.
+5. Verify. Short scam checks. The two official payment domains are bold.
+6. Supplies. What responders are handing out, then the three government drop-off points with contacts.
+7. Questions. Short FAQ.
+8. Share. Copyable post and share image.
+9. Sources. Two-column list of notices and reporting used for the copy.
 
-All URLs, hub names, phones, and source links live in `src/data/site.ts`. Edit that file to change content. Do not invent account numbers, QR codes, or SWIFT details. Do not add them until a teammate PR lands verified figures.
+All URLs, hub names, phones, source links, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`. Edit those files to change content. Do not invent account numbers, QR codes, or SWIFT details. Do not add them until a teammate PR lands verified figures.
 
 Pages:
 
 - `src/pages/index.astro` is `/`
+- `src/pages/np/index.astro` is `/np/`
 - `src/pages/404.astro` is the not-found page
 
 Layout and chrome:
@@ -64,7 +68,10 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 - No em dashes
 - No curly quotes
 - The government card portal is one channel, not the whole identity of the site
-- Header Give is a real button. The pmdrf link in the money section is a real button.
+- Header Give is a real button. The pmdrf links in the money section are real buttons. The Himalayan Bank domain in the USD callout is a real button.
+- Official outbound links open in a new tab (`target="_blank"` plus `rel="noopener noreferrer"`). Same-page jumps, language switch, skip link, 404 home, and `tel:` stay in this tab.
+- Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा", and the private-collection ban. Do not mark every sentence.
+- The dollar figure next to the fund total is a conversion of the rupee amount at the Nepal Rastra Bank USD buying rate on the `asOf` date. Recalculate it when the rupee figure changes. Do not invent a new total.
 
 ## Commands
 
