@@ -253,33 +253,26 @@
 		}
 	}
 
-	.give-switch:not(:has(#upi:target)):not(:has(#alipay:target)):not(:has(#card:target)):not(:has(#remit:target))
-		.give-option[href='#upi'],
-	.give-switch:has(#upi:target) .give-option[href='#upi'],
-	.give-switch:has(#alipay:target) .give-option[href='#alipay'],
-	.give-switch:has(#card:target) .give-option[href='#card'],
-	.give-switch:has(#remit:target) .give-option[href='#remit'] {
+	.give-switch[data-pay='upi'] .give-option[href='#upi'],
+	.give-switch[data-pay='alipay'] .give-option[href='#alipay'],
+	.give-switch[data-pay='card'] .give-option[href='#card'],
+	.give-switch[data-pay='remit'] .give-option[href='#remit'] {
 		background: var(--ink);
 		color: var(--canvas);
 	}
 
-	.give-switch:not(:has(#upi:target)):not(:has(#alipay:target)):not(:has(#card:target)):not(:has(#remit:target))
-		.give-option[href='#upi']
-		.give-option-detail,
-	.give-switch:has(#upi:target) .give-option[href='#upi'] .give-option-detail,
-	.give-switch:has(#alipay:target) .give-option[href='#alipay'] .give-option-detail,
-	.give-switch:has(#card:target) .give-option[href='#card'] .give-option-detail,
-	.give-switch:has(#remit:target) .give-option[href='#remit'] .give-option-detail {
+	.give-switch[data-pay='upi'] .give-option[href='#upi'] .give-option-detail,
+	.give-switch[data-pay='alipay'] .give-option[href='#alipay'] .give-option-detail,
+	.give-switch[data-pay='card'] .give-option[href='#card'] .give-option-detail,
+	.give-switch[data-pay='remit'] .give-option[href='#remit'] .give-option-detail {
 		color: color-mix(in srgb, var(--canvas) 70%, transparent);
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.give-switch:not(:has(#upi:target)):not(:has(#alipay:target)):not(:has(#card:target)):not(:has(#remit:target))
-			.give-option[href='#upi']:hover,
-		.give-switch:has(#upi:target) .give-option[href='#upi']:hover,
-		.give-switch:has(#alipay:target) .give-option[href='#alipay']:hover,
-		.give-switch:has(#card:target) .give-option[href='#card']:hover,
-		.give-switch:has(#remit:target) .give-option[href='#remit']:hover {
+		.give-switch[data-pay='upi'] .give-option[href='#upi']:hover,
+		.give-switch[data-pay='alipay'] .give-option[href='#alipay']:hover,
+		.give-switch[data-pay='card'] .give-option[href='#card']:hover,
+		.give-switch[data-pay='remit'] .give-option[href='#remit']:hover {
 			background: var(--ink);
 			opacity: 0.88;
 		}
@@ -290,12 +283,10 @@
 		padding-top: 2.5rem;
 	}
 
-	.give-switch:not(:has(#upi:target)):not(:has(#alipay:target)):not(:has(#card:target)):not(:has(#remit:target))
-		.give-panel-upi,
-	.give-switch:has(#upi:target) .give-panel-upi,
-	.give-switch:has(#alipay:target) .give-panel-alipay,
-	.give-switch:has(#card:target) .give-panel-card,
-	.give-switch:has(#remit:target) .give-panel-remit {
+	.give-switch[data-pay='upi'] .give-panel-upi,
+	.give-switch[data-pay='alipay'] .give-panel-alipay,
+	.give-switch[data-pay='card'] .give-panel-card,
+	.give-switch[data-pay='remit'] .give-panel-remit {
 		display: block;
 	}
 
@@ -325,10 +316,6 @@
 
 	.data-table tbody tr:last-child {
 		@apply border-b-0;
-	}
-
-	.data-table tr.data-table-usd {
-		background: color-mix(in srgb, #fff27a 45%, var(--surface));
 	}
 
 	@media (prefers-reduced-motion: reduce) {
