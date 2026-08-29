@@ -7,11 +7,11 @@ const recent = footer.changelog.slice(0, 3);
 ---
 
 <footer class="hairline py-12 text-[0.95rem] text-muted">
-	<div class="wrap center-block max-w-xl">
+	<div class="wrap mx-auto max-w-xl">
 		<p class="mb-1">{footer.lastChecked} {footer.lastCheckedDate}</p>
 		{
 			recent.length > 0 && (
-				<ul class="mx-auto mb-4 max-w-sm space-y-1.5 text-left text-[0.9rem]">
+				<ul class="mb-4 max-w-sm space-y-1.5 text-[0.9rem]">
 					{recent.map((entry) => (
 						<li>
 							<span class="whitespace-nowrap text-ink">{entry.date}</span>, {entry.note}
@@ -25,6 +25,13 @@ const recent = footer.changelog.slice(0, 3);
 			{footer.contribute.before}<a class="underline" href={site.github} target="_blank" rel="noopener noreferrer"
 				>{footer.contribute.linkLabel}</a
 			>{footer.contribute.after}
+		</p>
+		<p class="mt-6 text-[0.9rem]">
+			{footer.madeBy.before}<a class="underline" href={site.makers.ronak} target="_blank" rel="noopener noreferrer"
+				>{footer.madeBy.ronakLabel}</a
+			>{footer.madeBy.middle}<a class="underline" href={site.makers.ayushman} target="_blank" rel="noopener noreferrer"
+				>{footer.madeBy.ayushmanLabel}</a
+			>{footer.madeBy.after}
 		</p>
 	</div>
 </footer>

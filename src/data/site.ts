@@ -2,6 +2,10 @@ export const site = {
 	name: 'Flood Relief Nepal',
 	url: 'https://floodreliefnepal.com',
 	github: 'https://github.com/web3Gurung/floodreliefnepal',
+	makers: {
+		ronak: 'https://x.com/Ronak0010',
+		ayushman: 'https://x.com/gurungbuilds',
+	},
 	lastChecked: '28 August 2026',
 	/** ISO form of lastChecked, for structured data. Keep the two in sync. */
 	lastCheckedIso: '2026-08-28',
@@ -523,6 +527,13 @@ export const en = {
 			before: '',
 			linkLabel: 'GitHub',
 			after: ' if you want to send a pull request.',
+		},
+		madeBy: {
+			before: 'Made by ',
+			ronakLabel: 'Ronak',
+			middle: ' and ',
+			ayushmanLabel: 'Ayushman',
+			after: '',
 		},
 		changelog,
 	},

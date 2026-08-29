@@ -367,6 +367,13 @@ export const np = {
 			linkLabel: 'GitHub',
 			after: ' मा जानुहोस्।',
 		},
+		madeBy: {
+			before: '',
+			ronakLabel: 'Ronak',
+			middle: ' र ',
+			ayushmanLabel: 'Ayushman',
+			after: ' ले बनाएका।',
+		},
 		changelog: [
 			{
 				date: '२८ अगस्ट २०२६',
