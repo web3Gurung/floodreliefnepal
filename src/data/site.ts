@@ -3,6 +3,8 @@ export const site = {
 	url: 'https://floodreliefnepal.com',
 	github: 'https://github.com/web3Gurung/floodreliefnepal',
 	lastChecked: '28 August 2026',
+	/** ISO form of lastChecked, for structured data. Keep the two in sync. */
+	lastCheckedIso: '2026-08-28',
 	official: {
 		pmdrf: 'https://pmdrf.nchl.com.np/',
 		himalayan: 'https://pmrelieffund.himalayanbank.com/',
@@ -274,7 +276,7 @@ export const en = {
 	meta: {
 		title: 'Flood Relief Nepal, public guide for Bhotekoshi flood relief',
 		description:
-			'Independent guide for Bhotekoshi flood relief. Where to give, drop supplies, and skip scams.',
+			'Independent guide for Bhotekoshi flood relief. Where to send money by UPI, Alipay+, card, or SWIFT, where to drop supplies, and how to skip fake QR codes.',
 	},
 	ui: {
 		skipToContent: 'Skip to content',

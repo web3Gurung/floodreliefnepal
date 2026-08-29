@@ -37,6 +37,21 @@ const organizationLd = {
 	sameAs: [site.github],
 };
 
+const webPageLd = {
+	'@context': 'https://schema.org',
+	'@type': 'WebPage',
+	name: title,
+	description,
+	url: canonical.href,
+	inLanguage: lang,
+	dateModified: site.lastCheckedIso,
+	isPartOf: {
+		'@type': 'WebSite',
+		name: site.name,
+		url: base.href,
+	},
+};
+
 const faqLd = {
 	'@context': 'https://schema.org',
 	'@type': 'FAQPage',
@@ -88,6 +103,7 @@ const faqLd = {
 			is:inline
 			set:html={JSON.stringify(organizationLd)}
 		/>
+		<script type="application/ld+json" is:inline set:html={JSON.stringify(webPageLd)} />
 		{
 			faq && (
 				<script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />

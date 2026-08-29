@@ -7,7 +7,12 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://floodreliefnepal.com',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // Static site: every deploy is a content change, so build time is an accurate lastmod.
+      lastmod: new Date(),
+    }),
+  ],
   build: {
     inlineStylesheets: 'always',
   },

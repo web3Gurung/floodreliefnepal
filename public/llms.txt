@@ -1,0 +1,27 @@
+# Flood Relief Nepal
+
+> Independent public guide for Bhotekoshi flood relief in Nepal. A flash flood came down the Bhote Koshi river on 26 August 2026, hitting Rasuwa, Nuwakot, and neighbouring districts. This site lists official government donation channels, drop-off hubs, and scam checks. It is not a government website and does not collect money itself.
+
+## Key facts
+
+- Cash and supplies for Bhotekoshi relief are supposed to go through one door: the Prime Minister's Disaster Relief Fund. The Ministry of Finance says the rule covers people, companies, donor agencies, and foreign organisations.
+- Private groups are not authorised to collect cash or goods for this disaster. Finance officials called independent collection drives illegal; the Home Ministry has orders to shut them down.
+- Card, UPI (Fonepay QR), and Alipay+ (NepalPAY QR): https://pmdrf.nchl.com.np/
+- Second government gateway, quotes in USD: https://pmrelieffund.himalayanbank.com/
+- Bank transfer / SWIFT: account name "PRIME MINISTER DISASTER RELIEF FUND". Full account and SWIFT table is on the page below, sourced from the Nepal Embassy, India post.
+- No ceiling on how much can be sent: Nepal Rastra Bank lifted digital transfer caps into the two Prime Minister funds.
+- Reported total raised: Rs 273.3 million (about $1.79 million) in the first six hours, per the Ministry of Finance, as reported 27 August 2026.
+- Scam warning: the Nepal Police Cyber Bureau has warned of fake QR codes and cloned relief pages. A QR code or bank detail that arrived in a chat is not verified — only pmdrf.nchl.com.np and pmrelieffund.himalayanbank.com are official.
+
+## Pages
+
+- [English guide](https://floodreliefnepal.com/): donation channels (UPI, Alipay+, card, SWIFT), supply drop-off hubs, scam checks, FAQ, sources.
+- [Nepali guide](https://floodreliefnepal.com/np/): the same content in Nepali.
+
+## Sources
+
+- [Ministry of Foreign Affairs](https://mofa.gov.np/content/1863/flash-flood-in-bhote-koshi-river/): official update.
+- [Ministry of Home Affairs](https://moha.gov.np/en/post/ha-ra-tha-ka-apa-l-11): official disaster relief appeal.
+- [The Kathmandu Post explainer](https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far): what is known about the flood.
+- [Nepal Police Cyber Bureau warning](https://english.onlinekhabar.com/cyber-bureau-warns-public-of-disaster-relief-scams.html): fake QR codes and cloned relief pages.
+- Full source list, with notes, is on the guide pages above under "Sources."
