@@ -1,0 +1,78 @@
+---
+/**
+ * Six steps from a donor's wallet to the fund's account, each with what happens
+ * and what proof exists.
+ *
+ * The contrast between the first three and the last three is the point of this
+ * page, so it is stated in full at the end rather than implied by the badges.
+ */
+import { copyForPath } from '../data/copy';
+
+const copy = copyForPath(Astro.url.pathname).transparency.pipeline;
+---
+
+<section class="chapter hairline" id="pipeline">
+	<div class="wrap">
+		<h2 class="display max-w-none">{copy.heading}</h2>
+		<p class="lede">{copy.lede}</p>
+
+		{/*
+			  * Three across on a wide screen, so the open steps fill the first
+			  * row and the ones waiting on paperwork fill the second. The split
+			  * this section exists to show is then in the layout, not only in
+			  * the badges.
+			  */}
+		<ol
+			class="mt-12 grid gap-px overflow-hidden rounded-[10px] border border-line bg-line md:grid-cols-2 lg:grid-cols-3"
+		>
+			{
+				copy.steps.map((step, index) => (
+					<li class="flex flex-col bg-surface p-7 md:p-8">
+						<div class="flex items-baseline gap-3">
+							<span class="text-muted tabular-nums">{index + 1}</span>
+							<h3 class="card-title text-xl">{step.title}</h3>
+						</div>
+
+						<div class="mt-5 flex flex-wrap gap-2">
+							<span class={`badge ${step.open ? 'badge-open' : 'badge-pending'}`}>
+								{step.open ? copy.openLabel : copy.documentLabel}
+							</span>
+							{!step.live && <span class="badge badge-pending">{copy.notLiveLabel}</span>}
+						</div>
+
+						<p class="eyebrow mt-6">{copy.whatLabel}</p>
+						<p class="mt-1.5">{step.what}</p>
+
+						<p class="eyebrow mt-5">{copy.proofLabel}</p>
+						<p class="mt-1.5 text-muted">{step.proof}</p>
+					</li>
+				))
+			}
+		</ol>
+
+		<p class="lede mt-10 max-w-[46rem]">{copy.closing}</p>
+	</div>
+</section>
+
+<style>
+	.badge {
+		display: inline-flex;
+		align-items: center;
+		border-radius: 6px;
+		padding: 0.25rem 0.6rem;
+		font-size: 0.8rem;
+		line-height: 1.35;
+		font-weight: 500;
+	}
+
+	/* The accent carries the same meaning here as in the merge: this is onchain. */
+	.badge-open {
+		background: var(--accent);
+		color: var(--canvas);
+	}
+
+	.badge-pending {
+		border: 1px solid var(--line);
+		color: var(--muted);
+	}
+</style>

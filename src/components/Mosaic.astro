@@ -1,0 +1,151 @@
+---
+/**
+ * Every donation as a tile, oldest first.
+ *
+ * Its job is not analysis. Its job is to make many small donations read as many
+ * people rather than as one number, so the grid is packed and the smallest
+ * tiles keep a tappable floor even though that costs strict proportionality.
+ *
+ * A CSS grid with span counts does the packing. No client JavaScript, and each
+ * tile is an ordinary link, so keyboard and screen reader support come free.
+ */
+import ledger from '../data/ledger.json';
+import { receiving } from '../data/site';
+import { copyForPath, fill, langFromPath } from '../data/copy';
+import { weightTokens } from '../data/tokens';
+
+const lang = langFromPath(Astro.url.pathname);
+const page = copyForPath(Astro.url.pathname);
+const copy = page.transparency.mosaic;
+const ui = page.ui;
+
+const { all, totals, by_token: byToken } = ledger;
+
+/** One cell is the tappable floor. Nothing renders smaller than this. */
+const MAX_SPAN = 5;
+
+const weights = new Map(weightTokens(byToken).map((token) => [token.token_symbol, token.weight]));
+const largest = Math.max(...all.map((entry) => entry.usd_at_receipt ?? 0), 0);
+
+// Area follows the amount, so the side follows its square root. Spans land on
+// whole cells, which rounds the area a little, and the caption says the
+// smallest are held at a floor rather than pretending otherwise.
+const scale = largest > 0 ? MAX_SPAN / Math.sqrt(largest) : 1;
+
+const tiles = all.map((entry) => {
+	const usd = entry.usd_at_receipt;
+	const span =
+		usd === null ? 1 : Math.min(MAX_SPAN, Math.max(1, Math.round(Math.sqrt(usd) * scale)));
+	return {
+		entry,
+		span,
+		// An unpriced tile gets the floor and the muted weight, the same
+		// treatment its ribbon gets in the merge.
+		weight: usd === null ? 'muted' : (weights.get(entry.token_symbol) ?? 'muted'),
+	};
+});
+
+const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
+	day: 'numeric',
+	month: 'short',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
+
+const label = (entry: (typeof all)[number]) =>
+	fill(copy.tileLabel, {
+		amount: entry.amount_token,
+		token: entry.token_symbol,
+		date: dateFormat.format(new Date(entry.block_time)),
+	});
+---
+
+{
+	totals.donation_count > 0 && (
+		<section class="chapter hairline" id="mosaic">
+			<div class="wrap">
+				<h2 class="display max-w-none">{copy.heading}</h2>
+				<p class="lede">{copy.lede}</p>
+
+				<ul class="mosaic mt-10">
+					{tiles.map((tile) => (
+						<li style={`--span:${tile.span}`}>
+							<a
+								class={`mosaic-tile mosaic-${tile.weight}`}
+								href={`${receiving.explorer}/tx/${tile.entry.tx_hash}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								title={label(tile.entry)}
+								aria-label={`${label(tile.entry)}, ${ui.opensInNewTab}`}
+							/>
+						</li>
+					))}
+				</ul>
+
+				{totals.excluded_count > 0 && <p class="quiet">{copy.unpricedNote}</p>}
+			</div>
+		</section>
+	)
+}
+
+<style>
+	.mosaic {
+		--cell: 44px;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, var(--cell));
+		grid-auto-rows: var(--cell);
+		/* Dense packing lets a small tile fill the gap a large one leaves. */
+		grid-auto-flow: dense;
+		gap: 4px;
+		justify-content: start;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.mosaic li {
+		grid-column: span var(--span);
+		grid-row: span var(--span);
+	}
+
+	.mosaic-tile {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: 3px;
+		transition: opacity 160ms ease;
+	}
+
+	.mosaic-accent {
+		background: var(--accent);
+	}
+
+	.mosaic-accent-mid {
+		background: var(--accent-mid);
+	}
+
+	.mosaic-accent-soft {
+		background: var(--accent-soft);
+	}
+
+	.mosaic-muted {
+		background: var(--muted);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.mosaic-tile:hover {
+			opacity: 0.72;
+		}
+	}
+
+	.mosaic-tile:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.mosaic-tile {
+			transition: none;
+		}
+	}
+</style>

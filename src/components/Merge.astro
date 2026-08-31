@@ -15,6 +15,7 @@
 import ledger from '../data/ledger.json';
 import { receiving } from '../data/site';
 import { copyForPath, fill, langFromPath } from '../data/copy';
+import { hashNoise, weightTokens } from '../data/tokens';
 
 const lang = langFromPath(Astro.url.pathname);
 const page = copyForPath(Astro.url.pathname);
@@ -71,18 +72,7 @@ const stacked: Layout = {
 	font: 17,
 };
 
-/** Weights are handed out by size received, then muted, so this cannot sprawl. */
-const WEIGHTS = ['accent', 'accent-mid', 'accent-soft'] as const;
-
-const ranked = [...byToken].sort((a, b) => b.usd_received - a.usd_received);
-const priceableTotal = ranked.reduce((sum, token) => sum + token.usd_received, 0);
-
-const tokens = ranked.map((token, index) => ({
-	...token,
-	weight: index < WEIGHTS.length ? WEIGHTS[index] : 'muted',
-	share: priceableTotal > 0 ? token.usd_received / priceableTotal : 0,
-	priced: token.usd_received > 0,
-}));
+const tokens = weightTokens(byToken);
 
 function buildRibbons(layout: Layout) {
 	// Ribbon widths are strictly proportional to USD share. A token nobody can
@@ -122,19 +112,6 @@ function buildRibbons(layout: Layout) {
 }
 
 /**
- * A stable pseudo random number in [0, 1) taken from the transaction hash, so
- * the same donation lands in the same place in every build.
- */
-function jitter(hash: string, salt: number): number {
-	let value = 2166136261 ^ salt;
-	for (let i = 2; i < hash.length; i += 1) {
-		value ^= hash.charCodeAt(i);
-		value = Math.imul(value, 16777619);
-	}
-	return ((value >>> 0) % 1000) / 1000;
-}
-
-/**
  * Deterministic landing spots, so a dot rests where it can be clicked. The grid
  * loosens with a nudge drawn from each hash, because a perfect lattice reads as
  * a piece of interface rather than as donations that piled up. Radius follows
@@ -154,8 +131,8 @@ function landingSpots(layout: Layout, entries: { tx_hash: string }[]) {
 	return entries.map((entry, index) => {
 		const column = index % columns;
 		const row = Math.floor(index / columns);
-		const nudgeX = (jitter(entry.tx_hash, 1) - 0.5) * stepX * 0.5;
-		const nudgeY = (jitter(entry.tx_hash, 2) - 0.5) * stepY * 0.5;
+		const nudgeX = (hashNoise(entry.tx_hash, 1) - 0.5) * stepX * 0.5;
+		const nudgeY = (hashNoise(entry.tx_hash, 2) - 0.5) * stepY * 0.5;
 		return {
 			x: layout.pool.x + padding + stepX * (column + 0.5) + nudgeX,
 			// Fill from the bottom, the way a pool does.
