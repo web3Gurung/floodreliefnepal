@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "index:donations": "node --env-file=.env.local scripts/index-donations.ts"
+    "index:donations": "node --env-file=.env.local scripts/index-donations.ts",
+    "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

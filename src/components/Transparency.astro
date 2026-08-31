@@ -78,6 +78,9 @@ if (totals.excluded_count > 0) {
 	exclusions.push(copy.excluded.tableNote);
 }
 
+/** Past this, the feed is described as behind rather than merely timestamped. */
+const STALE_AFTER_HOURS = 6;
+
 const trimmed = all.length > recent.length;
 const addressUrl = `${receiving.explorer}/address/${ledger.address}`;
 const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
@@ -105,9 +108,33 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 					{exclusions.length > 0 && (
 						<p class="quiet max-w-[42rem]">{exclusions.join(' ')}</p>
 					)}
-					<p class="quiet">
-						{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} UTC` })}
-					</p>
+					{/*
+					  * The static line is the truth about what this page holds:
+					  * figures read at build time. The script beside it asks the
+					  * live feed how it is doing and says so, because a dead cron
+					  * and a healthy one look identical from here otherwise.
+					  */}
+					<div
+						class="quiet"
+						data-ledger
+						data-built={updatedAt}
+						data-locale={dateLocale}
+						data-stale-hours={STALE_AFTER_HOURS}
+						data-built-label={`${stamp(updatedAt, longDate)} UTC`}
+						data-tpl-ago={copy.total.updatedAgo}
+						data-tpl-behind={copy.total.feedBehind}
+						data-tpl-stale={copy.total.feedStale}
+						data-tpl-down={copy.total.feedDown}
+						data-donations={totals.donation_count}
+						data-total={totals.usd_received}
+						data-word-one={copy.total.donationsOne}
+						data-word-many={copy.total.donationsMany}
+						data-ago={JSON.stringify(copy.total.ago)}
+					>
+						<p data-ledger-line>
+							{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} UTC` })}
+						</p>
+					</div>
 				</div>
 			) : (
 				<div class="card mt-14 max-w-[42rem] md:mt-16">
@@ -240,3 +267,110 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 		</section>
 	)
 }
+
+<script is:inline>
+	/*
+	 * The only client script on this page. A static page cannot know the time,
+	 * so it cannot tell a fresh feed from a dead one. This asks.
+	 *
+	 * It never rewrites a figure. The numbers on the page stay the ones that
+	 * were read at build time, and this reports how the live feed compares, so
+	 * the page can be behind without being wrong about it.
+	 */
+	(function () {
+		var box = document.querySelector('[data-ledger]');
+		if (!box) return;
+
+		var line = box.querySelector('[data-ledger-line]');
+		var built = Date.parse(box.dataset.built);
+		var builtLabel = box.dataset.builtLabel;
+		var staleMs = Number(box.dataset.staleHours) * 3600 * 1000;
+
+		function fill(template, values) {
+			return template.replace(/\{(\w+)\}/g, function (match, key) {
+				return key in values ? values[key] : match;
+			});
+		}
+
+		/*
+		 * Units come from the copy data rather than Intl.RelativeTimeFormat,
+		 * which has no Nepali relative time data in some browsers and quietly
+		 * answers in English. A page that mixes the two languages mid sentence
+		 * is worse than one that spells the units out.
+		 */
+		var words = JSON.parse(box.dataset.ago);
+
+		function ago(from) {
+			var minutes = Math.floor((Date.now() - from) / 60000);
+			if (minutes < 1) return words.lessThanAMinute;
+
+			var value = minutes;
+			var unit = minutes === 1 ? words.minute : words.minutes;
+
+			if (minutes >= 1440) {
+				value = Math.floor(minutes / 1440);
+				unit = value === 1 ? words.day : words.days;
+			} else if (minutes >= 60) {
+				value = Math.floor(minutes / 60);
+				unit = value === 1 ? words.hour : words.hours;
+			}
+
+			return fill(words.template, { value: String(value), unit: unit });
+		}
+
+		function notice(text) {
+			line.textContent = text;
+			line.className = 'ledger-notice';
+		}
+
+		fetch('/api/ledger', { headers: { accept: 'application/json' } })
+			.then(function (response) {
+				if (!response.ok) throw new Error(String(response.status));
+				return response.json();
+			})
+			.then(function (feed) {
+				var read = Date.parse(feed.updated_at);
+				if (!read) throw new Error('no timestamp');
+
+				if (Date.now() - read > staleMs) {
+					notice(fill(box.dataset.tplStale, { ago: ago(read), when: builtLabel }));
+					return;
+				}
+
+				var same =
+					feed.totals &&
+					feed.totals.donation_count === Number(box.dataset.donations) &&
+					feed.totals.usd_received === Number(box.dataset.total);
+
+				if (same) {
+					line.textContent = fill(box.dataset.tplAgo, { ago: ago(read) });
+					return;
+				}
+
+				var n = feed.totals.donation_count;
+				notice(
+					fill(box.dataset.tplBehind, {
+						count: n + ' ' + (n === 1 ? box.dataset.wordOne : box.dataset.wordMany),
+						total: new Intl.NumberFormat('en-US', {
+							style: 'currency',
+							currency: 'USD',
+						}).format(feed.totals.usd_received),
+						when: builtLabel,
+					}),
+				);
+			})
+			.catch(function () {
+				if (Date.now() - built > staleMs) {
+					notice(fill(box.dataset.tplDown, { when: builtLabel }));
+				}
+			});
+	})();
+</script>
+
+<style>
+	.ledger-notice {
+		border-left: 2px solid var(--ink);
+		padding-left: 0.75rem;
+		color: var(--ink);
+	}
+</style>

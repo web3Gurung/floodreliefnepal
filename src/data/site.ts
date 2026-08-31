@@ -389,6 +389,22 @@ export const en = {
 			donationsOne: 'donation',
 			donationsMany: 'donations',
 			updated: 'This page last read the chain on {when}.',
+			updatedAgo: 'This page last read the chain {ago}.',
+			ago: {
+				template: '{value} {unit} ago',
+				lessThanAMinute: 'less than a minute ago',
+				minute: 'minute',
+				minutes: 'minutes',
+				hour: 'hour',
+				hours: 'hours',
+				day: 'day',
+				days: 'days',
+			},
+			feedBehind:
+				'The live feed reports {count} and {total}. The figures on this page were read on {when}.',
+			feedStale:
+				'The live feed last read the chain {ago}. The figures on this page were read on {when}.',
+			feedDown: 'The live feed is not answering. The figures on this page were read on {when}.',
 		},
 		excluded: {
 			covers: 'The total covers {covered} of {total}.',

@@ -291,6 +291,22 @@ export const np = {
 			donationsOne: 'सहयोग',
 			donationsMany: 'सहयोग',
 			updated: 'यो पृष्ठले चेन अन्तिम पटक {when} मा पढेको हो।',
+			updatedAgo: 'यो पृष्ठले चेन {ago} पढेको हो।',
+			ago: {
+				template: '{value} {unit} पहिले',
+				lessThanAMinute: 'एक मिनेटभन्दा कम पहिले',
+				minute: 'मिनेट',
+				minutes: 'मिनेट',
+				hour: 'घण्टा',
+				hours: 'घण्टा',
+				day: 'दिन',
+				days: 'दिन',
+			},
+			feedBehind:
+				'प्रत्यक्ष फिडले {count} र {total} देखाउँछ। यो पृष्ठका अंक {when} मा पढिएका हुन्।',
+			feedStale:
+				'प्रत्यक्ष फिडले चेन {ago} पढेको हो। यो पृष्ठका अंक {when} मा पढिएका हुन्।',
+			feedDown: 'प्रत्यक्ष फिडले जवाफ दिइरहेको छैन। यो पृष्ठका अंक {when} मा पढिएका हुन्।',
 		},
 		excluded: {
 			covers: 'जम्मा रकमले {total} मध्ये {covered} समेट्छ।',
