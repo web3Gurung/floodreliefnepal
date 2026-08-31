@@ -47,6 +47,26 @@ Layout and chrome:
 - Components sit in `src/components/`
 - Shared Tailwind classes sit in `src/styles/global.css` under `@layer components` (`wrap`, `chapter`, `btn`, and similar)
 
+## Before the Worker is deployed
+
+Nothing is deployed yet. The Worker runs locally through
+`npx wrangler dev --local --env-file .env.local`, which reads the keys from
+`.env.local` and simulates KV. No KV namespace exists, no secrets are pushed, and
+`wrangler.jsonc` still carries a placeholder namespace id. The whole deploy happens
+in one pass once the page is finished. Two things must not be forgotten in it.
+
+**Pushing to GitHub does not deploy the Worker.** The Cloudflare git build uploads
+`dist` and nothing else, so it would replace a deployed Worker with an assets only
+version and silently kill the cron. Turn the git build off first, then add an npm
+script that builds and deploys in one command, and deploy only through that.
+
+**The cron can fail silently.** When the indexer dies, `/api/ledger` keeps serving
+the last good payload and the page keeps rendering the committed one, so a dead
+feed looks exactly like a healthy one. Before the page goes live it has to show the
+payload's age, computed from `updated_at`, so a reader can see a stale feed without
+being told. `x-ledger-source` on the response says whether an answer came from KV or
+from the committed copy, which answers the same question from the outside.
+
 ## The donation ledger
 
 `src/data/ledger.json` is the public payload for the transparency page. It is
