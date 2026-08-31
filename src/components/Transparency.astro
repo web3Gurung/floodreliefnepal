@@ -121,6 +121,7 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 							{copy.verify.addressLink}<span class="sr-only">, {ui.opensInNewTab}</span>
 						</a>
 					</p>
+					<p class="quiet">{copy.steward.join(' ')}</p>
 				</div>
 			)
 		}
@@ -216,6 +217,7 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 							{copy.verify.addressLink}<span class="sr-only">, {ui.opensInNewTab}</span>
 						</a>
 					</p>
+					<p class="quiet max-w-[34rem]">{copy.steward.join(' ')}</p>
 					<ol class="mt-8 space-y-4 text-muted">
 						{copy.verify.steps.map((step, index) => (
 							<li class="grid grid-cols-[1.5rem_1fr] gap-3">

@@ -412,6 +412,11 @@ export const en = {
 			checkLabel: 'Etherscan',
 			checkAria: 'Open transaction {hash} on Etherscan',
 		},
+		steward: [
+			'Engage Nepal holds this address, a charitable organisation registered in the United States under section 501(c)(3).',
+			'It passes what arrives here to the Prime Minister Disaster Relief Fund.',
+			'A registered organisation answers for that money under United States charity law, and this page publishes every donation it receives.',
+		],
 		verify: {
 			heading: 'Check this yourself',
 			lede: 'Every number above comes from the public record. Here is how to read that record directly.',
