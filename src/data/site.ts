@@ -412,6 +412,21 @@ export const en = {
 			checkLabel: 'Etherscan',
 			checkAria: 'Open transaction {hash} on Etherscan',
 		},
+		merge: {
+			heading: 'Where it came from and where it sits',
+			lede: 'Each ribbon is one asset people sent. Its width is that asset\u2019s share of the total, so the picture reads the same way the number does.',
+			poolLabel: 'Held at this address',
+			reservedLabel: 'Sent to the fund',
+			reservedNote: 'This space fills when the first transfer to the fund goes out.',
+			legendHeading: 'What each ribbon is',
+			legendShare: '{percent} of the total',
+			legendCount: '{count}',
+			unknownShare: 'share unknown, this asset has no published price',
+			dotLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
+			figureLabel:
+				'A diagram of donations by asset flowing into the collection address, with the space for the onward transfer still empty.',
+			motionNote: 'The most recent donations move into the pool once when the page loads.',
+		},
 		steward: [
 			'Engage Nepal holds this address, a charitable organisation registered in the United States under section 501(c)(3).',
 			'It passes what arrives here to the Prime Minister Disaster Relief Fund.',

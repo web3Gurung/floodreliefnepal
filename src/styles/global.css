@@ -7,6 +7,9 @@
 	--color-muted: var(--muted);
 	--color-line: var(--line);
 	--color-surface: var(--surface);
+	--color-accent: var(--accent);
+	--color-accent-mid: var(--accent-mid);
+	--color-accent-soft: var(--accent-soft);
 }
 
 :root {
@@ -16,6 +19,25 @@
 	--ink: #1a1a18;
 	--muted: #5e5e5a;
 	--line: #e4e4e0;
+
+	/*
+	 * One hue in three weights, used only in the merge visualisation. The rest
+	 * of the site stays ink, muted and line. Weights are handed to tokens in
+	 * order of USD received, and a fourth token falls back to muted, so the
+	 * palette cannot sprawl as tokens accumulate.
+	 *
+	 * accent      7.48:1 on canvas, 2.15:1 against ink
+	 * accent-mid  4.48:1 on canvas, unused until a third token arrives
+	 * accent-soft 3.02:1 on canvas, fills only, never text
+	 *
+	 * The two outer weights sit at 2.48:1 against each other, under the 3:1
+	 * that WCAG asks between adjacent colours. Their adjacent colour is canvas,
+	 * which both clear, and the ribbons are separated by space, by width and by
+	 * a text label, so nobody has to tell them apart by hue.
+	 */
+	--accent: #165767;
+	--accent-mid: #3d7a87;
+	--accent-soft: #6a95a0;
 }
 
 @layer base {

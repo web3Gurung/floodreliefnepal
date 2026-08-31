@@ -1,4 +1,5 @@
 ---
+import Merge from './Merge.astro';
 import ledger from '../data/ledger.json';
 import { receiving } from '../data/site';
 import { copyForPath, fill, langFromPath } from '../data/copy';
@@ -127,6 +128,8 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 		}
 	</div>
 </section>
+
+<Merge />
 
 {
 	hasDonations && (
