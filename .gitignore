@@ -31,3 +31,5 @@ pnpm-debug.log*
 
 # wrangler
 .wrangler/
+.env.local
+.env*.local
