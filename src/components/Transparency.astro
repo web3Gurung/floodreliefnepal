@@ -1,0 +1,231 @@
+---
+import ledger from '../data/ledger.json';
+import { receiving } from '../data/site';
+import { copyForPath, fill, langFromPath } from '../data/copy';
+
+const lang = langFromPath(Astro.url.pathname);
+const copy = copyForPath(Astro.url.pathname).transparency;
+const ui = copyForPath(Astro.url.pathname).ui;
+
+const { totals, recent, all, updated_at: updatedAt } = ledger;
+
+// The figures describe one address. Fail the build rather than publish numbers
+// under an address they do not belong to.
+if (ledger.address.toLowerCase() !== receiving.address.toLowerCase()) {
+	throw new Error(
+		`ledger.json holds ${ledger.address}, which is not the receiving address in site.ts.`,
+	);
+}
+
+/**
+ * Numerals stay Latin in both languages. A reader checks these figures against
+ * Etherscan, which prints Latin numerals, so a total in Devanagari would be
+ * harder to compare. Month names still translate.
+ */
+const dateLocale = lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB';
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const count = new Intl.NumberFormat('en-US');
+const shortDate = new Intl.DateTimeFormat(dateLocale, {
+	day: 'numeric',
+	month: 'short',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
+const longDate = new Intl.DateTimeFormat(dateLocale, {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
+// Nepali joins a long date to a time with a colon, which reads as part of the
+// clock. Date and time are formatted apart and joined the same way in both.
+const clock = new Intl.DateTimeFormat('en-GB', {
+	hour: '2-digit',
+	minute: '2-digit',
+	hour12: false,
+	timeZone: 'UTC',
+});
+const stamp = (iso: string, date: Intl.DateTimeFormat) => {
+	const at = new Date(iso);
+	return `${date.format(at)}, ${clock.format(at)}`;
+};
+
+const hasDonations = totals.donation_count > 0;
+
+const donations = (n: number) =>
+	`${count.format(n)} ${n === 1 ? copy.total.donationsOne : copy.total.donationsMany}`;
+
+// Only speak about exclusions when something is actually excluded.
+const exclusions: string[] = [];
+if (totals.excluded_count > 0) {
+	exclusions.push(
+		fill(copy.excluded.covers, {
+			covered: count.format(totals.donation_count - totals.excluded_count),
+			total: donations(totals.donation_count),
+		}),
+	);
+	if (totals.unpriced_count > 0) {
+		exclusions.push(fill(copy.excluded.unpriced, { count: donations(totals.unpriced_count) }));
+	}
+	if (totals.low_confidence_count > 0) {
+		exclusions.push(
+			fill(copy.excluded.lowConfidence, { count: donations(totals.low_confidence_count) }),
+		);
+	}
+	exclusions.push(copy.excluded.tableNote);
+}
+
+const trimmed = all.length > recent.length;
+const addressUrl = `${receiving.explorer}/address/${ledger.address}`;
+const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
+---
+
+<section class="chapter">
+	<div class="wrap">
+		<p class="eyebrow">{copy.eyebrow}</p>
+		<h1 class="display mt-4 max-w-[18ch]">
+			{hasDonations ? copy.heading : copy.empty.heading}
+		</h1>
+		<p class="lede">{copy.lede}</p>
+
+		{
+			hasDonations ? (
+				<div class="mt-14 md:mt-16">
+					<p class="eyebrow">{copy.total.label}</p>
+					<p class="mt-3 text-[clamp(3.25rem,12vw,7rem)] leading-[0.92] font-medium tracking-[-0.045em] tabular-nums">
+						{usd.format(totals.usd_received)}
+					</p>
+					<p class="mt-4 text-lg text-muted tabular-nums">
+						{donations(totals.donation_count)}
+					</p>
+					<p class="quiet max-w-[42rem]">{copy.total.basis}</p>
+					{exclusions.length > 0 && (
+						<p class="quiet max-w-[42rem]">{exclusions.join(' ')}</p>
+					)}
+					<p class="quiet">
+						{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} UTC` })}
+					</p>
+				</div>
+			) : (
+				<div class="card mt-14 max-w-[42rem] md:mt-16">
+					<p class="text-muted">{copy.empty.body}</p>
+					<p class="eyebrow mt-7">{fill(copy.verify.addressLabel, { chain: copy.chainName })}</p>
+					<p class="mt-2 font-mono text-[0.85rem] break-all">{ledger.address}</p>
+					<p class="mt-4">
+						<a
+							class="underline"
+							href={addressUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{copy.verify.addressLink}<span class="sr-only">, {ui.opensInNewTab}</span>
+						</a>
+					</p>
+				</div>
+			)
+		}
+	</div>
+</section>
+
+{
+	hasDonations && (
+		<section class="chapter hairline">
+			<div class="wrap">
+				<h2 class="display max-w-none">{copy.table.heading}</h2>
+				<p class="quiet mt-0 mb-8">
+					{trimmed
+						? `${fill(copy.table.note, { shown: count.format(recent.length), total: donations(all.length) })} ${copy.table.timesNote}`
+						: copy.table.timesNote}
+				</p>
+
+				<div class="overflow-x-auto">
+					<table class="w-full min-w-[30rem] border-collapse text-left text-[0.95rem]">
+						<thead>
+							<tr class="border-b border-line">
+								<th class="py-3 pr-4 font-medium text-muted md:pr-6" scope="col">
+									{copy.table.columns.time}
+								</th>
+								<th class="py-3 pr-4 font-medium text-muted md:pr-6" scope="col">
+									{copy.table.columns.asset}
+								</th>
+								<th class="py-3 pr-4 text-right font-medium text-muted md:pr-6" scope="col">
+									{copy.table.columns.amount}
+								</th>
+								<th class="py-3 pr-4 text-right font-medium text-muted md:pr-6" scope="col">
+									{copy.table.columns.usd}
+								</th>
+								<th class="py-3 font-medium text-muted" scope="col">
+									{copy.table.columns.check}
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{recent.map((row) => (
+								<tr class="border-b border-line">
+									<td class="py-3 pr-4 whitespace-nowrap tabular-nums md:pr-6">
+										{stamp(row.block_time, shortDate)}
+									</td>
+									<td class="py-3 pr-4 whitespace-nowrap md:pr-6">{row.token_symbol}</td>
+									<td class="py-3 pr-4 text-right tabular-nums md:pr-6">{row.amount_token}</td>
+									<td class="py-3 pr-4 text-right tabular-nums md:pr-6">
+										{row.usd_at_receipt === null ? (
+											<span class="text-muted">{copy.table.noPrice}</span>
+										) : (
+											usd.format(row.usd_at_receipt)
+										)}
+									</td>
+									<td class="py-3">
+										<a
+											class="underline"
+											href={txUrl(row.tx_hash)}
+											target="_blank"
+											rel="noopener noreferrer"
+											aria-label={`${fill(copy.table.checkAria, { hash: row.tx_hash })}, ${ui.opensInNewTab}`}
+										>
+											{copy.table.checkLabel}
+										</a>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+	)
+}
+
+{
+	hasDonations && (
+		<section class="chapter hairline">
+			<div class="wrap split">
+				<div>
+					<h2 class="display">{copy.verify.heading}</h2>
+					<p class="lede mb-0">{copy.verify.lede}</p>
+				</div>
+				<div>
+					<p class="eyebrow">{fill(copy.verify.addressLabel, { chain: copy.chainName })}</p>
+					<p class="mt-2 font-mono text-[0.85rem] break-all">{ledger.address}</p>
+					<p class="mt-3">
+						<a
+							class="underline"
+							href={addressUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{copy.verify.addressLink}<span class="sr-only">, {ui.opensInNewTab}</span>
+						</a>
+					</p>
+					<ol class="mt-8 space-y-4 text-muted">
+						{copy.verify.steps.map((step, index) => (
+							<li class="grid grid-cols-[1.5rem_1fr] gap-3">
+								<span class="tabular-nums text-ink">{index + 1}</span>
+								<span>{step}</span>
+							</li>
+						))}
+					</ol>
+				</div>
+			</div>
+		</section>
+	)
+}

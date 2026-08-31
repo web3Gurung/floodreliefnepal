@@ -1,3 +1,13 @@
+/**
+ * Both languages of every page. The switcher and the canonical alternates read
+ * the pair for the page being rendered, so a reader on the Nepali transparency
+ * page reaches the English transparency page rather than the homepage.
+ */
+export const routes = {
+	home: { en: '/', ne: '/np/' },
+	transparency: { en: '/transparency', ne: '/np/transparency' },
+} as const;
+
 export const site = {
 	name: 'Flood Relief Nepal',
 	url: 'https://floodreliefnepal.com',
@@ -23,10 +33,7 @@ export const site = {
 		ifrc: 'https://www.ifrc.org/press-release/nepal-ifrc-releases-emergency-funds-flash-floods-leave-communities-isolated',
 		raisedReport: 'https://english.onlinekhabar.com/pms-disaster-relief-fund.html',
 	},
-	routes: {
-		en: '/',
-		ne: '/np/',
-	},
+	routes: routes.home,
 } as const;
 
 /** Phone numbers live here only. Translations override the labels by index. */
@@ -177,6 +184,18 @@ export const needs = [
 	{ group: 'Power', items: ['Power banks and chargers'] },
 ] as const;
 
+/**
+ * The onchain collection address for the Nepal Relief drive. Engage Nepal, a US
+ * 501(c)(3), holds it and passes what arrives to the Prime Minister Disaster
+ * Relief Fund. Figures for this address come from `ledger.json`, which the
+ * indexer writes. Nothing here is hand entered.
+ */
+export const receiving = {
+	address: '0xA891BB5abf91aBf1796074a1303E75754AF1823D',
+	chain: 'Ethereum mainnet',
+	explorer: 'https://etherscan.io',
+} as const;
+
 export const en = {
 	meta: {
 		title: 'Flood Relief Nepal, public guide for Bhotekoshi flood relief',
@@ -185,6 +204,7 @@ export const en = {
 	},
 	ui: {
 		skipToContent: 'Skip to content',
+		opensInNewTab: 'opens in a new tab',
 		asOf: 'As of',
 		sentenceEnd: '.',
 		languageLabel: 'Language',
@@ -352,6 +372,61 @@ export const en = {
 		heading: 'Sources',
 		lede: "Government notices and reporting dated 27 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal.",
 		items: sources,
+	},
+	transparency: {
+		meta: {
+			title: 'Transparency, every donation to Nepal Relief',
+			description:
+				'Every crypto donation that reached the Nepal Relief address, the running total in US dollars, and a link to check each one on Etherscan.',
+		},
+		chainName: 'Ethereum mainnet',
+		eyebrow: 'Nepal Relief',
+		heading: 'Every donation that has arrived',
+		lede: 'Engage Nepal, a US 501(c)(3), collects these donations onchain and passes them to the Prime Minister Disaster Relief Fund. This page reads the receiving address directly, so you can check every figure on it against the public record.',
+		total: {
+			label: 'Received so far',
+			basis: 'Each figure uses the price of the asset at the moment that donation arrived.',
+			donationsOne: 'donation',
+			donationsMany: 'donations',
+			updated: 'This page last read the chain on {when}.',
+		},
+		excluded: {
+			covers: 'The total covers {covered} of {total}.',
+			unpriced: 'Of those, {count} arrived in an asset whose price no source publishes.',
+			lowConfidence:
+				'Of those, {count} arrived in an asset whose published price looked unreliable.',
+			tableNote: 'The table lists the amount that arrived.',
+		},
+		table: {
+			heading: 'Donations',
+			note: 'Showing the {shown} most recent of {total}.',
+			timesNote: 'Times are UTC.',
+			columns: {
+				time: 'Arrived',
+				asset: 'Asset',
+				amount: 'Amount',
+				usd: 'US dollars',
+				check: 'Check',
+			},
+			noPrice: 'Price unpublished',
+			checkLabel: 'Etherscan',
+			checkAria: 'Open transaction {hash} on Etherscan',
+		},
+		verify: {
+			heading: 'Check this yourself',
+			lede: 'Every number above comes from the public record. Here is how to read that record directly.',
+			addressLabel: 'Receiving address, {chain}',
+			addressLink: 'Open the address on Etherscan',
+			steps: [
+				'Open the address on Etherscan and read the token transfers tab. Every donation in the table above appears there, with the same hash and the same amount.',
+				'Add the amounts. This page values each donation at the price of its asset at the moment it arrived, so the dollar column can differ from what the same amount is worth today.',
+				'Read the timestamp under the total. It says when this page last read the chain.',
+			],
+		},
+		empty: {
+			heading: 'The address is live and waiting',
+			body: 'This address is ready to receive. Every donation will appear here as it lands, with a link to check it on Etherscan.',
+		},
 	},
 	footer: {
 		lastChecked: 'Last checked',

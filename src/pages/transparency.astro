@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Transparency from '../components/Transparency.astro';
+import { en, routes } from '../data/site';
+
+const copy = en.transparency;
+---
+
+<Layout
+	title={copy.meta.title}
+	description={copy.meta.description}
+	lang="en"
+	faq={false}
+	pageRoutes={routes.transparency}
+>
+	<Transparency />
+</Layout>

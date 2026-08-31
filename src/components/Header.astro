@@ -1,9 +1,21 @@
 ---
+import { routes } from '../data/site';
 import { copyForPath, langFromPath } from '../data/copy';
 
+interface Props {
+	/** Both languages of the page being rendered. Defaults to the homepage. */
+	pageRoutes?: { readonly en: string; readonly ne: string };
+}
+
+const { pageRoutes = routes.home } = Astro.props;
 const lang = langFromPath(Astro.url.pathname);
 const header = copyForPath(Astro.url.pathname).header;
-const home = lang === 'ne' ? '/np/' : '/';
+const home = lang === 'ne' ? routes.home.ne : routes.home.en;
+
+// The money section lives on the homepage, so pages beyond it link back to it.
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const onHome = path === home.replace(/\/+$/, '') || path === '/';
+const give = onHome ? '#give' : `${home}#give`;
 ---
 
 <header class="hairline">
@@ -16,7 +28,7 @@ const home = lang === 'ne' ? '/np/' : '/';
 						<li>
 							<a
 								class="underline-offset-4 hover:underline aria-[current=true]:font-medium aria-[current=true]:underline"
-								href={language.href}
+								href={language.lang === 'ne' ? pageRoutes.ne : pageRoutes.en}
 								hreflang={language.lang}
 								lang={language.lang}
 								aria-current={language.lang === lang ? 'true' : undefined}
@@ -27,7 +39,7 @@ const home = lang === 'ne' ? '/np/' : '/';
 					))
 				}
 			</ul>
-			<a class="btn-outline" href="#give">{header.give}</a>
+			<a class="btn-outline" href={give}>{header.give}</a>
 		</div>
 	</nav>
 </header>

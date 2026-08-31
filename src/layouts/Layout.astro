@@ -3,7 +3,7 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site } from '../data/site';
+import { routes, site } from '../data/site';
 import { copyFor, type Lang } from '../data/copy';
 
 interface Props {
@@ -12,17 +12,25 @@ interface Props {
 	lang?: Lang;
 	/** The FAQ block only renders on the guide pages, so 404 opts out. */
 	faq?: boolean;
+	/** Both languages of this page, for the switcher and the alternates. */
+	pageRoutes?: { readonly en: string; readonly ne: string };
 }
 
-const { title, description, lang = 'en', faq = true } = Astro.props;
+const {
+	title,
+	description,
+	lang = 'en',
+	faq = true,
+	pageRoutes = routes.home,
+} = Astro.props;
 const copy = copyFor(lang);
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site ?? site.url);
 const base = Astro.site ?? new URL(site.url);
 const alternates = [
-	{ hreflang: 'en', href: new URL(site.routes.en, base).href },
-	{ hreflang: 'ne', href: new URL(site.routes.ne, base).href },
-	{ hreflang: 'x-default', href: new URL(site.routes.en, base).href },
+	{ hreflang: 'en', href: new URL(pageRoutes.en, base).href },
+	{ hreflang: 'ne', href: new URL(pageRoutes.ne, base).href },
+	{ hreflang: 'x-default', href: new URL(pageRoutes.en, base).href },
 ];
 
 const organizationLd = {
@@ -103,7 +111,7 @@ const faqLd = {
 		>
 			{copy.ui.skipToContent}
 		</a>
-		<Header />
+		<Header pageRoutes={pageRoutes} />
 		<main id="content">
 			<slot />
 		</main>
