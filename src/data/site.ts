@@ -339,7 +339,7 @@ export const en = {
 		heading: 'Send money',
 		raised,
 		raisedReportLabel: 'Read the report',
-		lede: 'Choose how you pay. UPI if you are in India, Alipay+ if you use that wallet, a card from anywhere, or a bank transfer.',
+		lede: 'Choose how you pay. UPI if you are in India, Alipay or an app that supports Alipay+, a card from anywhere, or a bank transfer.',
 		tabsLabel: 'How to pay',
 		tabs: [
 			{ id: 'upi', label: 'UPI', detail: 'If you are in India' },
@@ -392,7 +392,7 @@ export const en = {
 				shot: 'nepalpay',
 				eyebrow: 'If you use Alipay+',
 				heading: 'Scan with Alipay+',
-				body: 'Open Alipay+ or a wallet that works with it and scan the NepalPAY code. You can also open the government portal and pick NepalPAY QR. Do not pay a QR that arrived in a chat.',
+				body: 'Open Alipay or an app that supports Alipay+ and scan the NepalPAY code. You can also open the government portal and pick NepalPAY QR. Do not pay a QR that arrived in a chat.',
 				caption: 'NepalPAY QR on pmdrf.nchl.com.np',
 				alt: 'Official NepalPAY QR on the government portal, for Alipay+',
 				action: {
@@ -493,8 +493,8 @@ export const en = {
 				a: 'Yes. Open your UPI app and scan the Fonepay code in the money section, or open pmdrf.nchl.com.np and pick Fonepay QR.',
 			},
 			{
-				q: 'Can I pay with Alipay+?',
-				a: 'Yes. Open Alipay+ or a wallet that works with it and scan the NepalPAY code in the money section, or open pmdrf.nchl.com.np and pick NepalPAY QR.',
+				q: 'Can I pay with Alipay or an app that supports Alipay+?',
+				a: 'Yes. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code in the money section, or open pmdrf.nchl.com.np and pick NepalPAY QR.',
 			},
 			{
 				q: 'Can I use Wise, Remitly, or a bank SWIFT transfer?',
@@ -513,7 +513,7 @@ export const en = {
 	share: {
 		heading: 'Share this page',
 		lede: 'Copy the post below and put it where people are asking how to help. The text stays selectable if the button does not work.',
-		post: 'Bhotekoshi flood relief runs through one government door. Cards go to pmdrf.nchl.com.np. If you are in India, scan the Fonepay UPI code on floodreliefnepal.com. Alipay+ users scan the NepalPAY code there. Ignore a QR that arrived in a chat.',
+		post: 'Bhotekoshi flood relief runs through one government door. Cards go to pmdrf.nchl.com.np. If you are in India, scan the Fonepay UPI code on floodreliefnepal.com. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code there. Ignore a QR that arrived in a chat.',
 		copyLabel: 'Copy the post',
 		copiedLabel: 'Copied',
 		image: {
