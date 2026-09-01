@@ -11,7 +11,7 @@
  */
 import ledger from '../data/ledger.json';
 import { receiving } from '../data/site';
-import { copyForPath, fill, langFromPath } from '../data/copy';
+import { copyForPath, dateLocaleFor, fill, langFromPath } from '../data/copy';
 import { weightTokens } from '../data/tokens';
 
 const lang = langFromPath(Astro.url.pathname);
@@ -45,7 +45,7 @@ const tiles = all.map((entry) => {
 	};
 });
 
-const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
+const dateFormat = new Intl.DateTimeFormat(dateLocaleFor(lang), {
 	day: 'numeric',
 	month: 'short',
 	year: 'numeric',

@@ -18,11 +18,9 @@ Two pages, built as static HTML.
 
 The guide is the homepage. English at `/`, Nepali at `/np/`, Simplified Chinese at `/zh/`.
 
-The transparency page is at `/transparency` and `/np/transparency`. It exists in
-English and Nepali only, on purpose: nobody here reads Chinese well enough to
-publish a page about money in it. The switcher on that page offers two languages
-rather than linking a third to a different page, and its hreflang alternates say
-the same thing.
+The transparency page is at `/transparency`, `/np/transparency`, and `/zh/transparency`.
+English, Nepali, and Simplified Chinese. The switcher and hreflang alternates
+follow the page being rendered.
 
 1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
 2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
@@ -47,12 +45,13 @@ Pages:
 - `src/pages/index.astro` is `/`
 - `src/pages/np/index.astro` is `/np/`
 - `src/pages/zh/index.astro` is `/zh/`
-- `src/pages/transparency.astro` is `/transparency`, `src/pages/np/transparency.astro` is `/np/transparency`
+- `src/pages/transparency.astro` is `/transparency`, `src/pages/np/transparency.astro` is `/np/transparency`, `src/pages/zh/transparency.astro` is `/zh/transparency`
 - `src/pages/404.astro` is the not-found page
 
-Every page exists in both languages. `routes` in `src/data/site.ts` holds both
-URLs of each page, and `Layout.astro` takes a `pageRoutes` pair so the language
-switcher and the canonical alternates follow the page being rendered.
+Every page exists in English, Nepali, and Simplified Chinese. `routes` in
+`src/data/site.ts` holds the URLs of each page, and `Layout.astro` takes a
+`pageRoutes` set so the language switcher and the canonical alternates follow
+the page being rendered.
 
 Layout and chrome:
 

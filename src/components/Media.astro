@@ -16,7 +16,7 @@
  * deferred, and only when a post is actually on the page.
  */
 import { media } from '../data/media';
-import { copyForPath, langFromPath } from '../data/copy';
+import { copyForPath, dateLocaleFor, langFromPath } from '../data/copy';
 
 const copy = copyForPath(Astro.url.pathname).transparency.media;
 const lang = langFromPath(Astro.url.pathname);
@@ -25,7 +25,7 @@ const lang = langFromPath(Astro.url.pathname);
 const items = media;
 const hasPosts = items.some((item) => item.type === 'post');
 
-const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
+const dateFormat = new Intl.DateTimeFormat(dateLocaleFor(lang), {
 	day: 'numeric',
 	month: 'short',
 	year: 'numeric',

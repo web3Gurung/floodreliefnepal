@@ -20,7 +20,7 @@ Phase 1 covers inbound donations only. The bank leg comes later. Build so that a
 
 ### Stack
 
-- Frontend: new Astro page in this repo at `/transparency`, plus `/np/transparency`. Reuse the existing layout, header, footer, and language switcher. Do not introduce a new design system.
+- Frontend: new Astro page in this repo at `/transparency`, plus `/np/transparency` and `/zh/transparency`. Reuse the existing layout, header, footer, and language switcher. Do not introduce a new design system.
 - One client island for the visualization. Preact or React, whichever the repo already has. If neither, use Preact.
 - Indexer: Cloudflare Worker with a cron trigger, every 60 seconds.
 - Store: Supabase Postgres.
