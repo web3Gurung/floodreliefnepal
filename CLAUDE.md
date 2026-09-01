@@ -4,11 +4,11 @@ See `AGENTS.md` for stack, content rules, and commands.
 
 Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`.
 
-This is a static Astro site with Tailwind. Light mode only. Outfit for type. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
+This is a static Astro site with Tailwind. Light mode only. Outfit for type, Noto Sans Devanagari on `/np/`, Noto Sans SC on `/zh/`. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
 
-Cash: `https://pmdrf.nchl.com.np/` (card, Fonepay/UPI, NepalPAY/Alipay+). Second government gateway, quotes in USD: `https://pmrelieffund.himalayanbank.com/`. SWIFT table is on the Wise/Remitly panel, sourced from the Nepal Embassy, India post.
+Cash: `https://pmdrf.nchl.com.np/` (card, Fonepay/UPI, NepalPAY/Alipay+). Second government gateway, quotes in USD: `https://pmrelieffund.himalayanbank.com/`. SWIFT table is on the Wise/Remitly panel, sourced from the Nepal Embassy, India post. Alipay+ apps that can scan NepalPAY QR come from NCHL: `https://nchl.com.np/alipay-mobile-payments-partner/`.
 
-Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`.
+Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
 
 Official outbound links open in a new tab. Yellow marker is only for the named high-stakes phrases in `AGENTS.md`. Recalculate the dollar conversion of the fund total from the NRB USD buying rate on the amount's `asOf` date.
 

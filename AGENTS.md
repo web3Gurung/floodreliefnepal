@@ -13,10 +13,10 @@ One homepage, built as static HTML. English at `/`, Nepali at `/np/`, Simplified
 1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
 2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
 3. Policy. What the one-door rule is, and that private collection drives are not allowed. The private-collection sentence is yellow-marked.
-4. Give. Four-option switcher: UPI, Alipay+, Card, and Wise/Remitly. Default is UPI. Tiles set `data-pay` in JS. Do not use `:target` hashes; those scroll the page. UPI and Alipay+ show official portal screenshots (`src/assets/pmdrf-fonepay.jpg`, `src/assets/pmdrf-nepalpay.jpg`) and send people to `https://pmdrf.nchl.com.np/`. Card is fiat and crypto, same portal, with the Himalayan Bank USD gateway as a callout. Wise/Remitly shows the SWIFT table from `swiftAccounts`. Source line is the Nepal Embassy, India post. Fund total sits under the switcher, rupees plus a dollar conversion.
+4. Give. Four-option switcher: UPI, Alipay+, Card, and Wise/Remitly. Default is UPI. Tiles set `data-pay` in JS. Do not use `:target` hashes; those scroll the page. Do not put links inside `.give-option` buttons. UPI and Alipay+ show official portal screenshots (`src/assets/pmdrf-fonepay.jpg`, `src/assets/pmdrf-nepalpay.jpg`) and send people to `https://pmdrf.nchl.com.np/`. The Chinese Alipay tab is labelled 支付宝/ Alipay+. Its FAQ jump lives in the panel eyebrow, not in the tab. Card is fiat and crypto, same portal, with the Himalayan Bank USD gateway as a callout. Wise/Remitly shows the SWIFT table from `swiftAccounts`. Source line is the Nepal Embassy, India post. Fund total sits under the switcher, rupees plus a dollar conversion.
 5. Verify. Short scam checks. The two official payment domains are bold.
 6. Supplies. What responders are handing out, then the three government drop-off points with contacts.
-7. Questions. Short FAQ.
+7. Questions. Short FAQ. The Alipay+ apps answer copies NCHL's NepalPAY list at `https://nchl.com.np/alipay-mobile-payments-partner/`. Do not copy the global Alipay+ directory.
 8. Share. Copyable post and share image (`public/og.png`).
 9. Sources. Two-column list of notices and reporting used for the copy.
 
@@ -67,7 +67,7 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 ## Copy
 
 - This is an independent public guide, not an official government site. Do not say otherwise.
-- Hero title is Flood Relief Nepal
+- Hero title is Flood Relief Nepal. Chinese brand is 尼泊尔洪灾救济.
 - Sentence case headings
 - No em dashes
 - No curly quotes
@@ -76,6 +76,8 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 - Official outbound links open in a new tab (`target="_blank"` plus `rel="noopener noreferrer"`). Same-page jumps, language switch, skip link, 404 home, and `tel:` stay in this tab.
 - Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा" / "以美元计价", the private-collection ban, and the USD cell in the SWIFT table. Do not mark the whole Himalayan row. Do not mark every sentence.
 - Remittance source on the page is the Nepal Embassy, India post. Do not put the PMO PDF on Give, FAQ, or Sources.
+- Alipay+ apps that can scan NepalPAY QR come from NCHL (`site.official.alipayPartners`). Cite that page in Sources. Do not add wallets NCHL does not list.
+- Footer made-by is Ronak and Ayushman. Do not add extra makers unless a maintainer asks.
 - The dollar figure next to the fund total is a conversion of the rupee amount at the Nepal Rastra Bank USD buying rate on the `asOf` date. Recalculate it when the rupee figure changes. Do not invent a new total.
 
 ## Commands

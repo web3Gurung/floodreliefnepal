@@ -7,6 +7,7 @@
 - Cash and supplies for Bhotekoshi relief are supposed to go through one door: the Prime Minister's Disaster Relief Fund. The Ministry of Finance says the rule covers people, companies, donor agencies, and foreign organisations.
 - Private groups are not authorised to collect cash or goods for this disaster. Finance officials called independent collection drives illegal; the Home Ministry has orders to shut them down.
 - Card, UPI (Fonepay QR), and Alipay+ (NepalPAY QR): https://pmdrf.nchl.com.np/
+- Alipay+ apps that can scan NepalPAY QR are the ones NCHL lists (Alipay, AlipayHK, MPay, Touch 'n Go eWallet, MyPB, GCash, Changi Pay, OCBC Digital, BigPay, Starryblu, KakaoPay, Naver Pay, Toss Pay, TrueMoney, Hipay, Tinaba, Bluecode): https://nchl.com.np/alipay-mobile-payments-partner/
 - Second government gateway, quotes in USD: https://pmrelieffund.himalayanbank.com/
 - Bank transfer / SWIFT: account name "PRIME MINISTER DISASTER RELIEF FUND". Full account and SWIFT table is on the page below, sourced from the Nepal Embassy, India post.
 - No ceiling on how much can be sent: Nepal Rastra Bank lifted digital transfer caps into the two Prime Minister funds.
@@ -25,4 +26,5 @@
 - [Ministry of Home Affairs](https://moha.gov.np/en/post/ha-ra-tha-ka-apa-l-11): official disaster relief appeal.
 - [The Kathmandu Post explainer](https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far): what is known about the flood.
 - [Nepal Police Cyber Bureau warning](https://english.onlinekhabar.com/cyber-bureau-warns-public-of-disaster-relief-scams.html): fake QR codes and cloned relief pages.
+- [NCHL Alipay+](https://nchl.com.np/alipay-mobile-payments-partner/): Alipay+ apps that can scan NepalPAY QR.
 - Full source list, with notes, is on the guide pages above under "Sources."

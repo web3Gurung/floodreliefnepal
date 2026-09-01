@@ -6,6 +6,7 @@ It does not collect donations. It lists where to send money, where to drop suppl
 
 - Cash: [pmdrf.nchl.com.np](https://pmdrf.nchl.com.np/) (card, Fonepay/UPI, NepalPAY/Alipay+)
 - USD gateway: [pmrelieffund.himalayanbank.com](https://pmrelieffund.himalayanbank.com/)
+- Alipay+ wallets that can scan NepalPAY QR: [NCHL partner list](https://nchl.com.np/alipay-mobile-payments-partner/)
 - SWIFT and remittance apps: table on the Wise/Remitly panel, sourced from the [Nepal Embassy, India post](https://x.com/EONIndia/status/2093249597858828784)
 - Content: `src/data/site.ts` (English), `src/data/site.np.ts` (Nepali), and `src/data/site.zh.ts` (Simplified Chinese at `/zh/`)
 - How the repo is laid out: `AGENTS.md`
