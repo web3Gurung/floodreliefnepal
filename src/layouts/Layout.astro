@@ -3,8 +3,10 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site } from '../data/site';
+import { routes, site } from '../data/site';
 import { copyFor, type Lang } from '../data/copy';
+
+type PageRoutes = { readonly en: string; readonly ne?: string; readonly zh?: string };
 
 interface Props {
 	title: string;
@@ -12,9 +14,21 @@ interface Props {
 	lang?: Lang;
 	/** The FAQ block only renders on the guide pages, so 404 opts out. */
 	faq?: boolean;
+	/**
+	 * Every language this page exists in, for the switcher and the alternates.
+	 * Defaults to the homepage, which exists in all three. A page that skips a
+	 * language leaves it out here and stops claiming it.
+	 */
+	pageRoutes?: PageRoutes;
 }
 
-const { title, description, lang = 'en', faq = true } = Astro.props;
+const {
+	title,
+	description,
+	lang = 'en',
+	faq = true,
+	pageRoutes = routes.home,
+} = Astro.props;
 const copy = copyFor(lang);
 const htmlLang = lang === 'zh' ? 'zh-CN' : lang;
 const htmlClass = lang === 'ne' ? 'lang-np' : lang === 'zh' ? 'lang-zh' : undefined;
@@ -22,11 +36,13 @@ const ogLocale = lang === 'ne' ? 'ne_NP' : lang === 'zh' ? 'zh_CN' : 'en_US';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site ?? site.url);
 const base = Astro.site ?? new URL(site.url);
+// Only the languages this page actually has. Claiming an alternate that lands
+// on a different page is worse than claiming none.
 const alternates = [
-	{ hreflang: 'en', href: new URL(site.routes.en, base).href },
-	{ hreflang: 'ne', href: new URL(site.routes.ne, base).href },
-	{ hreflang: 'zh', href: new URL(site.routes.zh, base).href },
-	{ hreflang: 'x-default', href: new URL(site.routes.en, base).href },
+	...(['en', 'ne', 'zh'] as const)
+		.filter((code) => pageRoutes[code])
+		.map((code) => ({ hreflang: code, href: new URL(pageRoutes[code] as string, base).href })),
+	{ hreflang: 'x-default', href: new URL(pageRoutes.en, base).href },
 ];
 
 const organizationLd = {
@@ -124,7 +140,7 @@ const faqLd = {
 		>
 			{copy.ui.skipToContent}
 		</a>
-		<Header />
+		<Header pageRoutes={pageRoutes} />
 		<main id="content">
 			<slot />
 		</main>

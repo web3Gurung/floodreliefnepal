@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "deploy": "npm run build && wrangler deploy",
-    "preview:worker": "npm run build && wrangler dev"
+    "preview:worker": "npm run build && wrangler dev",
+    "index:donations": "node --env-file=.env.local scripts/index-donations.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

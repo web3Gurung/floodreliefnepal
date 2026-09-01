@@ -6,9 +6,28 @@ Always `git pull` on the branch you will edit before making changes. If you alre
 
 This is a static Astro site with Tailwind. Light mode only. Outfit for type, Noto Sans Devanagari on `/np/`, Noto Sans SC on `/zh/`. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
 
+That last sentence and the transparency page disagree, and the disagreement is open
+on purpose. See the note at the top of `AGENTS.md`. Do not resolve it by editing the
+homepage copy or the private collection warnings.
+
+The guide is at `/`, `/np/` and `/zh/`. The transparency page is at `/transparency`
+and `/np/transparency`, in English and Nepali only, on purpose.
+
 Cash: `https://pmdrf.nchl.com.np/` (card, Fonepay/UPI, NepalPAY/Alipay+). Second government gateway, quotes in USD: `https://pmrelieffund.himalayanbank.com/`. SWIFT table is on the Wise/Remitly panel, sourced from the Nepal Embassy, India post. Alipay+ apps that can scan NepalPAY QR come from NCHL: `https://nchl.com.np/alipay-mobile-payments-partner/`.
 
+Donation figures: `src/data/ledger.json`. Generated and committed, so the site builds
+with no credential. `scripts/index-donations.ts` writes it, run with
+`npm run index:donations`. Never hand edit it. Never guess a price: below 0.9
+confidence a row stays unpriced, out of the total, and counted on the page.
+
+Merging to `main` deploys the site and the Worker together. The KV namespace id must
+be committed and the three secrets pushed before a Worker change merges.
+
 Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
+
+The receiving address for the crypto drive is verified and lives in `receiving` in
+`src/data/site.ts`. Do not add other bank account numbers or QR codes until a
+teammate PR brings verified details.
 
 Official outbound links open in a new tab. Yellow marker is only for the named high-stakes phrases in `AGENTS.md`. Recalculate the dollar conversion of the fund total from the NRB USD buying rate on the amount's `asOf` date.
 
@@ -16,8 +35,11 @@ Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP.
 
 CSS is inlined (`build.inlineStylesheets: 'always'`). Do not split it back out. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the short cache so a deploy still shows up. Compression is Cloudflare. Do not gzip files in the repo. Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo.
 
-Deploy as Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com`. Push to `main` builds and deploys. Keep the Wrangler `name` as `floodreliefnepal`. `dist/` is gitignored build output. `npm run deploy` builds then `wrangler deploy`. No Worker script, cron, or secrets yet. Secrets: `wrangler secret put`. `www` redirects to the apex in Cloudflare, not in this repo. Do not reattach the domain to Pages.
+Deploy as Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com`. Push to `main` builds and deploys. Keep the Wrangler `name` as `floodreliefnepal`. `dist/` is gitignored build output. `npm run deploy` builds then `wrangler deploy`. The Worker script is `worker/index.ts`, its cron and KV binding are in `wrangler.jsonc`, and its three secrets live only in the Cloudflare account. Secrets: `wrangler secret put`. `www` redirects to the apex in Cloudflare, not in this repo. Do not reattach the domain to Pages.
 
 Do not invent SWIFT rows, extra account numbers, or extra QR codes. Change `swiftAccounts` only when a teammate PR brings verified details.
 
 Do not commit `.agents/`, `.claude/`, `.opencode/`, or skill lockfiles.
+
+`.env.local` holds the Etherscan key and the Supabase credentials. It is gitignored.
+Never print it, never commit it, never inline a key into source.

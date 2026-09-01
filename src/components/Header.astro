@@ -1,10 +1,25 @@
 ---
-import { site } from '../data/site';
+import { routes, site } from '../data/site';
 import { copyForPath, langFromPath } from '../data/copy';
 
+interface Props {
+	/** Every language the page being rendered exists in. Defaults to the homepage. */
+	pageRoutes?: { readonly en: string; readonly ne?: string; readonly zh?: string };
+}
+
+const { pageRoutes = routes.home } = Astro.props;
 const lang = langFromPath(Astro.url.pathname);
 const header = copyForPath(Astro.url.pathname).header;
 const home = site.routes[lang];
+
+// A page offers only the languages it has. Sending a reader to a different page
+// under a language label is worse than not offering that language here.
+const languages = header.languages.filter((language) => pageRoutes[language.lang]);
+
+// The money section lives on the homepage, so pages beyond it link back to it.
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const onHome = path === home.replace(/\/+$/, '') || path === '/';
+const give = onHome ? '#give' : `${home}#give`;
 ---
 
 <header class="hairline">
@@ -15,11 +30,11 @@ const home = site.routes[lang];
 		<div class="flex items-center gap-2 sm:gap-4">
 			<ul class="flex items-center text-[0.9rem]">
 				{
-					header.languages.map((language) => (
+					languages.map((language) => (
 						<li>
 							<a
 								class="inline-flex min-h-11 min-w-11 items-center justify-center px-2 underline-offset-4 hover:underline aria-[current=true]:font-medium aria-[current=true]:underline"
-								href={language.href}
+								href={pageRoutes[language.lang]}
 								hreflang={language.lang}
 								lang={language.lang}
 								aria-current={language.lang === lang ? 'true' : undefined}
@@ -30,7 +45,7 @@ const home = site.routes[lang];
 					))
 				}
 			</ul>
-			<a class="btn-outline" href="#give">{header.give}</a>
+			<a class="btn-outline" href={give}>{header.give}</a>
 		</div>
 	</nav>
 </header>

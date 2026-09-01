@@ -1,6 +1,7 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "floodreliefnepal",
+	"main": "./worker/index.ts",
 	"compatibility_date": "2026-09-01",
 	"preview_urls": true,
 	"routes": [
@@ -9,13 +10,38 @@
 			"zone_name": "floodreliefnepal.com"
 		}
 	],
+
+	// Astro's static output. The Worker answers /api/ledger and hands every
+	// other path to this binding.
 	"assets": {
 		"directory": "./dist",
+		"binding": "ASSETS",
 		// Multi-page Astro site with src/pages/404.astro. Do not use
 		// single-page-application: that would serve index.html for unknown routes.
 		"not_found_handling": "404-page"
 	},
+
+	// Holds one key, `ledger`, written by the cron below. The id is an
+	// identifier, not a credential, so it belongs in the repo.
+	"kv_namespaces": [
+		{
+			"binding": "LEDGER",
+			"id": "2881bd179f754978a66ea065b0bd25e5"
+		}
+	],
+
+	// Every 60 seconds. Ethereum blocks are 12 seconds and the free Etherscan
+	// quota is 100,000 calls a day, so anything faster spends quota for no
+	// freshness.
+	"triggers": {
+		"crons": ["* * * * *"]
+	},
+
+	// A cron that fails does so silently. This is how you find out.
 	"observability": {
 		"enabled": true
 	}
+
+	// Secrets are never in this file. Push them with `wrangler secret put`:
+	// ETHERSCAN_API_KEY, SUPABASE_URL, SUPABASE_SECRET_KEY.
 }

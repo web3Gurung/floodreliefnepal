@@ -1,3 +1,18 @@
+/**
+ * Every language each page exists in. The switcher and the canonical alternates
+ * read the set for the page being rendered, so a reader on the Nepali
+ * transparency page reaches the English transparency page rather than the
+ * homepage.
+ *
+ * The guide exists in three languages. The transparency page exists in two, and
+ * deliberately offers no Chinese rather than machine translating a page about
+ * money into a language nobody on the team reads.
+ */
+export const routes = {
+	home: { en: '/', ne: '/np/', zh: '/zh/' },
+	transparency: { en: '/transparency', ne: '/np/transparency' },
+} as const;
+
 export const site = {
 	name: 'Flood Relief Nepal',
 	url: 'https://floodreliefnepal.com',
@@ -31,11 +46,7 @@ export const site = {
 		raisedReport: 'https://english.onlinekhabar.com/pms-disaster-relief-fund.html',
 		alipayPartners: 'https://nchl.com.np/alipay-mobile-payments-partner/',
 	},
-	routes: {
-		en: '/',
-		ne: '/np/',
-		zh: '/zh/',
-	},
+	routes: routes.home,
 } as const;
 
 /** Phone numbers live here only. Translations override the labels by index. */
@@ -287,6 +298,18 @@ export const needs = [
 	{ group: 'Power', items: ['Power banks and chargers'] },
 ] as const;
 
+/**
+ * The onchain collection address for the Nepal Relief drive. Engage Nepal, a US
+ * 501(c)(3), holds it and passes what arrives to the Prime Minister Disaster
+ * Relief Fund. Figures for this address come from `ledger.json`, which the
+ * indexer writes. Nothing here is hand entered.
+ */
+export const receiving = {
+	address: '0xA891BB5abf91aBf1796074a1303E75754AF1823D',
+	chain: 'Ethereum mainnet',
+	explorer: 'https://etherscan.io',
+} as const;
+
 export const en = {
 	meta: {
 		title: 'Flood Relief Nepal, public guide for Bhotekoshi flood relief',
@@ -295,6 +318,7 @@ export const en = {
 	},
 	ui: {
 		skipToContent: 'Skip to content',
+		opensInNewTab: 'opens in a new tab',
 		asOf: 'As of',
 		sentenceEnd: '.',
 		languageLabel: 'Language',
@@ -535,6 +559,166 @@ export const en = {
 		heading: 'Sources',
 		lede: "Government notices and reporting dated 27 and 28 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal.",
 		items: sources,
+	},
+	transparency: {
+		meta: {
+			title: 'Transparency, every donation to Nepal Relief',
+			description:
+				'Every crypto donation that reached the Nepal Relief address, the running total in US dollars, and a link to check each one on Etherscan.',
+		},
+		chainName: 'Ethereum mainnet',
+		eyebrow: 'Nepal Relief',
+		heading: 'Every donation that has arrived',
+		lede: 'Engage Nepal, a US 501(c)(3), collects these donations onchain and passes them to the Prime Minister Disaster Relief Fund. This page reads the receiving address directly, so you can check every figure on it against the public record.',
+		total: {
+			label: 'Received so far',
+			basis: 'Each figure uses the price of the asset at the moment that donation arrived.',
+			donationsOne: 'donation',
+			donationsMany: 'donations',
+			updated: 'This page last read the chain on {when}.',
+			updatedAgo: 'This page last read the chain {ago}.',
+			ago: {
+				template: '{value} {unit} ago',
+				lessThanAMinute: 'less than a minute ago',
+				minute: 'minute',
+				minutes: 'minutes',
+				hour: 'hour',
+				hours: 'hours',
+				day: 'day',
+				days: 'days',
+			},
+			feedBehind:
+				'The live feed reports {count} and {total}. The figures on this page were read on {when}.',
+			feedStale:
+				'The live feed last read the chain {ago}. The figures on this page were read on {when}.',
+			feedDown: 'The live feed is not answering. The figures on this page were read on {when}.',
+		},
+		excluded: {
+			covers: 'The total covers {covered} of {total}.',
+			unpriced: 'Of those, {count} arrived in an asset whose price no source publishes.',
+			lowConfidence:
+				'Of those, {count} arrived in an asset whose published price looked unreliable.',
+			tableNote: 'The table lists the amount that arrived.',
+		},
+		table: {
+			heading: 'Donations',
+			note: 'Showing the {shown} most recent of {total}.',
+			timesNote: 'Times are UTC.',
+			columns: {
+				time: 'Arrived',
+				asset: 'Asset',
+				amount: 'Amount',
+				usd: 'US dollars',
+				check: 'Check',
+			},
+			noPrice: 'Price unpublished',
+			checkLabel: 'Etherscan',
+			checkAria: 'Open transaction {hash} on Etherscan',
+		},
+		merge: {
+			heading: 'Where it came from and where it sits',
+			lede: 'Each ribbon is one asset people sent. Its width is that asset\u2019s share of the total, so the picture reads the same way the number does.',
+			poolLabel: 'Held at this address',
+			reservedLabel: 'Sent to the fund',
+			reservedNote: 'This space fills when the first transfer to the fund goes out.',
+			legendHeading: 'What each ribbon is',
+			legendShare: '{percent} of the total',
+			legendCount: '{count}',
+			unknownShare: 'share unknown, this asset has no published price',
+			dotLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
+			figureLabel:
+				'A diagram of donations by asset flowing into the collection address, with the space for the onward transfer still empty.',
+			motionNote: 'The most recent donations move into the pool once when the page loads.',
+		},
+		pipeline: {
+			heading: 'What happens to your money',
+			lede: 'Six steps from your wallet to the fund. Each one says what happens and what proof exists.',
+			whatLabel: 'What happens',
+			proofLabel: 'What proof exists',
+			openLabel: 'Anyone can check this now',
+			documentLabel: 'You see this when we publish it',
+			notLiveLabel: 'Not live yet',
+			steps: [
+				{
+					title: 'Your wallet',
+					what: 'You send USDC, ETH or another asset from a wallet you control.',
+					proof: 'Your wallet signs the transaction and the blockchain records it. It is in your own transaction history.',
+					open: true,
+					live: true,
+				},
+				{
+					title: 'The swap',
+					what: 'If you paid in another asset or on another chain, a swap converts it and forwards the result.',
+					proof: 'The swap writes both sides on chain, and the arrival carries a transaction hash you can look up.',
+					open: true,
+					live: true,
+				},
+				{
+					title: 'The collection address',
+					what: 'The asset lands at the address Engage Nepal controls, and this page lists it within a minute.',
+					proof: 'Etherscan shows every arrival. The table on this page shows the same rows, at the same address.',
+					open: true,
+					live: true,
+				},
+				{
+					title: 'The exchange',
+					what: 'Engage Nepal converts the balance to United States dollars through a regulated exchange.',
+					proof: 'The exchange issues a statement to Engage Nepal. You see the amount when Engage Nepal publishes that statement.',
+					open: false,
+					live: false,
+				},
+				{
+					title: 'The bank transfer',
+					what: 'Engage Nepal wires those dollars to the account of the Prime Minister Disaster Relief Fund.',
+					proof: 'The wire receipt names the amount, the date and the recipient. You see it when Engage Nepal publishes it.',
+					open: false,
+					live: false,
+				},
+				{
+					title: 'The fund',
+					what: 'The Prime Minister Disaster Relief Fund receives the money and spends it on relief.',
+					proof: 'The fund reports its own totals. That accounting belongs to the government of Nepal.',
+					open: false,
+					live: false,
+				},
+			],
+			closing:
+				'The first three steps sit on a public blockchain. Anyone can check them right now, from any computer, without asking us for permission. The last three happen inside banks. You can see them only once we publish the paperwork, and you are trusting us to publish all of it. This page shows you where the public record stops and where trust begins.',
+		},
+		mosaic: {
+			heading: 'Every donation as a tile',
+			lede: 'One tile for each donation, oldest first. Tile size follows the amount, and the smallest carry a minimum size so they stay easy to tap.',
+			tileLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
+			unpricedNote: 'A tile in grey arrived in an asset with no published price.',
+		},
+		media: {
+			heading: 'Watched from outside',
+			lede: 'Posts and news about this drive from people who do not run it. Each quote stays in the language it was written in, and each one links to the original.',
+			postLabel: 'Post on X',
+			articleLabel: 'News article',
+			openPost: 'Open the post on X',
+			openArticle: 'Read the article',
+		},
+		steward: [
+			'Engage Nepal holds this address, a charitable organisation registered in the United States under section 501(c)(3).',
+			'It passes what arrives here to the Prime Minister Disaster Relief Fund.',
+			'A registered organisation answers for that money under United States charity law, and this page publishes every donation it receives.',
+		],
+		verify: {
+			heading: 'Check this yourself',
+			lede: 'Every number above comes from the public record. Here is how to read that record directly.',
+			addressLabel: 'Receiving address, {chain}',
+			addressLink: 'Open the address on Etherscan',
+			steps: [
+				'Open the address on Etherscan and read the token transfers tab. Every donation in the table above appears there, with the same hash and the same amount.',
+				'Add the amounts. This page values each donation at the price of its asset at the moment it arrived, so the dollar column can differ from what the same amount is worth today.',
+				'Read the timestamp under the total. It says when this page last read the chain.',
+			],
+		},
+		empty: {
+			heading: 'The address is live and waiting',
+			body: 'This address is ready to receive. Every donation will appear here as it lands, with a link to check it on Etherscan.',
+		},
 	},
 	footer: {
 		lastChecked: 'Last checked',

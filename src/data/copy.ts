@@ -32,3 +32,11 @@ export function splitBy(text: string, needles: readonly string[]) {
 		part === '' ? [] : [{ text: part, hit: needles.includes(part) }],
 	);
 }
+
+/**
+ * Fills `{name}` slots in a copy string. Word order differs between English and
+ * Nepali, so templates carry named slots rather than before and after fragments.
+ */
+export function fill(template: string, values: Record<string, string>): string {
+	return template.replace(/\{(\w+)\}/g, (match, key) => values[key] ?? match);
+}

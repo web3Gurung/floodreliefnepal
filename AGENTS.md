@@ -2,13 +2,27 @@
 
 Static public site at floodreliefnepal.com. It explains the government's one-door system for Bhotekoshi flood relief and points people to official channels. This project does not collect money.
 
+Open question, unresolved on purpose. The sentence above and the homepage copy both
+say this site collects nothing, and the transparency page reports a donation drive
+that does. Nobody should quietly reword either side. The team is deciding whether
+the transparency page moves to nepalrelief.org instead. Until that lands, leave the
+homepage copy and the private collection warnings exactly as they are.
+
 ## Before you change anything
 
 Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`. Do not start from a stale checkout.
 
 ## How it works
 
-One homepage, built as static HTML. English at `/`, Nepali at `/np/`, Simplified Chinese at `/zh/`.
+Two pages, built as static HTML.
+
+The guide is the homepage. English at `/`, Nepali at `/np/`, Simplified Chinese at `/zh/`.
+
+The transparency page is at `/transparency` and `/np/transparency`. It exists in
+English and Nepali only, on purpose: nobody here reads Chinese well enough to
+publish a page about money in it. The switcher on that page offers two languages
+rather than linking a third to a different page, and its hreflang alternates say
+the same thing.
 
 1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
 2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
@@ -20,20 +34,97 @@ One homepage, built as static HTML. English at `/`, Nepali at `/np/`, Simplified
 8. Share. Copyable post and share image (`public/og.png`).
 9. Sources. Two-column list of notices and reporting used for the copy.
 
-All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Simplified Chinese copy is `src/data/site.zh.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures.
+The transparency page reports the Nepal Relief crypto donation drive. It reads
+`src/data/ledger.json` at build time and shows the total received in USD, the
+donation count, anything excluded from the total, a table of donations linking each
+one to Etherscan, the merge visualisation, the mosaic, the six step pipeline
+explainer, and posts and headlines from outside the project.
+
+All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Simplified Chinese copy is `src/data/site.zh.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`, and `{name}` slots use `fill` in the same file. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures. The receiving address in `receiving` is verified and may stay.
 
 Pages:
 
 - `src/pages/index.astro` is `/`
 - `src/pages/np/index.astro` is `/np/`
 - `src/pages/zh/index.astro` is `/zh/`
+- `src/pages/transparency.astro` is `/transparency`, `src/pages/np/transparency.astro` is `/np/transparency`
 - `src/pages/404.astro` is the not-found page
+
+Every page exists in both languages. `routes` in `src/data/site.ts` holds both
+URLs of each page, and `Layout.astro` takes a `pageRoutes` pair so the language
+switcher and the canonical alternates follow the page being rendered.
 
 Layout and chrome:
 
 - `src/layouts/Layout.astro` wraps every page (fonts, metadata, header, footer)
 - Components sit in `src/components/`
 - Shared Tailwind classes sit in `src/styles/global.css` under `@layer components` (`wrap`, `chapter`, `btn`, and similar)
+
+## Deploying
+
+**Merging to `main` deploys.** The Cloudflare git build runs `npx astro build` and
+then `npx wrangler deploy`, so the site and the Worker go out together. There is no
+separate step and no assets only path that could strand the Worker.
+
+That makes two things prerequisites of the merge rather than jobs for afterwards.
+If either is missing when a Worker change lands, the deploy succeeds and ships an
+indexer that cannot run.
+
+- The KV namespace id is committed in `wrangler.jsonc`. Create the namespace with
+  `npx wrangler kv namespace create LEDGER` and paste the id. It is an identifier,
+  not a credential, and belongs in the repo.
+- The three secrets are pushed with `npx wrangler secret put`: `ETHERSCAN_API_KEY`,
+  `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. They live only in the Cloudflare account
+  and never in the repo. `npx wrangler secret list` shows the names.
+
+To deploy by hand from a machine that is logged in:
+
+```bash
+npm run deploy
+```
+
+Locally the Worker runs through
+`npx wrangler dev --local --env-file .env.local`, which reads the keys from
+`.env.local` and simulates KV. Visiting `/__scheduled` fires the cron by hand when
+started with `--test-scheduled`.
+
+### Telling a dead cron from a healthy one
+
+This was the failure mode worth designing against: when the indexer dies,
+`/api/ledger` keeps serving the last good payload and the page keeps rendering the
+committed one, so nothing looks wrong. Three things now prevent that.
+
+- Every `/api/ledger` response carries `x-ledger-age` in seconds,
+  `x-ledger-updated-at`, and `x-ledger-source`, which says whether the body came
+  from KV or from the committed copy.
+- The page asks the feed how it is doing and says so in words. Fresh and agreeing
+  with the page, ahead of the page, behind by hours, or not answering at all, each
+  gets its own line, and the last three are marked visibly.
+- A run writes to KV when the figures change **or** when the stored copy is older
+  than thirty minutes. Writing only on change would freeze `updated_at` through a
+  quiet night and make a healthy feed look dead.
+
+## The donation ledger
+
+`src/data/ledger.json` is the public payload for the transparency page. It is
+generated, and it is committed so the site builds without any credential.
+
+`scripts/index-donations.ts` writes it. Run `npm run index:donations`, which loads
+`.env.local` through `node --env-file`. The script reads three Etherscan V2 account
+actions for the receiving address, labels each inflow, prices it through DefiLlama,
+upserts into Supabase, and writes the payload. It is idempotent: a replay from
+block 0 inserts nothing.
+
+Rules for anything that touches these figures:
+
+- Never hand edit `ledger.json`. Re-run the indexer.
+- A price below 0.9 confidence leaves the row unpriced. Never guess a price.
+- Unpriced rows stay out of the total and are counted on the page.
+- `.env.local` holds the Etherscan key and the Supabase credentials. It is
+  gitignored. Never print it, never commit it, never inline a key into source.
+- The `route` column stays in the database and reaches neither the payload nor
+  the page. A smart contract wallet is also a contract, so that label cannot
+  carry a public claim about how someone gave.
 
 ## Tech stack
 
@@ -42,7 +133,7 @@ Layout and chrome:
 - `@astrojs/sitemap`
 - Outfit, Noto Sans Devanagari, and Noto Sans SC via Astro's `fonts` config
 - Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
-- Cloudflare: Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com` (`floodreliefnepal.com/*` in `wrangler.jsonc`). GitHub `main` runs `npx astro build` then `npx wrangler deploy`. Keep `"name": "floodreliefnepal"`. `not_found_handling` is `404-page` (not an SPA). `dist/` is gitignored build output, not a public URL. No Worker script yet; add cron/APIs in `src/worker.ts` and `triggers` in `wrangler.jsonc`. Secrets: `wrangler secret put`, never git. `www.floodreliefnepal.com` 301s to the apex via a Cloudflare redirect; do not reimplement in app code. Do not reattach the domain to Pages. Manual deploy: `npm run deploy`. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
+- Cloudflare: Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com` (`floodreliefnepal.com/*` in `wrangler.jsonc`). GitHub `main` runs `npx astro build` then `npx wrangler deploy`. Keep `"name": "floodreliefnepal"`. `not_found_handling` is `404-page` (not an SPA). `dist/` is gitignored build output, not a public URL. The Worker script is `worker/index.ts` with the indexer in `worker/indexer.ts`, and its cron, KV binding and route are in `wrangler.jsonc`. Secrets: `wrangler secret put`, never git, and they must be pushed before a Worker change merges. `www.floodreliefnepal.com` 301s to the apex via a Cloudflare redirect; do not reimplement in app code. Do not reattach the domain to Pages. Manual deploy: `npm run deploy`. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
 - Photos: keep sources in `src/assets/`. Hero uses Astro `<Picture />` with `formats={['avif', 'webp']}` and mid quality. Portal QR screenshots use `<Picture />` with `formats={['webp']}`, JPEG fallback, and high quality so they still scan. `astro build` writes the resized files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
 - Share image is `public/og.png`, 1200x630. Title is one line. Subtitle is "A public guide for Bhotekoshi flood relief". Button says "See how to donate". Alt text in `Layout.astro` matches. Rebuild it in HTML, do not generate it with an image model.
 - CSS is inlined (`build.inlineStylesheets: 'always'`). The sheet is small. Do not split it back out into a render-blocking file.
@@ -71,6 +162,9 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 - Sentence case headings
 - No em dashes
 - No curly quotes
+- On the transparency page, no dashes of any kind as punctuation. Sentence case,
+  active voice, and say what a thing is rather than what it is not
+- Never show a number the data does not support
 - The government card portal is one channel, not the whole identity of the site
 - Header Donate is a real button. The pmdrf links in the money section are real buttons. The Himalayan Bank domain in the USD callout is a real button.
 - Official outbound links open in a new tab (`target="_blank"` plus `rel="noopener noreferrer"`). Same-page jumps, language switch, skip link, 404 home, and `tel:` stay in this tab.
@@ -88,5 +182,6 @@ npm run dev
 npm run build
 npm run preview
 npm run preview:worker
+npm run index:donations
 npm run deploy
 ```

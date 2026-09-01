@@ -1,0 +1,166 @@
+---
+/**
+ * Posts and headlines about this drive, written by people outside it.
+ *
+ * Posts use X's own embed so a reader sees the real thing with the avatar and
+ * the account. Embeds fail often, whether blocked, offline or merely slow, so
+ * every post also carries its quote and its author in our own data. What sits
+ * inside the blockquote is what X replaces on success and what the reader keeps
+ * on failure, in the site's own type, with a link to the original. Never an
+ * empty box.
+ *
+ * Headlines from publications are never embeds. There is nothing to hydrate and
+ * no reason to hand a third party a request for one.
+ *
+ * The widget script is the only third party script on this site, it loads once,
+ * deferred, and only when a post is actually on the page.
+ */
+import { media } from '../data/media';
+import { copyForPath, langFromPath } from '../data/copy';
+
+const copy = copyForPath(Astro.url.pathname).transparency.media;
+const lang = langFromPath(Astro.url.pathname);
+
+// Editor controlled order. The data file is the running order.
+const items = media;
+const hasPosts = items.some((item) => item.type === 'post');
+
+const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
+	day: 'numeric',
+	month: 'short',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
+const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
+---
+
+{
+	items.length > 0 && (
+		<section class="chapter hairline" id="media">
+			<div class="wrap">
+				<h2 class="display max-w-none">{copy.heading}</h2>
+				<p class="lede">{copy.lede}</p>
+
+				<ul class="media-list">
+					{items.map((item) => (
+						<li class="media-item">
+							<p class="eyebrow">
+								{item.type === 'post' ? copy.postLabel : copy.articleLabel}
+							</p>
+
+							{item.type === 'post' ? (
+								<blockquote
+									class="twitter-tweet media-card"
+									data-dnt="true"
+									data-theme="light"
+									data-conversation="none"
+								>
+									<p class="media-quote" lang={item.lang}>
+										{item.quote}
+									</p>
+									<p class="media-by">
+										{item.author}
+										<span class="text-muted"> {item.source}</span>
+									</p>
+									{/* X reads the last link in here to find the post. */}
+									<a href={item.postUrl ?? item.link}>{on(item.date)}</a>
+								</blockquote>
+							) : (
+								<div class="media-card">
+									<p class="media-headline" lang={item.lang}>
+										{item.quote}
+									</p>
+									<p class="media-by">
+										{item.source}
+										{item.author ? <span class="text-muted">, {item.author}</span> : null}
+										<span class="text-muted">, {on(item.date)}</span>
+									</p>
+									<p class="mt-4">
+										<a
+											class="underline"
+											href={item.link}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{copy.openArticle}
+										</a>
+									</p>
+								</div>
+							)}
+						</li>
+					))}
+				</ul>
+			</div>
+		</section>
+	)
+}
+
+{
+	hasPosts && (
+		<script is:inline defer src="https://platform.twitter.com/widgets.js" charset="utf-8" />
+	)
+}
+
+<style>
+	/* Spacing lives here rather than in a utility class, because the reset
+	   below would win over it and collapse the gap. */
+	.media-list {
+		display: grid;
+		gap: 1.5rem;
+		align-items: start;
+		list-style: none;
+		padding: 0;
+		margin: 2.5rem 0 0;
+	}
+
+	@media (min-width: 48rem) {
+		.media-list {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 2rem;
+		}
+	}
+
+	.media-item {
+		min-width: 0;
+	}
+
+	/*
+	 * For a post this is the fallback. X swaps the whole blockquote for an
+	 * iframe when its script arrives, and these rules stop applying. If the
+	 * script never arrives, this is the finished thing.
+	 */
+	.media-card {
+		margin: 0.75rem 0 0;
+		border: 1px solid var(--line);
+		border-radius: 10px;
+		background: var(--surface);
+		padding: 1.5rem;
+	}
+
+	.media-quote {
+		margin: 0;
+		text-wrap: pretty;
+	}
+
+	.media-headline {
+		margin: 0;
+		font-size: 1.25rem;
+		line-height: 1.35;
+		font-weight: 500;
+		letter-spacing: -0.02em;
+		text-wrap: balance;
+	}
+
+	:global(html.lang-np) .media-headline {
+		letter-spacing: normal;
+	}
+
+	.media-by {
+		margin: 0.75rem 0 0;
+		font-size: 0.95rem;
+	}
+
+	.media-card a {
+		text-decoration: underline;
+	}
+</style>

@@ -1,0 +1,547 @@
+---
+/**
+ * The merge. Donations by asset flowing into the collection address, with the
+ * onward transfer drawn as an explicitly empty slot.
+ *
+ * No client JavaScript. The travelling dots are SVG animateMotion, the resting
+ * dots are plain links, and prefers-reduced-motion is handled in CSS. An island
+ * would buy nothing here: opening a transaction is what an anchor already does,
+ * and an anchor is keyboard reachable for free.
+ *
+ * Two SVGs come out of one geometry function, one wide and one stacked, and CSS
+ * picks between them. The alternative, a single box that works at both aspect
+ * ratios, needs JavaScript to measure.
+ */
+import ledger from '../data/ledger.json';
+import { receiving } from '../data/site';
+import { copyForPath, fill, langFromPath } from '../data/copy';
+import { hashNoise, weightTokens } from '../data/tokens';
+
+const lang = langFromPath(Astro.url.pathname);
+const page = copyForPath(Astro.url.pathname);
+const transparency = page.transparency;
+const copy = transparency.merge;
+const ui = page.ui;
+
+const { totals, by_token: byToken, all } = ledger;
+
+/** Most recent donations travel in. Older ones are already in the pool. */
+const ANIMATED = 20;
+/** Stagger window, flight time, and when the resting dots take over. */
+const STAGGER_SECONDS = 2;
+const FLIGHT_SECONDS = 0.9;
+/** When the resting dots take over from the travelling ones. */
+const SETTLE_SECONDS = STAGGER_SECONDS + FLIGHT_SECONDS + 0.2;
+
+type Layout = {
+	width: number;
+	height: number;
+	entryX: number;
+	entryTop: number;
+	entryBottom: number;
+	channelX: number;
+	pool: { x: number; y: number; w: number; h: number };
+	reserved: { x: number; y: number; w: number; h: number };
+	maxRibbon: number;
+	font: number;
+};
+
+const wide: Layout = {
+	width: 900,
+	height: 300,
+	entryX: 150,
+	entryTop: 84,
+	entryBottom: 216,
+	channelX: 612,
+	pool: { x: 636, y: 66, w: 112, h: 168 },
+	reserved: { x: 788, y: 66, w: 112, h: 168 },
+	maxRibbon: 132,
+	font: 14,
+};
+
+const stacked: Layout = {
+	width: 420,
+	height: 560,
+	entryX: 96,
+	entryTop: 96,
+	entryBottom: 280,
+	channelX: 250,
+	pool: { x: 266, y: 78, w: 96, h: 220 },
+	reserved: { x: 266, y: 366, w: 96, h: 150 },
+	maxRibbon: 150,
+	font: 17,
+};
+
+const tokens = weightTokens(byToken);
+
+function buildRibbons(layout: Layout) {
+	// Ribbon widths are strictly proportional to USD share. A token nobody can
+	// price has no share to draw, so it gets the floor width and says so in the
+	// legend rather than borrowing a width it has not earned.
+	const FLOOR = 4;
+	const widths = tokens.map((token) =>
+		token.priced ? Math.max(FLOOR, token.share * layout.maxRibbon) : FLOOR,
+	);
+	const stack = widths.reduce((sum, width) => sum + width, 0);
+	const poolCentre = layout.pool.y + layout.pool.h / 2;
+
+	let cursor = poolCentre - stack / 2;
+	const span = layout.entryBottom - layout.entryTop;
+
+	return tokens.map((token, index) => {
+		const entryY =
+			tokens.length === 1
+				? poolCentre
+				: layout.entryTop + (span * index) / (tokens.length - 1);
+		const channelY = cursor + widths[index] / 2;
+		cursor += widths[index];
+
+		const bend = (layout.channelX - layout.entryX) * 0.45;
+		const spine = `M ${layout.entryX} ${entryY} C ${layout.entryX + bend} ${entryY}, ${layout.channelX - bend} ${channelY}, ${layout.channelX} ${channelY}`;
+
+		return {
+			...token,
+			width: widths[index],
+			entryY,
+			channelY,
+			// The ribbon stops at the pool wall. The dot path carries on inside.
+			d: `${spine} L ${layout.pool.x + 6} ${channelY}`,
+			spine,
+		};
+	});
+}
+
+/**
+ * Deterministic landing spots, so a dot rests where it can be clicked. The grid
+ * loosens with a nudge drawn from each hash, because a perfect lattice reads as
+ * a piece of interface rather than as donations that piled up. Radius follows
+ * the spacing so the pool still works when there are two hundred of them.
+ */
+function landingSpots(layout: Layout, entries: { tx_hash: string }[]) {
+	const count = entries.length;
+	const padding = 15;
+	const innerW = layout.pool.w - padding * 2;
+	const innerH = layout.pool.h - padding * 2;
+	const columns = Math.max(1, Math.ceil(Math.sqrt(count * (innerW / innerH))));
+	const rows = Math.max(1, Math.ceil(count / columns));
+	const stepX = innerW / columns;
+	const stepY = innerH / rows;
+	const radius = Math.max(1.8, Math.min(4.5, Math.min(stepX, stepY) * 0.34));
+
+	return entries.map((entry, index) => {
+		const column = index % columns;
+		const row = Math.floor(index / columns);
+		const nudgeX = (hashNoise(entry.tx_hash, 1) - 0.5) * stepX * 0.5;
+		const nudgeY = (hashNoise(entry.tx_hash, 2) - 0.5) * stepY * 0.5;
+		return {
+			x: layout.pool.x + padding + stepX * (column + 0.5) + nudgeX,
+			// Fill from the bottom, the way a pool does.
+			y: layout.pool.y + layout.pool.h - padding - stepY * (row + 0.5) + nudgeY,
+			radius,
+		};
+	});
+}
+
+const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
+	day: 'numeric',
+	month: 'short',
+	year: 'numeric',
+	timeZone: 'UTC',
+});
+const percent = new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 0 });
+const count = new Intl.NumberFormat('en-US');
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+const donationWord = (n: number) =>
+	`${count.format(n)} ${n === 1 ? transparency.total.donationsOne : transparency.total.donationsMany}`;
+
+// Oldest first, so the newest are the ones that travel.
+const entries = all.map((entry, index) => ({ ...entry, index }));
+const travelling = entries.slice(-ANIMATED);
+const firstTravelling = entries.length - travelling.length;
+
+function scene(layout: Layout) {
+	const ribbons = buildRibbons(layout);
+	const spots = landingSpots(layout, entries);
+	const bySymbol = new Map(ribbons.map((ribbon) => [ribbon.token_symbol, ribbon]));
+
+	const dots = entries.map((entry) => {
+		const ribbon = bySymbol.get(entry.token_symbol) ?? ribbons[0];
+		const spot = spots[entry.index];
+		return {
+			entry,
+			spot,
+			weight: ribbon.weight,
+			travels: entry.index >= firstTravelling,
+			// Each dot rides its asset's spine and peels off to its own resting
+			// spot, so two dots never land on top of each other.
+			path: `${ribbon.spine} L ${layout.pool.x + 6} ${ribbon.channelY} L ${spot.x} ${spot.y}`,
+			delay: ((entry.index - firstTravelling) * STAGGER_SECONDS) / Math.max(1, travelling.length),
+		};
+	});
+
+	// Everything received is still here, so the pool is full. It drains when
+	// the first transfer goes out, because the fill is a function of what has
+	// not gone onward rather than a level someone chose.
+	const retained =
+		totals.usd_received > 0
+			? Math.max(0, totals.usd_received - totals.usd_sent_onward) / totals.usd_received
+			: 0;
+
+	return { ribbons, dots, fillHeight: layout.pool.h * retained, radius: spots[0]?.radius ?? 4.5 };
+}
+
+const scenes = [
+	{ key: 'wide', layout: wide, ...scene(wide) },
+	{ key: 'stacked', layout: stacked, ...scene(stacked) },
+];
+
+const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
+const dotLabel = (entry: (typeof entries)[number]) =>
+	fill(copy.dotLabel, {
+		amount: entry.amount_token,
+		token: entry.token_symbol,
+		date: dateFormat.format(new Date(entry.block_time)),
+	});
+---
+
+{
+	totals.donation_count > 0 && (
+		<section class="chapter hairline" id="merge">
+			<div class="wrap">
+				<h2 class="display max-w-none">{copy.heading}</h2>
+				<p class="lede">{copy.lede}</p>
+
+				<figure class="merge mt-10">
+					{scenes.map((current) => (
+						<svg
+							class={`merge-svg merge-${current.key}`}
+							viewBox={`0 0 ${current.layout.width} ${current.layout.height}`}
+							role="img"
+							aria-label={copy.figureLabel}
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<defs>
+								<clipPath id={`pool-clip-${current.key}`}>
+									<rect
+										x={current.layout.pool.x}
+										y={current.layout.pool.y}
+										width={current.layout.pool.w}
+										height={current.layout.pool.h}
+										rx="10"
+									/>
+								</clipPath>
+							</defs>
+
+							{current.ribbons.map((ribbon) => (
+								<path
+									class={`merge-ribbon merge-${ribbon.weight}`}
+									d={ribbon.d}
+									stroke-width={ribbon.width}
+								/>
+							))}
+
+							{current.ribbons.map((ribbon) => (
+								<g class="merge-entry">
+									<text
+										x={current.layout.entryX - 12}
+										y={ribbon.entryY - 6}
+										font-size={current.layout.font}
+										text-anchor="end"
+									>
+										{ribbon.token_symbol}
+									</text>
+									<text
+										class="merge-quiet"
+										x={current.layout.entryX - 12}
+										y={ribbon.entryY + current.layout.font + 2}
+										font-size={current.layout.font - 2}
+										text-anchor="end"
+									>
+										{ribbon.priced ? percent.format(ribbon.share) : '?'}
+									</text>
+								</g>
+							))}
+
+							<rect
+								class="merge-vessel"
+								x={current.layout.pool.x}
+								y={current.layout.pool.y}
+								width={current.layout.pool.w}
+								height={current.layout.pool.h}
+								rx="10"
+							/>
+							<g clip-path={`url(#pool-clip-${current.key})`}>
+								<rect
+									class="merge-fill"
+									x={current.layout.pool.x}
+									y={current.layout.pool.y + current.layout.pool.h - current.fillHeight}
+									width={current.layout.pool.w}
+									height={current.fillHeight}
+								/>
+							</g>
+
+							{/* Decorative. The resting dots below are the real targets. */}
+							<g class="merge-motion" aria-hidden="true">
+								{current.dots
+									.filter((dot) => dot.travels)
+									.map((dot) => (
+										<circle
+											class={`merge-dot merge-on-${dot.weight}`}
+											r={current.radius}
+											cx="0"
+											cy="0"
+											opacity="0"
+										>
+											<set
+												attributeName="opacity"
+												to="1"
+												begin={`${dot.delay.toFixed(2)}s`}
+												fill="freeze"
+											/>
+											<animateMotion
+												dur={`${FLIGHT_SECONDS}s`}
+												begin={`${dot.delay.toFixed(2)}s`}
+												fill="freeze"
+												path={dot.path}
+												calcMode="spline"
+												keyTimes="0;1"
+												keySplines="0.4 0 0.2 1"
+											/>
+										</circle>
+									))}
+							</g>
+
+							{/*
+							  * The handover runs on the SMIL clock, not a CSS
+							  * animation, so it pauses and resumes with the
+							  * travelling dots instead of drifting out of step
+							  * with them in a background tab.
+							  */}
+							<g class="merge-rest" opacity="0">
+								<set
+									attributeName="opacity"
+									to="1"
+									begin={`${SETTLE_SECONDS}s`}
+									fill="freeze"
+								/>
+								{current.dots.map((dot) => (
+									<a
+										href={txUrl(dot.entry.tx_hash)}
+										target="_blank"
+										rel="noopener noreferrer"
+										aria-label={`${dotLabel(dot.entry)}, ${ui.opensInNewTab}`}
+									>
+										<circle
+											class={`merge-dot merge-on-${dot.weight}`}
+											cx={dot.spot.x}
+											cy={dot.spot.y}
+											r={current.radius}
+										/>
+									</a>
+								))}
+							</g>
+
+							<text
+								class="merge-quiet"
+								x={current.layout.pool.x + current.layout.pool.w / 2}
+								y={current.layout.pool.y - 12}
+								font-size={current.layout.font - 2}
+								text-anchor="middle"
+							>
+								{copy.poolLabel}
+							</text>
+							<text
+								x={current.layout.pool.x + current.layout.pool.w / 2}
+								y={current.layout.pool.y + current.layout.pool.h + current.layout.font + 8}
+								font-size={current.layout.font}
+								text-anchor="middle"
+							>
+								{usd.format(totals.usd_received - totals.usd_sent_onward)}
+							</text>
+
+							<g class="merge-reserved">
+								<rect
+									x={current.layout.reserved.x}
+									y={current.layout.reserved.y}
+									width={current.layout.reserved.w}
+									height={current.layout.reserved.h}
+									rx="10"
+								/>
+								<text
+									x={current.layout.reserved.x + current.layout.reserved.w / 2}
+									y={current.layout.reserved.y - 12}
+									font-size={current.layout.font - 2}
+									text-anchor="middle"
+								>
+									{copy.reservedLabel}
+								</text>
+								<text
+									x={current.layout.reserved.x + current.layout.reserved.w / 2}
+									y={current.layout.reserved.y + current.layout.reserved.h + current.layout.font + 8}
+									font-size={current.layout.font}
+									text-anchor="middle"
+								>
+									{usd.format(totals.usd_sent_onward)}
+								</text>
+							</g>
+						</svg>
+					))}
+
+					<figcaption class="mt-8">
+						<p class="eyebrow">{copy.legendHeading}</p>
+						<ul class="mt-3 flex flex-wrap gap-x-8 gap-y-2 text-[0.95rem]">
+							{tokens.map((token) => (
+								<li class="flex items-center gap-2.5">
+									<span class={`merge-swatch merge-bg-${token.weight}`} />
+									<span>{token.token_symbol}</span>
+									<span class="text-muted tabular-nums">
+										{token.priced
+											? fill(copy.legendShare, { percent: percent.format(token.share) })
+											: copy.unknownShare}
+									</span>
+									<span class="text-muted tabular-nums">
+										{fill(copy.legendCount, { count: donationWord(token.donation_count) })}
+									</span>
+								</li>
+							))}
+						</ul>
+						<p class="quiet">{copy.reservedNote}</p>
+					</figcaption>
+				</figure>
+			</div>
+		</section>
+	)
+}
+
+<style>
+	.merge-svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		font-family: inherit;
+		fill: var(--ink);
+	}
+
+	.merge-stacked {
+		display: none;
+	}
+
+	@media (max-width: 47.99rem) {
+		.merge-wide {
+			display: none;
+		}
+
+		.merge-stacked {
+			display: block;
+		}
+	}
+
+	.merge-ribbon {
+		fill: none;
+		stroke-linecap: butt;
+	}
+
+	.merge-accent {
+		stroke: var(--accent);
+	}
+
+	.merge-accent-mid {
+		stroke: var(--accent-mid);
+	}
+
+	.merge-accent-soft {
+		stroke: var(--accent-soft);
+	}
+
+	.merge-muted {
+		stroke: var(--muted);
+	}
+
+	.merge-quiet {
+		fill: var(--muted);
+	}
+
+	.merge-vessel {
+		fill: var(--surface);
+		stroke: var(--line);
+	}
+
+	.merge-fill {
+		fill: var(--accent);
+	}
+
+	/* Dots sit on the pool fill, so they take the canvas colour to stay visible. */
+	.merge-dot {
+		fill: var(--canvas);
+		stroke: var(--accent);
+		stroke-width: 1.5;
+	}
+
+	.merge-on-accent-soft {
+		stroke: var(--accent-soft);
+	}
+
+	.merge-on-accent-mid {
+		stroke: var(--accent-mid);
+	}
+
+	.merge-on-muted {
+		stroke: var(--muted);
+	}
+
+	.merge-rest a:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 3px;
+		border-radius: 50%;
+	}
+
+	.merge-reserved rect {
+		fill: none;
+		stroke: var(--muted);
+		stroke-dasharray: 5 5;
+	}
+
+	.merge-reserved {
+		opacity: 0.42;
+	}
+
+	.merge-swatch {
+		display: inline-block;
+		width: 1.6rem;
+		height: 0.55rem;
+		border-radius: 2px;
+	}
+
+	.merge-bg-accent {
+		background: var(--accent);
+	}
+
+	.merge-bg-accent-mid {
+		background: var(--accent-mid);
+	}
+
+	.merge-bg-accent-soft {
+		background: var(--accent-soft);
+	}
+
+	.merge-bg-muted {
+		background: var(--muted);
+	}
+
+	/*
+	 * Where motion is unwelcome the travelling dots never render and the
+	 * resting ones are on from the first frame. A CSS rule outranks the
+	 * presentation attribute above, so this needs no animation to undo.
+	 */
+	@media (prefers-reduced-motion: reduce) {
+		.merge-motion {
+			display: none;
+		}
+
+		.merge-rest {
+			opacity: 1;
+		}
+	}
+</style>
