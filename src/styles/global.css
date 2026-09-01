@@ -44,6 +44,11 @@
 		line-height: 1.75;
 	}
 
+	html.lang-zh body {
+		font-family: var(--font-zh), var(--font-outfit), sans-serif;
+		line-height: 1.75;
+	}
+
 	p,
 	li,
 	figcaption {
@@ -171,14 +176,19 @@
 	}
 
 	/* Devanagari has no upper case, and letter spacing breaks its conjuncts. */
-	html.lang-np .eyebrow {
+	html.lang-np .eyebrow,
+	html.lang-zh .eyebrow {
 		@apply text-sm tracking-normal normal-case;
 	}
 
 	html.lang-np .display,
 	html.lang-np .chapter-title,
 	html.lang-np .quiet-title,
-	html.lang-np .card-title {
+	html.lang-np .card-title,
+	html.lang-zh .display,
+	html.lang-zh .chapter-title,
+	html.lang-zh .quiet-title,
+	html.lang-zh .card-title {
 		@apply tracking-normal;
 	}
 
@@ -196,7 +206,9 @@
 	}
 
 	html.lang-np .raised,
-	html.lang-np .raised-usd {
+	html.lang-np .raised-usd,
+	html.lang-zh .raised,
+	html.lang-zh .raised-usd {
 		@apply tracking-normal;
 	}
 
@@ -228,7 +240,8 @@
 	}
 
 	.give-option {
-		@apply flex min-h-14 min-w-0 flex-col justify-center rounded-[10px] bg-canvas px-4 py-4 text-left text-ink no-underline sm:px-5;
+		@apply flex min-h-14 min-w-0 cursor-pointer flex-col justify-center rounded-[10px] border-0 bg-canvas px-4 py-4 text-left text-ink no-underline sm:px-5;
+		font: inherit;
 		transition-property: transform;
 		transition-duration: 150ms;
 		transition-timing-function: ease-out;
@@ -253,26 +266,26 @@
 		}
 	}
 
-	.give-switch[data-pay='upi'] .give-option[href='#upi'],
-	.give-switch[data-pay='alipay'] .give-option[href='#alipay'],
-	.give-switch[data-pay='card'] .give-option[href='#card'],
-	.give-switch[data-pay='remit'] .give-option[href='#remit'] {
+	.give-switch[data-pay='upi'] .give-option[data-pay='upi'],
+	.give-switch[data-pay='alipay'] .give-option[data-pay='alipay'],
+	.give-switch[data-pay='card'] .give-option[data-pay='card'],
+	.give-switch[data-pay='remit'] .give-option[data-pay='remit'] {
 		background: var(--ink);
 		color: var(--canvas);
 	}
 
-	.give-switch[data-pay='upi'] .give-option[href='#upi'] .give-option-detail,
-	.give-switch[data-pay='alipay'] .give-option[href='#alipay'] .give-option-detail,
-	.give-switch[data-pay='card'] .give-option[href='#card'] .give-option-detail,
-	.give-switch[data-pay='remit'] .give-option[href='#remit'] .give-option-detail {
+	.give-switch[data-pay='upi'] .give-option[data-pay='upi'] .give-option-detail,
+	.give-switch[data-pay='alipay'] .give-option[data-pay='alipay'] .give-option-detail,
+	.give-switch[data-pay='card'] .give-option[data-pay='card'] .give-option-detail,
+	.give-switch[data-pay='remit'] .give-option[data-pay='remit'] .give-option-detail {
 		color: color-mix(in srgb, var(--canvas) 70%, transparent);
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.give-switch[data-pay='upi'] .give-option[href='#upi']:hover,
-		.give-switch[data-pay='alipay'] .give-option[href='#alipay']:hover,
-		.give-switch[data-pay='card'] .give-option[href='#card']:hover,
-		.give-switch[data-pay='remit'] .give-option[href='#remit']:hover {
+		.give-switch[data-pay='upi'] .give-option[data-pay='upi']:hover,
+		.give-switch[data-pay='alipay'] .give-option[data-pay='alipay']:hover,
+		.give-switch[data-pay='card'] .give-option[data-pay='card']:hover,
+		.give-switch[data-pay='remit'] .give-option[data-pay='remit']:hover {
 			background: var(--ink);
 			opacity: 0.88;
 		}
@@ -302,7 +315,8 @@
 		@apply px-5 py-3 text-xs font-medium tracking-[0.14em] text-muted uppercase;
 	}
 
-	html.lang-np .data-table th {
+	html.lang-np .data-table th,
+	html.lang-zh .data-table th {
 		@apply text-sm tracking-normal normal-case;
 	}
 

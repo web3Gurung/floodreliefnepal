@@ -16,12 +16,16 @@ interface Props {
 
 const { title, description, lang = 'en', faq = true } = Astro.props;
 const copy = copyFor(lang);
+const htmlLang = lang === 'zh' ? 'zh-CN' : lang;
+const htmlClass = lang === 'ne' ? 'lang-np' : lang === 'zh' ? 'lang-zh' : undefined;
+const ogLocale = lang === 'ne' ? 'ne_NP' : lang === 'zh' ? 'zh_CN' : 'en_US';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site ?? site.url);
 const base = Astro.site ?? new URL(site.url);
 const alternates = [
 	{ hreflang: 'en', href: new URL(site.routes.en, base).href },
 	{ hreflang: 'ne', href: new URL(site.routes.ne, base).href },
+	{ hreflang: 'zh', href: new URL(site.routes.zh, base).href },
 	{ hreflang: 'x-default', href: new URL(site.routes.en, base).href },
 ];
 
@@ -43,7 +47,7 @@ const webPageLd = {
 	name: title,
 	description,
 	url: canonical.href,
-	inLanguage: lang,
+	inLanguage: htmlLang,
 	dateModified: site.lastCheckedIso,
 	isPartOf: {
 		'@type': 'WebSite',
@@ -55,7 +59,7 @@ const webPageLd = {
 const faqLd = {
 	'@context': 'https://schema.org',
 	'@type': 'FAQPage',
-	inLanguage: lang,
+	inLanguage: htmlLang,
 	mainEntity: copy.faq.items.map((item) => ({
 		'@type': 'Question',
 		name: item.q,
@@ -68,7 +72,7 @@ const faqLd = {
 ---
 
 <!doctype html>
-<html lang={lang} class={lang === 'ne' ? 'lang-np' : undefined}>
+<html lang={htmlLang} class={htmlClass}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="color-scheme" content="light" />
@@ -87,7 +91,7 @@ const faqLd = {
 		<meta property="og:url" content={canonical} />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={site.name} />
-		<meta property="og:locale" content={lang === 'ne' ? 'ne_NP' : 'en_US'} />
+		<meta property="og:locale" content={ogLocale} />
 		<meta property="og:image" content={ogImage} />
 		<meta property="og:image:width" content="1200" />
 		<meta property="og:image:height" content="630" />
@@ -111,6 +115,7 @@ const faqLd = {
 		}
 		<Font cssVariable="--font-outfit" preload />
 		<Font cssVariable="--font-np" preload={lang === 'ne'} />
+		<Font cssVariable="--font-zh" preload={lang === 'zh'} />
 	</head>
 	<body>
 		<a

@@ -24,6 +24,7 @@ export const np = {
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
 			{ label: 'नेपाली', href: site.routes.ne, lang: 'ne' },
+			{ label: '中文', href: site.routes.zh, lang: 'zh' },
 		],
 	},
 	hero: {
@@ -68,7 +69,7 @@ export const np = {
 			note: 'पहिलो छ घण्टा, अर्थ मन्त्रालयका अनुसार',
 		},
 		raisedReportLabel: 'समाचार हेर्नुहोस्',
-		lede: 'कसरी पठाउने छान्नुहोस्। भारतबाट UPI, Alipay+ भए त्यो वालेट, संसारबाट कार्ड, वा बैंक ट्रान्सफर।',
+		lede: 'कसरी पठाउने छान्नुहोस्। भारतबाट UPI, Alipay वा Alipay+ सपोर्ट गर्ने एप, संसारबाट कार्ड, वा बैंक ट्रान्सफर।',
 		tabsLabel: 'कसरी पठाउने',
 		tabs: [
 			{ id: 'upi', label: 'UPI', detail: 'भारतबाट' },
@@ -121,7 +122,7 @@ export const np = {
 				shot: 'nepalpay',
 				eyebrow: 'Alipay+ प्रयोग गर्नुहुन्छ भने',
 				heading: 'Alipay+ बाट स्क्यान गर्नुहोस्',
-				body: 'Alipay+ वा त्यससँग चल्ने वालेट खोलेर NepalPAY कोड स्क्यान गर्नुहोस्। सरकारी पोर्टल खोलेर NepalPAY QR पनि छान्न सकिन्छ। च्याटमा आएको क्यूआरमा नपठाउनुहोस्।',
+				body: 'Alipay वा Alipay+ सपोर्ट गर्ने एप खोलेर NepalPAY कोड स्क्यान गर्नुहोस्। सरकारी पोर्टल खोलेर NepalPAY QR पनि छान्न सकिन्छ। च्याटमा आएको क्यूआरमा नपठाउनुहोस्।',
 				caption: 'pmdrf.nchl.com.np को NepalPAY QR',
 				alt: 'सरकारी पोर्टलको आधिकारिक NepalPAY QR, Alipay+ का लागि',
 				action: {
@@ -259,8 +260,13 @@ export const np = {
 				a: 'सकिन्छ। आफ्नो UPI एप खोलेर पैसा खण्डको Fonepay कोड स्क्यान गर्नुहोस्, वा pmdrf.nchl.com.np खोलेर Fonepay QR छान्नुहोस्।',
 			},
 			{
-				q: 'के Alipay+ बाट भुक्तानी गर्न सकिन्छ?',
-				a: 'सकिन्छ। Alipay+ वा त्यससँग चल्ने वालेट खोलेर पैसा खण्डको NepalPAY कोड स्क्यान गर्नुहोस्, वा pmdrf.nchl.com.np खोलेर NepalPAY QR छान्नुहोस्।',
+				q: 'के Alipay वा Alipay+ सपोर्ट गर्ने एपबाट भुक्तानी गर्न सकिन्छ?',
+				a: 'सकिन्छ। Alipay वा Alipay+ सपोर्ट गर्ने एप खोलेर पैसा खण्डको NepalPAY कोड स्क्यान गर्नुहोस्, वा pmdrf.nchl.com.np खोलेर NepalPAY QR छान्नुहोस्।',
+			},
+			{
+				id: 'alipay-apps',
+				q: 'NepalPAY कोड कुन Alipay+ एपले स्क्यान गर्न सक्छन्?',
+				a: 'NCHL ले NepalPAY QR का लागि यी एप राखेको छ।\nचीन: Alipay।\nहङकङ: AlipayHK।\nमकाउ: MPay।\nमलेसिया: Touch \'n Go eWallet, MyPB by Public Bank Berhad।\nसिंगापुर: Changi Pay, OCBC Digital, BigPay, Starryblu।\nदक्षिण कोरिया: KakaoPay, Naver Pay, Toss Pay।\nफिलिपिन्स: GCash।\nथाइल्याण्ड: TrueMoney।\nमङ्गोलिया: Hipay।\nइटाली: Tinaba।\nजर्मनी: Bluecode।\nBigPay मलेसिया र थाइल्याण्डबाट पनि चल्छ।\nअन्य Alipay+ एप यो सूचीमा छैनन्।',
 			},
 			{
 				q: 'के Wise, Remitly वा बैंक SWIFT बाट पठाउन सकिन्छ?',
@@ -279,7 +285,7 @@ export const np = {
 	share: {
 		heading: 'यो पृष्ठ बाँड्नुहोस्',
 		lede: 'तलको पोस्ट कपी गरेर मानिसहरूले सहयोगको बाटो सोधिरहेको ठाउँमा राख्नुहोस्। बटनले काम नगरे पनि पाठ छानेर कपी गर्न मिल्छ।',
-		post: 'भोटेकोशी बाढी राहत एउटै सरकारी ढोकाबाट जान्छ। कार्ड pmdrf.nchl.com.np मा जान्छ। भारतबाट UPI भए floodreliefnepal.com को Fonepay कोड स्क्यान गर्नुहोस्। Alipay+ भए त्यहीँको NepalPAY कोड। च्याटमा आएको क्यूआर बेवास्ता गर्नुहोस्।',
+		post: 'भोटेकोशी बाढी राहत एउटै सरकारी ढोकाबाट जान्छ। कार्ड pmdrf.nchl.com.np मा जान्छ। भारतबाट UPI भए floodreliefnepal.com को Fonepay कोड स्क्यान गर्नुहोस्। Alipay वा Alipay+ सपोर्ट गर्ने एप भए त्यहीँको NepalPAY कोड। च्याटमा आएको क्यूआर बेवास्ता गर्नुहोस्।',
 		copyLabel: 'पोस्ट कपी गर्नुहोस्',
 		copiedLabel: 'कपी भयो',
 		image: {
@@ -356,6 +362,11 @@ export const np = {
 				note: 'भारतमा रहेका शुभेच्छुकका लागि रेमिट्यान्स एप र SWIFT खाता राखिएको।',
 				href: sources[12].href,
 			},
+			{
+				label: 'NCHL Alipay+',
+				note: 'NepalPAY QR स्क्यान गर्न सक्ने Alipay+ एपको आधिकारिक सूची।',
+				href: sources[13].href,
+			},
 		],
 	},
 	footer: {
@@ -375,6 +386,10 @@ export const np = {
 			after: ' ले बनाएका।',
 		},
 		changelog: [
+			{
+				date: '२९ अगस्ट २०२६',
+				note: 'चिनियाँ संस्करण /zh/ मा थपियो।',
+			},
 			{
 				date: '२८ अगस्ट २०२६',
 				note: 'UPI र Alipay+ लाई छुट्टाछुट्टै खण्डमा राखियो, सरकारी पोर्टलका स्क्रिनसटसहित। रेमिट्यान्स र SWIFT खाता, र अन्तर्राष्ट्रिय कार्ड भुक्तानी अन गर्ने नोट थपियो।',

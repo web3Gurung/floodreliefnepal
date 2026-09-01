@@ -35,6 +35,15 @@ export default defineConfig({
           subsets: ['devanagari', 'latin'],
           fallbacks: ['sans-serif'],
       },
+      {
+          provider: fontProviders.google(),
+          name: 'Noto Sans SC',
+          cssVariable: '--font-zh',
+          weights: [400, 500],
+          styles: ['normal'],
+          subsets: ['chinese-simplified', 'latin'],
+          fallbacks: ['sans-serif'],
+      },
 	],
 
   vite: {

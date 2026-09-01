@@ -29,10 +29,12 @@ export const site = {
 			'https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far',
 		ifrc: 'https://www.ifrc.org/press-release/nepal-ifrc-releases-emergency-funds-flash-floods-leave-communities-isolated',
 		raisedReport: 'https://english.onlinekhabar.com/pms-disaster-relief-fund.html',
+		alipayPartners: 'https://nchl.com.np/alipay-mobile-payments-partner/',
 	},
 	routes: {
 		en: '/',
 		ne: '/np/',
+		zh: '/zh/',
 	},
 } as const;
 
@@ -194,10 +196,19 @@ export const sources = [
 		note: 'Posted the remittance apps and SWIFT accounts for well-wishers in India.',
 		href: site.official.embassyIndia,
 	},
+	{
+		label: 'NCHL Alipay+',
+		note: 'Official list of Alipay+ apps that can scan NepalPAY QR.',
+		href: site.official.alipayPartners,
+	},
 ] as const;
 
 /** Newest first. The footer shows the three most recent entries. */
 export const changelog = [
+	{
+		date: '29 August 2026',
+		note: 'Added a Chinese version at /zh/.',
+	},
 	{
 		date: '28 August 2026',
 		note: 'Split UPI and Alipay+ into their own sections with official portal screenshots. Added remittance and SWIFT accounts, and a note on turning on international card payments.',
@@ -294,6 +305,7 @@ export const en = {
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
 			{ label: 'नेपाली', href: site.routes.ne, lang: 'ne' },
+			{ label: '中文', href: site.routes.zh, lang: 'zh' },
 		],
 	},
 	hero: {
@@ -332,7 +344,7 @@ export const en = {
 		heading: 'Send money',
 		raised,
 		raisedReportLabel: 'Read the report',
-		lede: 'Choose how you pay. UPI if you are in India, Alipay+ if you use that wallet, a card from anywhere, or a bank transfer.',
+		lede: 'Choose how you pay. UPI if you are in India, Alipay or an app that supports Alipay+, a card from anywhere, or a bank transfer.',
 		tabsLabel: 'How to pay',
 		tabs: [
 			{ id: 'upi', label: 'UPI', detail: 'If you are in India' },
@@ -385,7 +397,7 @@ export const en = {
 				shot: 'nepalpay',
 				eyebrow: 'If you use Alipay+',
 				heading: 'Scan with Alipay+',
-				body: 'Open Alipay+ or a wallet that works with it and scan the NepalPAY code. You can also open the government portal and pick NepalPAY QR. Do not pay a QR that arrived in a chat.',
+				body: 'Open Alipay or an app that supports Alipay+ and scan the NepalPAY code. You can also open the government portal and pick NepalPAY QR. Do not pay a QR that arrived in a chat.',
 				caption: 'NepalPAY QR on pmdrf.nchl.com.np',
 				alt: 'Official NepalPAY QR on the government portal, for Alipay+',
 				action: {
@@ -486,8 +498,13 @@ export const en = {
 				a: 'Yes. Open your UPI app and scan the Fonepay code in the money section, or open pmdrf.nchl.com.np and pick Fonepay QR.',
 			},
 			{
-				q: 'Can I pay with Alipay+?',
-				a: 'Yes. Open Alipay+ or a wallet that works with it and scan the NepalPAY code in the money section, or open pmdrf.nchl.com.np and pick NepalPAY QR.',
+				q: 'Can I pay with Alipay or an app that supports Alipay+?',
+				a: 'Yes. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code in the money section, or open pmdrf.nchl.com.np and pick NepalPAY QR.',
+			},
+			{
+				id: 'alipay-apps',
+				q: 'Which Alipay+ apps can scan the NepalPAY code?',
+				a: 'NCHL lists these apps for NepalPAY QR.\nChinese mainland: Alipay.\nHong Kong SAR: AlipayHK.\nMacao SAR: MPay.\nMalaysia: Touch \'n Go eWallet, MyPB by Public Bank Berhad.\nSingapore: Changi Pay, OCBC Digital, BigPay, Starryblu.\nSouth Korea: KakaoPay, Naver Pay, Toss Pay.\nPhilippines: GCash.\nThailand: TrueMoney.\nMongolia: Hipay.\nItaly: Tinaba.\nGermany: Bluecode.\nBigPay also works in Malaysia and Thailand.\nOther Alipay+ apps are not on this list.',
 			},
 			{
 				q: 'Can I use Wise, Remitly, or a bank SWIFT transfer?',
@@ -506,7 +523,7 @@ export const en = {
 	share: {
 		heading: 'Share this page',
 		lede: 'Copy the post below and put it where people are asking how to help. The text stays selectable if the button does not work.',
-		post: 'Bhotekoshi flood relief runs through one government door. Cards go to pmdrf.nchl.com.np. If you are in India, scan the Fonepay UPI code on floodreliefnepal.com. Alipay+ users scan the NepalPAY code there. Ignore a QR that arrived in a chat.',
+		post: 'Bhotekoshi flood relief runs through one government door. Cards go to pmdrf.nchl.com.np. If you are in India, scan the Fonepay UPI code on floodreliefnepal.com. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code there. Ignore a QR that arrived in a chat.',
 		copyLabel: 'Copy the post',
 		copiedLabel: 'Copied',
 		image: {
