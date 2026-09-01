@@ -329,10 +329,21 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 		fetch('/api/ledger', { headers: { accept: 'application/json' } })
 			.then(function (response) {
 				if (!response.ok) throw new Error(String(response.status));
-				return response.json();
+				/*
+				 * Two clocks. `updated_at` is when the figures were produced and
+				 * only moves when a run finds something worth writing, so a
+				 * healthy feed that reads the chain and finds nothing new leaves
+				 * it standing still. `x-ledger-last-run` is when the chain was
+				 * actually read, which is the question this line asks.
+				 */
+				var lastRun = response.headers.get('x-ledger-last-run');
+				return response.json().then(function (feed) {
+					return { feed: feed, lastRun: lastRun };
+				});
 			})
-			.then(function (feed) {
-				var read = Date.parse(feed.updated_at);
+			.then(function (answer) {
+				var feed = answer.feed;
+				var read = Date.parse(answer.lastRun || '') || Date.parse(feed.updated_at);
 				if (!read) throw new Error('no timestamp');
 
 				if (Date.now() - read > staleMs) {

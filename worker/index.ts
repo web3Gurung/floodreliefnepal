@@ -81,12 +81,28 @@ const CACHE_CONTROL = 'public, max-age=30, stale-while-revalidate=300';
  * outside. `x-ledger-source` says where the body came from, `x-ledger-age`
  * says how many seconds ago the chain was actually read.
  */
-function ledgerResponse(body: string, source: string, updatedAt: string | null): Response {
+function ledgerResponse(
+	body: string,
+	source: string,
+	updatedAt: string | null,
+	lastRun: number,
+): Response {
 	const headers: Record<string, string> = {
 		'content-type': 'application/json; charset=utf-8',
 		'cache-control': CACHE_CONTROL,
 		'x-ledger-source': source,
 	};
+
+	// Two different clocks, and conflating them is what made a healthy feed
+	// report itself as stale. `updated_at` is when these figures were produced,
+	// and it only moves when a run finds something worth writing. This is when
+	// the chain was last read, which is the one that answers "is the feed
+	// alive". A run that reads the chain and finds nothing new moves this and
+	// not the other.
+	if (lastRun > 0) {
+		headers['x-ledger-last-run'] = new Date(lastRun).toISOString();
+		headers['x-ledger-last-run-age'] = String(Math.max(0, Math.round((Date.now() - lastRun) / 1000)));
+	}
 
 	const read = updatedAt ? Date.parse(updatedAt) : Number.NaN;
 	if (!Number.isNaN(read)) {
@@ -209,12 +225,15 @@ export default {
 
 			const since = Date.now() - (await lastRunAt(env));
 			if (since < REFRESH_MIN_INTERVAL_MS) {
-				// Caps what a leaked token is worth: one run every thirty seconds,
-				// which is the cadence we wanted anyway.
-				const retryAfter = Math.ceil((REFRESH_MIN_INTERVAL_MS - since) / 1000);
-				return new Response('Too many requests', {
-					status: 429,
-					headers: { 'retry-after': String(retryAfter) },
+				// Still caps what a leaked token is worth at one run every thirty
+				// seconds, but answers 200. Schedulers count any non 2xx as a
+				// failure and some disable a job after enough of them, so a
+				// correctly skipped tick must not look like a broken one. The
+				// caller is told plainly that nothing ran.
+				return Response.json({
+					ok: true,
+					skipped: 'ran recently',
+					seconds_since_last_run: Math.round(since / 1000),
 				});
 			}
 
@@ -245,8 +264,8 @@ export default {
 			// Every page load hits this endpoint for the freshness line, so a
 			// reader arriving at stale data starts the refresh that fixes it.
 			// The response below is not held up for it.
-			const since = Date.now() - (await lastRunAt(env));
-			if (since > REFRESH_STALE_AFTER_MS) startRefresh(env, ctx, 'traffic');
+			const lastRun = await lastRunAt(env);
+			if (Date.now() - lastRun > REFRESH_STALE_AFTER_MS) startRefresh(env, ctx, 'traffic');
 
 			const stored = await env.LEDGER.getWithMetadata<{ updatedAt?: string }>(LEDGER_KEY, 'text');
 			if (stored.value) {
@@ -261,9 +280,14 @@ export default {
 						updatedAt = null;
 					}
 				}
-				return ledgerResponse(stored.value, 'kv', updatedAt);
+				return ledgerResponse(stored.value, 'kv', updatedAt, lastRun);
 			}
-			return ledgerResponse(JSON.stringify(buildTimeLedger), 'build', buildTimeLedger.updated_at);
+			return ledgerResponse(
+				JSON.stringify(buildTimeLedger),
+				'build',
+				buildTimeLedger.updated_at,
+				lastRun,
+			);
 		}
 
 		return env.ASSETS.fetch(request);
