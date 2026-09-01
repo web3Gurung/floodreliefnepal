@@ -1,12 +1,25 @@
 /**
  * Cloudflare Worker for floodreliefnepal.com.
  *
- * Two jobs.
+ * `GET /api/ledger` serves the payload. Everything else falls through to the
+ * static assets Astro built.
  *
- * 1. A cron every 60 seconds runs the indexer and, when anything a reader would
- *    see has changed, writes the payload to KV under `ledger`.
- * 2. `GET /api/ledger` serves that payload. Everything else falls through to the
- *    static assets Astro built.
+ * Three things can run the indexer, because Cloudflare's cron has never once
+ * invoked this Worker. Three separate Workers on this account, one of them
+ * written entirely in the dashboard, all registered a schedule that Cloudflare
+ * accepted, reported back and displayed, and none of them ever fired.
+ *
+ * 1. `POST /api/refresh`, called by an outside scheduler every five minutes.
+ *    This is the floor, and it works when nobody is reading.
+ * 2. A `GET /api/ledger` that finds the data older than five minutes starts a
+ *    refresh behind the response. Every page load fetches that endpoint for the
+ *    freshness line, so readers keep the figures current by reading them.
+ * 3. The cron, still registered and still wired up. It costs nothing to leave
+ *    in place and the day Cloudflare fixes it we get the cadence back for free.
+ *
+ * Each of the first two has a gap the other covers: the scheduler is a third
+ * party that can quietly die, and traffic driven refresh does nothing at four
+ * in the morning.
  *
  * The frontend never calls Etherscan. The keys stay here, the page loads from a
  * cached blob, and a traffic spike costs nothing.
@@ -24,7 +37,31 @@ import { payloadChanged, runIndexer, type LedgerPayload } from './indexer.ts';
 // generates from wrangler.jsonc. Declaring it by hand here would let the two
 // drift apart the first time a binding changes.
 
+/** Secrets are not in wrangler.jsonc, so the generated Env does not know them. */
+type WorkerEnv = Env & { REFRESH_TOKEN?: string };
+
 const LEDGER_KEY = 'ledger';
+
+/**
+ * When the last indexer run started, written before the run rather than after,
+ * so a run that dies still holds the others off instead of inviting a retry
+ * storm.
+ *
+ * This one key does two jobs. It rate limits `POST /api/refresh`, and it is the
+ * lock that stops concurrent readers all starting their own refresh. KV reads
+ * are eventually consistent and can be served from an edge cache, so within a
+ * propagation window two visitors can both see a stale value and both start a
+ * run. That is acceptable here: the indexer is idempotent against the
+ * (tx_hash, log_index) primary key, so the cost of a double run is a little
+ * wasted Etherscan quota, never wrong data.
+ */
+const LAST_RUN_KEY = 'last-run';
+
+/** A caller may not force a run more often than this. */
+const REFRESH_MIN_INTERVAL_MS = 30 * 1000;
+
+/** Older than this and the next reader's request starts a refresh behind it. */
+const REFRESH_STALE_AFTER_MS = 5 * 60 * 1000;
 
 /**
  * Longest the stored payload may claim to be, while the cron is healthy.
@@ -60,7 +97,59 @@ function ledgerResponse(body: string, source: string, updatedAt: string | null):
 	return new Response(body, { headers });
 }
 
-async function refresh(env: Env): Promise<{ changed: boolean; payload: LedgerPayload }> {
+/**
+ * Deduplicates refreshes inside one isolate.
+ *
+ * The KV timestamp alone does not do it. Three concurrent readers all read the
+ * old value before any of them writes the new one, so all three start a run,
+ * which is exactly what happened when this was tested. An isolate lives across
+ * requests, so a promise handle here collapses a burst into one run.
+ *
+ * Deliberate use of isolate state, unlike the counters in the indexer, which
+ * live inside the run precisely because an isolate outlives it. This holds a
+ * handle to work in progress, which is the one thing that should be shared.
+ *
+ * Two isolates in two locations can still race. The KV timestamp bounds that,
+ * and the indexer is idempotent, so the cost is a little Etherscan quota.
+ */
+let inFlight: Promise<unknown> | null = null;
+
+function startRefresh(env: WorkerEnv, ctx: ExecutionContext, reason: string): void {
+	if (!inFlight) {
+		inFlight = refresh(env)
+			.catch((error: unknown) => {
+				console.error(`${reason} refresh failed:`, error instanceof Error ? error.message : error);
+			})
+			.finally(() => {
+				inFlight = null;
+			});
+	}
+	ctx.waitUntil(inFlight);
+}
+
+async function lastRunAt(env: WorkerEnv): Promise<number> {
+	const raw = await env.LEDGER.get(LAST_RUN_KEY);
+	const at = raw ? Date.parse(raw) : Number.NaN;
+	return Number.isNaN(at) ? 0 : at;
+}
+
+/**
+ * Constant time compare, so a caller cannot learn the token one byte at a time
+ * from how long the comparison takes. Length is compared first and does leak,
+ * which is standard and harmless for a random token.
+ */
+function tokenMatches(provided: string, expected: string): boolean {
+	const encoder = new TextEncoder();
+	const a = encoder.encode(provided);
+	const b = encoder.encode(expected);
+	if (a.byteLength !== b.byteLength) return false;
+	return crypto.subtle.timingSafeEqual(a, b);
+}
+
+async function refresh(env: WorkerEnv): Promise<{ changed: boolean; payload: LedgerPayload }> {
+	// Claim the slot before doing any work, so the three callers cannot pile up.
+	await env.LEDGER.put(LAST_RUN_KEY, new Date().toISOString());
+
 	const { payload, stats } = await runIndexer({
 		etherscanApiKey: env.ETHERSCAN_API_KEY,
 		supabaseUrl: env.SUPABASE_URL,
@@ -92,13 +181,72 @@ async function refresh(env: Env): Promise<{ changed: boolean; payload: LedgerPay
 }
 
 export default {
-	async fetch(request: Request, env: Env): Promise<Response> {
+	async fetch(request: Request, env: WorkerEnv, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
+
+		// The floor. An outside scheduler posts here every five minutes.
+		if (url.pathname === '/api/refresh') {
+			if (request.method !== 'POST') {
+				// GET is refused outright, which rules out the whole class of
+				// accidental triggering by crawlers, prefetchers and previews.
+				return new Response('Method not allowed', {
+					status: 405,
+					headers: { allow: 'POST' },
+				});
+			}
+
+			const expected = env.REFRESH_TOKEN;
+			if (!expected) {
+				// Fail closed. A missing secret must never mean an open endpoint.
+				console.error('POST /api/refresh called but REFRESH_TOKEN is not set');
+				return new Response('Refresh is not configured', { status: 503 });
+			}
+
+			const provided = request.headers.get('x-refresh-token');
+			if (!provided || !tokenMatches(provided, expected)) {
+				return new Response('Unauthorized', { status: 401 });
+			}
+
+			const since = Date.now() - (await lastRunAt(env));
+			if (since < REFRESH_MIN_INTERVAL_MS) {
+				// Caps what a leaked token is worth: one run every thirty seconds,
+				// which is the cadence we wanted anyway.
+				const retryAfter = Math.ceil((REFRESH_MIN_INTERVAL_MS - since) / 1000);
+				return new Response('Too many requests', {
+					status: 429,
+					headers: { 'retry-after': String(retryAfter) },
+				});
+			}
+
+			// Awaited rather than backgrounded, so the scheduler's own alerting
+			// sees a real status code and a real summary instead of an instant
+			// 202 that hides a failing indexer.
+			try {
+				const { changed, payload } = await refresh(env);
+				return Response.json({
+					ok: true,
+					changed,
+					updated_at: payload.updated_at,
+					donation_count: payload.totals.donation_count,
+					usd_received: payload.totals.usd_received,
+				});
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				console.error('refresh failed:', message);
+				return Response.json({ ok: false, error: message }, { status: 500 });
+			}
+		}
 
 		if (url.pathname === '/api/ledger') {
 			if (request.method !== 'GET' && request.method !== 'HEAD') {
 				return new Response('Method not allowed', { status: 405, headers: { allow: 'GET, HEAD' } });
 			}
+
+			// Every page load hits this endpoint for the freshness line, so a
+			// reader arriving at stale data starts the refresh that fixes it.
+			// The response below is not held up for it.
+			const since = Date.now() - (await lastRunAt(env));
+			if (since > REFRESH_STALE_AFTER_MS) startRefresh(env, ctx, 'traffic');
 
 			const stored = await env.LEDGER.getWithMetadata<{ updatedAt?: string }>(LEDGER_KEY, 'text');
 			if (stored.value) {
@@ -121,13 +269,14 @@ export default {
 		return env.ASSETS.fetch(request);
 	},
 
-	async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-		ctx.waitUntil(
-			refresh(env).catch((error: unknown) => {
-				// A failed tick leaves the previous payload in place. Serving the
-				// last good figures beats serving nothing.
-				console.error('indexer run failed:', error instanceof Error ? error.message : error);
-			}),
-		);
+	/**
+	 * Still here, still registered in wrangler.jsonc, and it has never once been
+	 * invoked. Left in place because it costs nothing and the day Cloudflare
+	 * starts firing it we get the cadence back with no change.
+	 */
+	async scheduled(_event: ScheduledController, env: WorkerEnv, ctx: ExecutionContext): Promise<void> {
+		// A failed tick leaves the previous payload in place. Serving the last
+		// good figures beats serving nothing.
+		startRefresh(env, ctx, 'cron');
 	},
 };

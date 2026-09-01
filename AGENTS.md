@@ -88,6 +88,36 @@ Locally the Worker runs through
 `.env.local` and simulates KV. Visiting `/__scheduled` fires the cron by hand when
 started with `--test-scheduled`.
 
+### The cron does not fire, so three things can run the indexer
+
+Cloudflare's Cron Trigger has never invoked this Worker. Three separate Workers
+on this account registered a `* * * * *` schedule that Cloudflare accepted,
+reported back through its own API and displayed in the dashboard, and none of
+them ever fired. One of those three was written entirely in the dashboard editor,
+so it is not our code and not our tooling.
+
+The indexer therefore has three ways to run, and the cron is the least of them.
+
+- **`POST /api/refresh`**, every five minutes from an outside scheduler. This is
+  the floor and it works when nobody is reading. It needs the `REFRESH_TOKEN`
+  secret in an `x-refresh-token` header, refuses `GET` outright, compares the
+  token in constant time, refuses a second run within thirty seconds, and fails
+  closed with a 503 if the secret is missing.
+- **Traffic.** A `GET /api/ledger` that finds the last run older than five
+  minutes starts a refresh behind the response. Every page load hits that
+  endpoint for the freshness line, so readers keep the figures current by
+  reading them. The response is not held up: it is served in about four
+  milliseconds while the refresh runs in `waitUntil`.
+- **The cron**, still registered and still wired to the same code, so the day
+  Cloudflare starts firing it we get the cadence back with no change.
+
+`last-run` in KV is written before each run, not after, so a run that dies still
+holds the others off. It rate limits the endpoint and gates the traffic path. It
+does not stop a stampede on its own: three concurrent readers all read the old
+value before any writes the new one, which is exactly what happened in testing.
+An in-isolate promise handle collapses a burst into one run. Two isolates in two
+locations can still race, and that is fine, because the indexer is idempotent.
+
 ### Telling a dead cron from a healthy one
 
 This was the failure mode worth designing against: when the indexer dies,
