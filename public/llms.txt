@@ -17,6 +17,7 @@
 
 - [English guide](https://floodreliefnepal.com/): donation channels (UPI, Alipay+, card, SWIFT), supply drop-off hubs, scam checks, FAQ, sources.
 - [Nepali guide](https://floodreliefnepal.com/np/): the same content in Nepali.
+- [Chinese guide](https://floodreliefnepal.com/zh/): the same content in Simplified Chinese.
 
 ## Sources
 

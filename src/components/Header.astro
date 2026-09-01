@@ -1,9 +1,10 @@
 ---
+import { site } from '../data/site';
 import { copyForPath, langFromPath } from '../data/copy';
 
 const lang = langFromPath(Astro.url.pathname);
 const header = copyForPath(Astro.url.pathname).header;
-const home = lang === 'ne' ? '/np/' : '/';
+const home = site.routes[lang];
 ---
 
 <header class="hairline">

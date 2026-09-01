@@ -8,7 +8,7 @@ Always `git pull` on the branch you will edit before making changes. If you alre
 
 ## How it works
 
-One homepage, built as static HTML. English at `/`, Nepali at `/np/`.
+One homepage, built as static HTML. English at `/`, Nepali at `/np/`, Simplified Chinese at `/zh/`.
 
 1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
 2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
@@ -20,12 +20,13 @@ One homepage, built as static HTML. English at `/`, Nepali at `/np/`.
 8. Share. Copyable post and share image (`public/og.png`).
 9. Sources. Two-column list of notices and reporting used for the copy.
 
-All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures.
+All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Simplified Chinese copy is `src/data/site.zh.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures.
 
 Pages:
 
 - `src/pages/index.astro` is `/`
 - `src/pages/np/index.astro` is `/np/`
+- `src/pages/zh/index.astro` is `/zh/`
 - `src/pages/404.astro` is the not-found page
 
 Layout and chrome:
@@ -39,7 +40,7 @@ Layout and chrome:
 - Astro, static output (`astro build` writes `dist/`)
 - Tailwind CSS v4 through `@tailwindcss/vite`
 - `@astrojs/sitemap`
-- Outfit and Noto Sans Devanagari via Astro's `fonts` config
+- Outfit, Noto Sans Devanagari, and Noto Sans SC via Astro's `fonts` config
 - Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
 - Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
 - Photos: keep sources in `src/assets/`. Hero uses Astro `<Picture />` with `formats={['avif', 'webp']}` and mid quality. Portal QR screenshots use `<Picture />` with `formats={['webp']}`, JPEG fallback, and high quality so they still scan. `astro build` writes the resized files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
@@ -73,7 +74,7 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 - The government card portal is one channel, not the whole identity of the site
 - Header Donate is a real button. The pmdrf links in the money section are real buttons. The Himalayan Bank domain in the USD callout is a real button.
 - Official outbound links open in a new tab (`target="_blank"` plus `rel="noopener noreferrer"`). Same-page jumps, language switch, skip link, 404 home, and `tel:` stay in this tab.
-- Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा", the private-collection ban, and the USD cell in the SWIFT table. Do not mark the whole Himalayan row. Do not mark every sentence.
+- Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा" / "以美元计价", the private-collection ban, and the USD cell in the SWIFT table. Do not mark the whole Himalayan row. Do not mark every sentence.
 - Remittance source on the page is the Nepal Embassy, India post. Do not put the PMO PDF on Give, FAQ, or Sources.
 - The dollar figure next to the fund total is a conversion of the rupee amount at the Nepal Rastra Bank USD buying rate on the `asOf` date. Recalculate it when the rupee figure changes. Do not invent a new total.
 

@@ -44,6 +44,11 @@
 		line-height: 1.75;
 	}
 
+	html.lang-zh body {
+		font-family: var(--font-zh), var(--font-outfit), sans-serif;
+		line-height: 1.75;
+	}
+
 	p,
 	li,
 	figcaption {
@@ -171,14 +176,19 @@
 	}
 
 	/* Devanagari has no upper case, and letter spacing breaks its conjuncts. */
-	html.lang-np .eyebrow {
+	html.lang-np .eyebrow,
+	html.lang-zh .eyebrow {
 		@apply text-sm tracking-normal normal-case;
 	}
 
 	html.lang-np .display,
 	html.lang-np .chapter-title,
 	html.lang-np .quiet-title,
-	html.lang-np .card-title {
+	html.lang-np .card-title,
+	html.lang-zh .display,
+	html.lang-zh .chapter-title,
+	html.lang-zh .quiet-title,
+	html.lang-zh .card-title {
 		@apply tracking-normal;
 	}
 
@@ -196,7 +206,9 @@
 	}
 
 	html.lang-np .raised,
-	html.lang-np .raised-usd {
+	html.lang-np .raised-usd,
+	html.lang-zh .raised,
+	html.lang-zh .raised-usd {
 		@apply tracking-normal;
 	}
 
@@ -302,7 +314,8 @@
 		@apply px-5 py-3 text-xs font-medium tracking-[0.14em] text-muted uppercase;
 	}
 
-	html.lang-np .data-table th {
+	html.lang-np .data-table th,
+	html.lang-zh .data-table th {
 		@apply text-sm tracking-normal normal-case;
 	}
 

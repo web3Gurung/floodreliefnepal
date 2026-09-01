@@ -24,6 +24,7 @@ export const np = {
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
 			{ label: 'नेपाली', href: site.routes.ne, lang: 'ne' },
+			{ label: '中文', href: site.routes.zh, lang: 'zh' },
 		],
 	},
 	hero: {
@@ -375,6 +376,10 @@ export const np = {
 			after: ' ले बनाएका।',
 		},
 		changelog: [
+			{
+				date: '२९ अगस्ट २०२६',
+				note: 'Added a Chinese version at /zh/.',
+			},
 			{
 				date: '२८ अगस्ट २०२६',
 				note: 'UPI र Alipay+ लाई छुट्टाछुट्टै खण्डमा राखियो, सरकारी पोर्टलका स्क्रिनसटसहित। रेमिट्यान्स र SWIFT खाता, र अन्तर्राष्ट्रिय कार्ड भुक्तानी अन गर्ने नोट थपियो।',

@@ -33,6 +33,7 @@ export const site = {
 	routes: {
 		en: '/',
 		ne: '/np/',
+		zh: '/zh/',
 	},
 } as const;
 
@@ -199,6 +200,10 @@ export const sources = [
 /** Newest first. The footer shows the three most recent entries. */
 export const changelog = [
 	{
+		date: '29 August 2026',
+		note: 'Added a Chinese version at /zh/.',
+	},
+	{
 		date: '28 August 2026',
 		note: 'Split UPI and Alipay+ into their own sections with official portal screenshots. Added remittance and SWIFT accounts, and a note on turning on international card payments.',
 	},
@@ -294,6 +299,7 @@ export const en = {
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
 			{ label: 'नेपाली', href: site.routes.ne, lang: 'ne' },
+			{ label: '中文', href: site.routes.zh, lang: 'zh' },
 		],
 	},
 	hero: {
