@@ -7,7 +7,15 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://floodreliefnepal.com',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // Static site: every deploy is a content change, so build time is an accurate lastmod.
+      lastmod: new Date(),
+    }),
+  ],
+  build: {
+    inlineStylesheets: 'always',
+  },
 
   fonts: [
       {
@@ -25,6 +33,15 @@ export default defineConfig({
           weights: [400, 500],
           styles: ['normal'],
           subsets: ['devanagari', 'latin'],
+          fallbacks: ['sans-serif'],
+      },
+      {
+          provider: fontProviders.google(),
+          name: 'Noto Sans SC',
+          cssVariable: '--font-zh',
+          weights: [400, 500],
+          styles: ['normal'],
+          subsets: ['chinese-simplified', 'latin'],
           fallbacks: ['sans-serif'],
       },
 	],

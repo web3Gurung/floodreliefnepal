@@ -1,57 +1,239 @@
 ---
-import { copyForPath } from '../data/copy';
+import { Picture } from 'astro:assets';
+import { copyForPath, splitBy } from '../data/copy';
+import fonepayShot from '../assets/pmdrf-fonepay.jpg';
+import nepalpayShot from '../assets/pmdrf-nepalpay.jpg';
+import type { ImageMetadata } from 'astro';
 
 const copy = copyForPath(Astro.url.pathname);
 const give = copy.give;
 const raised = give.raised;
+const brands = ['KAST', 'Solflare', 'RedotPay'] as const;
+const usdPhrases = ['quotes in USD', 'अमेरिकी डलरमा', '以美元计价'] as const;
+const alipayAppPhrases = ['拥有支持Alipay+的应用'] as const;
+const alipayAppsHref = '#alipay-apps';
+const shotFiles = {
+	fonepay: fonepayShot,
+	nepalpay: nepalpayShot,
+} satisfies Record<(typeof give.routes)[number]['shot'], ImageMetadata>;
 ---
 
-<section class="chapter hairline" id="give">
+<section class="chapter-peak hairline" id="give">
 	<div class="wrap">
 		<div class="center-block">
-			<h2 class="display max-w-none">{give.heading}</h2>
+			<h2 class="chapter-title max-w-none">{give.heading}</h2>
 			<p class="lede">{give.lede}</p>
-			{
-				raised && (
-					<p class="text-muted">
-						<span class="font-medium text-ink">{raised.amount}</span>, {raised.note}
-						{copy.ui.sentenceEnd} {copy.ui.asOf} {raised.asOf}
-						{copy.ui.sentenceEnd}{' '}
-						<a class="underline" href={raised.source} rel="noopener noreferrer">
-							{give.raisedReportLabel}
+		</div>
+
+		<div class="give-switch" data-give-switch data-pay="upi">
+			<nav class="give-tablist" aria-label={give.tabsLabel}>
+				{
+					give.tabs.map((tab) => (
+						<button class="give-option" type="button" data-pay={tab.id}>
+							<span class="give-option-label">{tab.label}</span>
+							<span class="give-option-detail">{tab.detail}</span>
+						</button>
+					))
+				}
+			</nav>
+
+			<div class="give-panels">
+				{
+					give.routes.map((route) => {
+						const shot = shotFiles[route.shot];
+						return (
+							<div class={`give-panel give-panel-${route.id}`}>
+								<div class="split">
+									<div>
+										<p class="eyebrow">
+											{
+												splitBy(route.eyebrow, alipayAppPhrases).map((chunk) =>
+													chunk.hit ? (
+														<a class="text-inherit underline" href={alipayAppsHref}>
+															{chunk.text}
+														</a>
+													) : (
+														chunk.text
+													),
+												)
+											}
+										</p>
+										<h3 class="quiet-title mt-3 max-w-[16ch]">{route.heading}</h3>
+										<p class="max-w-[38rem] text-muted">{route.body}</p>
+										<div class="mt-8">
+											<a
+												class="btn btn-stack"
+												href={route.action.href}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												<span>{route.action.label}</span>
+												<span class="btn-sub">{route.action.sub}</span>
+											</a>
+											<p class="quiet max-w-[38rem]">{route.note}</p>
+										</div>
+									</div>
+									<figure class="min-w-0">
+										<a href={route.action.href} target="_blank" rel="noopener noreferrer">
+											<Picture
+												src={shot}
+												formats={['webp']}
+												fallbackFormat="jpg"
+												widths={[400, 720, 960, 1260]}
+												sizes="(min-width: 48rem) min(40rem, calc((100vw - 9rem) / 2)), calc(100vw - 2.5rem)"
+												quality="high"
+												alt={route.alt}
+												class="photo h-auto w-full bg-surface"
+												pictureAttributes={{ class: 'block w-full' }}
+												loading="lazy"
+												decoding="async"
+											/>
+										</a>
+										<figcaption class="quiet mt-3">{route.caption}</figcaption>
+									</figure>
+								</div>
+							</div>
+						);
+					})
+				}
+
+				<div class="give-panel give-panel-card">
+					<div class="grid gap-6 md:grid-cols-2">
+						{
+							give.cards.map((card) => (
+								<article class="card">
+									<p class="eyebrow">{card.eyebrow}</p>
+									<h3 class="card-title mt-3">{card.title}</h3>
+									<p class="mt-4 max-w-[60ch] text-muted">
+										{
+											splitBy(card.body, brands).map((chunk) =>
+												chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
+											)
+										}
+									</p>
+									<div class="mt-auto pt-8">
+										<a
+											class="btn btn-stack w-full"
+											href={card.action.href}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span>{card.action.label}</span>
+											<span class="btn-sub">{card.action.sub}</span>
+										</a>
+										<p class="quiet">{card.note}</p>
+									</div>
+								</article>
+							))
+						}
+					</div>
+					<aside class="callout mt-6">
+						<p class="max-w-[60ch] text-muted">
+							{
+								splitBy(give.alternate.text, usdPhrases).map((chunk) =>
+									chunk.hit ? <mark class="mark-brush">{chunk.text}</mark> : chunk.text,
+								)
+							}
+						</p>
+						<a
+							class="btn-outline max-w-full shrink-0 self-start break-all"
+							href={give.alternate.href}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{give.alternate.linkLabel}
+						</a>
+					</aside>
+				</div>
+
+				<div class="give-panel give-panel-remit">
+					<h3 class="quiet-title max-w-[18ch]">{give.remit.heading}</h3>
+					<p class="max-w-[38rem] text-muted">{give.remit.lede}</p>
+					<p class="mt-8">
+						<span class="eyebrow block">{give.remit.accountNameLabel}</span>
+						<span class="mt-2 block font-medium">{give.remit.accountName}</span>
+					</p>
+					<div class="data-table-wrap mt-8">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>{give.remit.columns.bank}</th>
+									<th>{give.remit.columns.account}</th>
+									<th>{give.remit.columns.currency}</th>
+									<th>{give.remit.columns.swift}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{
+									give.remit.rows.map((row) => (
+										<tr>
+											<td class="font-medium">{row.bank}</td>
+											<td class="font-mono tabular-nums">
+												{row.accounts.map((account) => (
+													<div class="select-all">{account}</div>
+												))}
+											</td>
+											<td class="tabular-nums">
+												{row.currency === 'USD' ? (
+													<mark class="mark-brush">{row.currency}</mark>
+												) : (
+													row.currency
+												)}
+											</td>
+											<td class="font-mono tabular-nums">{row.swift}</td>
+										</tr>
+									))
+								}
+							</tbody>
+						</table>
+					</div>
+					<p class="mt-8 max-w-[38rem] text-muted">
+						{give.remit.sourceBefore}
+						<a class="underline" href={give.remit.sourceHref} target="_blank" rel="noopener noreferrer">
+							{give.remit.sourceLabel}
 						</a>
 					</p>
-				)
-			}
+				</div>
+			</div>
 		</div>
 
-		<div class="mt-12 grid gap-6 md:grid-cols-2">
-			{
-				give.cards.map((card) => (
-					<article class="card">
-						<p class="eyebrow">{card.eyebrow}</p>
-						<h3 class="card-title mt-3">{card.title}</h3>
-						<p class="mt-4 text-muted">{card.body}</p>
-						<div class="mt-auto pt-8">
-							<a class="btn btn-stack w-full" href={card.action.href} rel="noopener noreferrer">
-								<span>{card.action.label}</span>
-								<span class="btn-sub">{card.action.sub}</span>
-							</a>
-							<p class="quiet">{card.note}</p>
-						</div>
-					</article>
-				))
-			}
-		</div>
-
-		<div class="mx-auto mt-12 max-w-[42rem] space-y-5 text-muted">
-			<p>
-				{give.alternate.text}{' '}
-				<a class="break-words underline" href={give.alternate.href} rel="noopener noreferrer">
-					{give.alternate.linkLabel}
-				</a>
-			</p>
-			<p>{give.closing}</p>
-		</div>
+		{
+			raised && (
+				<p class="mx-auto mt-16 max-w-[38rem] text-center text-muted">
+					<span class="font-medium text-ink tabular-nums">
+						{raised.amount} ({raised.amountUsd})
+					</span>
+					{copy.ui.sentenceEnd} {raised.note}
+					{copy.ui.sentenceEnd} {copy.ui.asOf} {raised.asOf}
+					{copy.ui.sentenceEnd}{' '}
+					<a class="underline" href={raised.source} target="_blank" rel="noopener noreferrer">
+						{give.raisedReportLabel}
+					</a>
+				</p>
+			)
+		}
+		<p class="mx-auto mt-6 max-w-[38rem] text-center text-muted">{give.closing}</p>
 	</div>
 </section>
+
+<script is:inline>
+	(() => {
+		const root = document.querySelector('[data-give-switch]');
+		if (!root) return;
+		const ids = new Set(['upi', 'alipay', 'card', 'remit']);
+		const apply = (id) => {
+			const pay = ids.has(id) ? id : 'upi';
+			root.dataset.pay = pay;
+			root.querySelectorAll('.give-option').forEach((option) => {
+				option.setAttribute('aria-current', option.dataset.pay === pay ? 'true' : 'false');
+			});
+		};
+		root.querySelector('.give-tablist')?.addEventListener('click', (event) => {
+			const option = event.target.closest('.give-option');
+			if (!option || !ids.has(option.dataset.pay)) return;
+			apply(option.dataset.pay);
+			history.replaceState(null, '', '#' + option.dataset.pay);
+		});
+		apply(location.hash.replace('#', ''));
+	})();
+</script>

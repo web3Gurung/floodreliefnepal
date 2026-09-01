@@ -6,14 +6,20 @@ import Footer from '../components/Footer.astro';
 import { routes, site } from '../data/site';
 import { copyFor, type Lang } from '../data/copy';
 
+type PageRoutes = { readonly en: string; readonly ne?: string; readonly zh?: string };
+
 interface Props {
 	title: string;
 	description: string;
 	lang?: Lang;
 	/** The FAQ block only renders on the guide pages, so 404 opts out. */
 	faq?: boolean;
-	/** Both languages of this page, for the switcher and the alternates. */
-	pageRoutes?: { readonly en: string; readonly ne: string };
+	/**
+	 * Every language this page exists in, for the switcher and the alternates.
+	 * Defaults to the homepage, which exists in all three. A page that skips a
+	 * language leaves it out here and stops claiming it.
+	 */
+	pageRoutes?: PageRoutes;
 }
 
 const {
@@ -24,12 +30,18 @@ const {
 	pageRoutes = routes.home,
 } = Astro.props;
 const copy = copyFor(lang);
+const htmlLang = lang === 'zh' ? 'zh-CN' : lang;
+const htmlClass = lang === 'ne' ? 'lang-np' : lang === 'zh' ? 'lang-zh' : undefined;
+const ogLocale = lang === 'ne' ? 'ne_NP' : lang === 'zh' ? 'zh_CN' : 'en_US';
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site ?? site.url);
 const base = Astro.site ?? new URL(site.url);
+// Only the languages this page actually has. Claiming an alternate that lands
+// on a different page is worse than claiming none.
 const alternates = [
-	{ hreflang: 'en', href: new URL(pageRoutes.en, base).href },
-	{ hreflang: 'ne', href: new URL(pageRoutes.ne, base).href },
+	...(['en', 'ne', 'zh'] as const)
+		.filter((code) => pageRoutes[code])
+		.map((code) => ({ hreflang: code, href: new URL(pageRoutes[code] as string, base).href })),
 	{ hreflang: 'x-default', href: new URL(pageRoutes.en, base).href },
 ];
 
@@ -45,10 +57,25 @@ const organizationLd = {
 	sameAs: [site.github],
 };
 
+const webPageLd = {
+	'@context': 'https://schema.org',
+	'@type': 'WebPage',
+	name: title,
+	description,
+	url: canonical.href,
+	inLanguage: htmlLang,
+	dateModified: site.lastCheckedIso,
+	isPartOf: {
+		'@type': 'WebSite',
+		name: site.name,
+		url: base.href,
+	},
+};
+
 const faqLd = {
 	'@context': 'https://schema.org',
 	'@type': 'FAQPage',
-	inLanguage: lang,
+	inLanguage: htmlLang,
 	mainEntity: copy.faq.items.map((item) => ({
 		'@type': 'Question',
 		name: item.q,
@@ -61,7 +88,7 @@ const faqLd = {
 ---
 
 <!doctype html>
-<html lang={lang} class={lang === 'ne' ? 'lang-np' : undefined}>
+<html lang={htmlLang} class={htmlClass}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="color-scheme" content="light" />
@@ -80,22 +107,23 @@ const faqLd = {
 		<meta property="og:url" content={canonical} />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={site.name} />
-		<meta property="og:locale" content={lang === 'ne' ? 'ne_NP' : 'en_US'} />
+		<meta property="og:locale" content={ogLocale} />
 		<meta property="og:image" content={ogImage} />
 		<meta property="og:image:width" content="1200" />
 		<meta property="og:image:height" content="630" />
-		<meta property="og:image:alt" content="Flood Relief Nepal. See how to help." />
+		<meta property="og:image:alt" content="Flood Relief Nepal. See how to donate." />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={ogImage} />
-		<meta name="twitter:image:alt" content="Flood Relief Nepal. See how to help." />
+		<meta name="twitter:image:alt" content="Flood Relief Nepal. See how to donate." />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<script
 			type="application/ld+json"
 			is:inline
 			set:html={JSON.stringify(organizationLd)}
 		/>
+		<script type="application/ld+json" is:inline set:html={JSON.stringify(webPageLd)} />
 		{
 			faq && (
 				<script type="application/ld+json" is:inline set:html={JSON.stringify(faqLd)} />
@@ -103,6 +131,7 @@ const faqLd = {
 		}
 		<Font cssVariable="--font-outfit" preload />
 		<Font cssVariable="--font-np" preload={lang === 'ne'} />
+		<Font cssVariable="--font-zh" preload={lang === 'zh'} />
 	</head>
 	<body>
 		<a

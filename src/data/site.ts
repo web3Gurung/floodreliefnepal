@@ -1,10 +1,15 @@
 /**
- * Both languages of every page. The switcher and the canonical alternates read
- * the pair for the page being rendered, so a reader on the Nepali transparency
- * page reaches the English transparency page rather than the homepage.
+ * Every language each page exists in. The switcher and the canonical alternates
+ * read the set for the page being rendered, so a reader on the Nepali
+ * transparency page reaches the English transparency page rather than the
+ * homepage.
+ *
+ * The guide exists in three languages. The transparency page exists in two, and
+ * deliberately offers no Chinese rather than machine translating a page about
+ * money into a language nobody on the team reads.
  */
 export const routes = {
-	home: { en: '/', ne: '/np/' },
+	home: { en: '/', ne: '/np/', zh: '/zh/' },
 	transparency: { en: '/transparency', ne: '/np/transparency' },
 } as const;
 
@@ -12,10 +17,17 @@ export const site = {
 	name: 'Flood Relief Nepal',
 	url: 'https://floodreliefnepal.com',
 	github: 'https://github.com/web3Gurung/floodreliefnepal',
-	lastChecked: '27 August 2026',
+	makers: {
+		ronak: 'https://x.com/Ronak0010',
+		ayushman: 'https://x.com/gurungbuilds',
+	},
+	lastChecked: '28 August 2026',
+	/** ISO form of lastChecked, for structured data. Keep the two in sync. */
+	lastCheckedIso: '2026-08-28',
 	official: {
 		pmdrf: 'https://pmdrf.nchl.com.np/',
 		himalayan: 'https://pmrelieffund.himalayanbank.com/',
+		embassyIndia: 'https://x.com/EONIndia/status/2093249597858828784',
 		mofa: 'https://mofa.gov.np/content/1863/flash-flood-in-bhote-koshi-river/',
 		kathmanduPost:
 			'https://kathmandupost.com/money/2026/08/27/what-is-the-nepal-government-s-one-door-system-for-flood-relief',
@@ -32,6 +44,7 @@ export const site = {
 			'https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far',
 		ifrc: 'https://www.ifrc.org/press-release/nepal-ifrc-releases-emergency-funds-flash-floods-leave-communities-isolated',
 		raisedReport: 'https://english.onlinekhabar.com/pms-disaster-relief-fund.html',
+		alipayPartners: 'https://nchl.com.np/alipay-mobile-payments-partner/',
 	},
 	routes: routes.home,
 } as const;
@@ -58,6 +71,75 @@ export const hubs = [
 	},
 ] as const;
 
+/**
+ * Copied from the SWIFT table in the Nepal Embassy, India post.
+ * Do not add rows that are not on that post.
+ */
+export const swiftAccounts = [
+	{
+		bank: 'Rastriya Banijya Bank',
+		accounts: ['1130100003762001', '1130100000006006'],
+		currency: 'NPR',
+		swift: 'RBBANPKA',
+	},
+	{
+		bank: 'Nepal Bank Limited',
+		accounts: ['00211600510039000003', '00200100510039000001'],
+		currency: 'NPR',
+		swift: 'NEBLNPKA',
+	},
+	{
+		bank: 'Agriculture Development Bank Limited',
+		accounts: ['0100201002907014'],
+		currency: 'NPR',
+		swift: 'ADBLNPKA',
+	},
+	{
+		bank: 'Everest Bank Limited',
+		accounts: ['00100105200270', '00101102200012'],
+		currency: 'NPR',
+		swift: 'EVBLNPKA',
+	},
+	{
+		bank: 'Global IME Bank',
+		accounts: ['00401010000057', '00411010000005'],
+		currency: 'NPR',
+		swift: 'GLBBNPKA',
+	},
+	{
+		bank: 'Nabil Bank',
+		accounts: ['1710017505285'],
+		currency: 'NPR',
+		swift: 'NARBNPKA',
+	},
+	{
+		bank: 'Standard Chartered',
+		accounts: ['01013243801', '02013243801'],
+		currency: 'NPR',
+		swift: 'SCBLNPKA',
+	},
+	{
+		bank: 'Himalayan Bank Ltd',
+		accounts: ['01905631210046'],
+		currency: 'USD',
+		swift: 'HIMANPKA',
+	},
+	{
+		bank: 'Himalayan Bank Ltd',
+		accounts: ['12005631210039'],
+		currency: 'NPR',
+		swift: 'HIMANPKA',
+	},
+	{
+		bank: 'Laxmi Sunrise Bank Ltd.',
+		accounts: ['1628885410110925'],
+		currency: 'NPR',
+		swift: 'LXBLNPKA',
+	},
+] as const;
+
+export const fundAccountName = 'PRIME MINISTER DISASTER RELIEF FUND';
+
 /** Link targets live here only. Translations override the labels by index. */
 export const sources = [
 	{
@@ -67,7 +149,7 @@ export const sources = [
 	},
 	{
 		label: 'pmdrf.nchl.com.np',
-		note: 'Government card portal for the Prime Minister Disaster Relief Fund.',
+		note: 'Government portal. Card, NepalPAY QR, and Fonepay QR.',
 		href: site.official.pmdrf,
 	},
 	{
@@ -120,10 +202,36 @@ export const sources = [
 		note: 'Ministry of Finance figure for what the fund took in. The source for the total above.',
 		href: site.official.raisedReport,
 	},
+	{
+		label: 'Nepal Embassy, India',
+		note: 'Posted the remittance apps and SWIFT accounts for well-wishers in India.',
+		href: site.official.embassyIndia,
+	},
+	{
+		label: 'NCHL Alipay+',
+		note: 'Official list of Alipay+ apps that can scan NepalPAY QR.',
+		href: site.official.alipayPartners,
+	},
 ] as const;
 
 /** Newest first. The footer shows the three most recent entries. */
 export const changelog = [
+	{
+		date: '29 August 2026',
+		note: 'Added a Chinese version at /zh/.',
+	},
+	{
+		date: '28 August 2026',
+		note: 'Split UPI and Alipay+ into their own sections with official portal screenshots. Added remittance and SWIFT accounts, and a note on turning on international card payments.',
+	},
+	{
+		date: '28 August 2026',
+		note: 'Marked the private-collection ban, the crypto wallets, and the Himalayan Bank USD gateway. Official links open in a new tab.',
+	},
+	{
+		date: '28 August 2026',
+		note: 'Tightened the page hierarchy so the money path and scam checks read first.',
+	},
 	{
 		date: '28 August 2026',
 		note: 'Added the reported fund total, with the date it was reported.',
@@ -152,6 +260,8 @@ export const changelog = [
 
 type RaisedFigure = {
 	amount: string;
+	/** Conversion of `amount`. Recalculate from the NRB USD buying rate on `asOf`. */
+	amountUsd: string;
 	asOf: string;
 	note: string;
 	source: string;
@@ -162,9 +272,13 @@ type RaisedFigure = {
  * Update the amount whenever a newer figure is reported. Set this to null,
  * rather than leave a figure older than a week on the page. The page renders
  * nothing when it is null, and never renders the amount without its asOf date.
+ *
+ * amountUsd is Rs 273.3 million at the Nepal Rastra Bank USD buying rate of
+ * Rs 152.37 on 27 August 2026, rounded to $1.79 million.
  */
 export const raised: RaisedFigure | null = {
 	amount: 'Rs 273.3 million',
+	amountUsd: '$1.79 million',
 	asOf: '27 August 2026',
 	note: 'first six hours, per the Ministry of Finance',
 	source: site.official.raisedReport,
@@ -200,7 +314,7 @@ export const en = {
 	meta: {
 		title: 'Flood Relief Nepal, public guide for Bhotekoshi flood relief',
 		description:
-			'Independent guide for Bhotekoshi flood relief. Where to give, drop supplies, and skip scams.',
+			'Independent guide for Bhotekoshi flood relief. Where to send money by UPI, Alipay+, card, or SWIFT, where to drop supplies, and how to skip fake QR codes.',
 	},
 	ui: {
 		skipToContent: 'Skip to content',
@@ -211,10 +325,11 @@ export const en = {
 	},
 	header: {
 		brand: site.name,
-		give: 'Give',
+		give: 'Donate',
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
 			{ label: 'नेपाली', href: site.routes.ne, lang: 'ne' },
+			{ label: '中文', href: site.routes.zh, lang: 'zh' },
 		],
 	},
 	hero: {
@@ -234,7 +349,7 @@ export const en = {
 		asOf: '27 August 2026',
 		body: [
 			'A flash flood came down the Bhote Koshi river on the morning of 26 August 2026. It started on the Tibet side of the border and crossed into Nepal.',
-			'It hit Rasuwa, Nuwakot and neighbouring districts. Published counts of the dead, the missing and the displaced moved a long way inside the first 48 hours, so this page does not carry one.',
+			'It hit Rasuwa, Nuwakot and neighbouring districts.',
 		],
 		link: {
 			label: 'The Kathmandu Post, what we know about the Bhotekoshi flood so far',
@@ -253,12 +368,19 @@ export const en = {
 		heading: 'Send money',
 		raised,
 		raisedReportLabel: 'Read the report',
-		lede: "One government portal, works from anywhere in the world, both routes below end in the Prime Minister's Disaster Relief Fund.",
+		lede: 'Choose how you pay. UPI if you are in India, Alipay or an app that supports Alipay+, a card from anywhere, or a bank transfer.',
+		tabsLabel: 'How to pay',
+		tabs: [
+			{ id: 'upi', label: 'UPI', detail: 'If you are in India' },
+			{ id: 'alipay', label: 'Alipay+', detail: 'Scan a NepalPAY code' },
+			{ id: 'card', label: 'Card', detail: 'Visa, Mastercard, or a Nepali app' },
+			{ id: 'remit', label: 'Wise, Remitly', detail: 'SWIFT or a bank transfer' },
+		],
 		cards: [
 			{
 				eyebrow: 'Pay by card',
 				title: 'From anywhere in the world',
-				body: 'The portal takes Nepali banking apps and wallets, and international Visa and Mastercard. It charges in Nepali rupees, so your own bank handles the conversion.',
+				body: 'The portal takes international Visa and Mastercard, and Nepali banking apps. It charges in Nepali rupees, so your own bank handles the conversion. If a card from another country is declined, turn on international or overseas transactions in your banking app, then try again.',
 				action: {
 					label: 'Open the government portal',
 					sub: 'pmdrf.nchl.com.np',
@@ -269,7 +391,7 @@ export const en = {
 			{
 				eyebrow: 'Pay with stablecoins',
 				title: 'If you hold crypto',
-				body: 'There is no direct crypto route into the fund yet, so the path runs through a card. Load a crypto debit card with USDC or USDT using KAST, Solflare, RedotPay or similar, then pay on the same government portal. Check that the payment lands on pmdrf.nchl.com.np.',
+				body: 'There is no direct crypto route into the fund yet, so the path runs through a card. Load a crypto debit card with USDC or USDT using KAST, Solflare, RedotPay or similar, then pay on the same government portal.',
 				action: {
 					label: 'Open the government portal',
 					sub: 'pmdrf.nchl.com.np',
@@ -278,13 +400,61 @@ export const en = {
 				note: 'Government channel. Leaves this site.',
 			},
 		],
+		routes: [
+			{
+				id: 'upi',
+				shot: 'fonepay',
+				eyebrow: 'If you are in India',
+				heading: 'Scan with UPI',
+				body: 'Open GPay, PhonePe, Paytm, or any other UPI app and scan the Fonepay code. You can also open the government portal and pick Fonepay QR. Do not pay a QR that arrived in a chat.',
+				caption: 'Fonepay QR on pmdrf.nchl.com.np',
+				alt: 'Official Fonepay QR on the government portal, for UPI in India',
+				action: {
+					label: 'Open the government portal',
+					sub: 'pmdrf.nchl.com.np',
+					href: site.official.pmdrf,
+				},
+				note: 'If the screenshot will not scan, open the live page and pick Fonepay QR.',
+			},
+			{
+				id: 'alipay',
+				shot: 'nepalpay',
+				eyebrow: 'If you use Alipay+',
+				heading: 'Scan with Alipay+',
+				body: 'Open Alipay or an app that supports Alipay+ and scan the NepalPAY code. You can also open the government portal and pick NepalPAY QR. Do not pay a QR that arrived in a chat.',
+				caption: 'NepalPAY QR on pmdrf.nchl.com.np',
+				alt: 'Official NepalPAY QR on the government portal, for Alipay+',
+				action: {
+					label: 'Open the government portal',
+					sub: 'pmdrf.nchl.com.np',
+					href: site.official.pmdrf,
+				},
+				note: 'If the screenshot will not scan, open the live page and pick NepalPAY QR.',
+			},
+		],
 		alternate: {
 			text: 'Himalayan Bank runs a second government gateway for the same fund that quotes in USD, useful if you would rather not be charged in rupees or if the main portal is busy.',
 			linkLabel: 'pmrelieffund.himalayanbank.com',
 			href: site.official.himalayan,
 		},
+		remit: {
+			heading: 'Wise, Remitly, and SWIFT',
+			lede: 'GME, Remitly, Wise, TapTapSend, and other remittance apps can send to the NPR accounts below. SWIFT works worldwide from a bank or internet banking.',
+			accountNameLabel: 'Account name for every row',
+			accountName: fundAccountName,
+			columns: {
+				bank: 'Bank',
+				account: 'Account number',
+				currency: 'Currency',
+				swift: 'SWIFT',
+			},
+			rows: swiftAccounts,
+			sourceBefore: 'Source: ',
+			sourceLabel: 'Nepal Embassy, India post',
+			sourceHref: site.official.embassyIndia,
+		},
 		closing:
-			'There is no ceiling on what you can send. Nepal Rastra Bank lifted digital transfer caps into the two Prime Minister funds. Bank transfer details will land here once a verified notice publishes them.',
+			'There is no ceiling on what you can send. Nepal Rastra Bank lifted digital transfer caps into the two Prime Minister funds.',
 	},
 	verify: {
 		heading: 'Check before you send',
@@ -296,7 +466,7 @@ export const en = {
 			},
 			{
 				title: 'A QR image in a chat is a stranger, not a fund',
-				body: 'The Nepal Police Cyber Bureau has warned about fake QR codes and cloned relief pages going around after the flood. A screenshot of a QR code carries whoever made it.',
+				body: 'The UPI and Alipay+ images on this page are screenshots of pmdrf.nchl.com.np. A QR that arrived in a chat is still a stranger. The Nepal Police Cyber Bureau has warned about fake QR codes and cloned relief pages after the flood.',
 			},
 			{
 				title: 'Personal accounts are the tell',
@@ -347,6 +517,23 @@ export const en = {
 				q: 'Who hands the aid to people on the ground?',
 				a: 'Civil administration, the Nepali Army, Nepal Police, and local and provincial governments. The point of the one door rule is that one desk tracks what came in, so a village is less likely to be skipped.',
 			},
+			{
+				q: 'Can I pay with UPI from India?',
+				a: 'Yes. Open your UPI app and scan the Fonepay code in the money section, or open pmdrf.nchl.com.np and pick Fonepay QR.',
+			},
+			{
+				q: 'Can I pay with Alipay or an app that supports Alipay+?',
+				a: 'Yes. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code in the money section, or open pmdrf.nchl.com.np and pick NepalPAY QR.',
+			},
+			{
+				id: 'alipay-apps',
+				q: 'Which Alipay+ apps can scan the NepalPAY code?',
+				a: 'NCHL lists these apps for NepalPAY QR.\nChinese mainland: Alipay.\nHong Kong SAR: AlipayHK.\nMacao SAR: MPay.\nMalaysia: Touch \'n Go eWallet, MyPB by Public Bank Berhad.\nSingapore: Changi Pay, OCBC Digital, BigPay, Starryblu.\nSouth Korea: KakaoPay, Naver Pay, Toss Pay.\nPhilippines: GCash.\nThailand: TrueMoney.\nMongolia: Hipay.\nItaly: Tinaba.\nGermany: Bluecode.\nBigPay also works in Malaysia and Thailand.\nOther Alipay+ apps are not on this list.',
+			},
+			{
+				q: 'Can I use Wise, Remitly, or a bank SWIFT transfer?',
+				a: 'Yes. The Nepal Embassy in India posted GME, Remitly, Wise, TapTapSend, and SWIFT accounts named Prime Minister Disaster Relief Fund. Copy the numbers from this page or from that post, not from a chat.',
+			},
 		],
 	},
 	notFound: {
@@ -360,7 +547,7 @@ export const en = {
 	share: {
 		heading: 'Share this page',
 		lede: 'Copy the post below and put it where people are asking how to help. The text stays selectable if the button does not work.',
-		post: 'Bhotekoshi flood relief runs through one government door. Card and international payments go to pmdrf.nchl.com.np. There is a gateway that quotes in USD at pmrelieffund.himalayanbank.com. Check the domain before you type a card number. Full guide: floodreliefnepal.com',
+		post: 'Bhotekoshi flood relief runs through one government door. Cards go to pmdrf.nchl.com.np. If you are in India, scan the Fonepay UPI code on floodreliefnepal.com. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code there. Ignore a QR that arrived in a chat.',
 		copyLabel: 'Copy the post',
 		copiedLabel: 'Copied',
 		image: {
@@ -370,7 +557,7 @@ export const en = {
 	},
 	sources: {
 		heading: 'Sources',
-		lede: "Government notices and reporting dated 27 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal.",
+		lede: "Government notices and reporting dated 27 and 28 August 2026. Names follow the Prime Minister's Office copy in The Rising Nepal.",
 		items: sources,
 	},
 	transparency: {
@@ -543,6 +730,13 @@ export const en = {
 			before: '',
 			linkLabel: 'GitHub',
 			after: ' if you want to send a pull request.',
+		},
+		madeBy: {
+			before: 'Made by ',
+			ronakLabel: 'Ronak',
+			middle: ' and ',
+			ayushmanLabel: 'Ayushman',
+			after: '',
 		},
 		changelog,
 	},

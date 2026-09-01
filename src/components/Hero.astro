@@ -29,10 +29,10 @@ const hero = copyForPath(Astro.url.pathname).hero;
 				formats={['avif', 'webp']}
 				fallbackFormat="jpg"
 				alt={hero.photoAlt}
-				widths={[640, 960, 1280, 1600]}
-				sizes="(min-width: 64rem) 64rem, calc(100vw - 2.5rem)"
+				widths={[480, 640, 800, 960, 1280, 1600]}
+				sizes="(min-width: 80rem) 68rem, (min-width: 48rem) calc(100vw - 5rem), calc(100vw - 2.5rem)"
 				quality="mid"
-				class="aspect-[16/9] h-auto w-full object-cover"
+				class="photo aspect-[16/9] h-auto w-full object-cover"
 				pictureAttributes={{ class: 'block w-full' }}
 				priority
 			/>

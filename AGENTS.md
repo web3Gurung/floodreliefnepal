@@ -8,32 +8,45 @@ that does. Nobody should quietly reword either side. The team is deciding whethe
 the transparency page moves to nepalrelief.org instead. Until that lands, leave the
 homepage copy and the private collection warnings exactly as they are.
 
+## Before you change anything
+
+Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`. Do not start from a stale checkout.
+
 ## How it works
 
-Two pages, each in English and Nepali, built as static HTML.
+Two pages, built as static HTML.
 
-The guide is the homepage.
+The guide is the homepage. English at `/`, Nepali at `/np/`, Simplified Chinese at `/zh/`.
 
-1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`.
-2. Policy. What the one-door rule is, and that private collection drives are not allowed.
-3. Give. Cash via `https://pmdrf.nchl.com.np/`. Bank-transfer numbers are not on the page yet.
-4. Supplies. Three government drop-off points, with contacts.
-5. Questions. Short FAQ.
-6. Sources. Links to the notices and reporting used for the copy.
+The transparency page is at `/transparency` and `/np/transparency`. It exists in
+English and Nepali only, on purpose: nobody here reads Chinese well enough to
+publish a page about money in it. The switcher on that page offers two languages
+rather than linking a third to a different page, and its hreflang alternates say
+the same thing.
+
+1. Hero. Name, a path into the rest of the page, and a Nepal Himalaya photo in `src/assets/hero.jpg`. Centered stack, photo under the copy, on every viewport.
+2. Situation. What is known about the Bhotekoshi flood, without publishing a death or missing count.
+3. Policy. What the one-door rule is, and that private collection drives are not allowed. The private-collection sentence is yellow-marked.
+4. Give. Four-option switcher: UPI, Alipay+, Card, and Wise/Remitly. Default is UPI. Tiles set `data-pay` in JS. Do not use `:target` hashes; those scroll the page. Do not put links inside `.give-option` buttons. UPI and Alipay+ show official portal screenshots (`src/assets/pmdrf-fonepay.jpg`, `src/assets/pmdrf-nepalpay.jpg`) and send people to `https://pmdrf.nchl.com.np/`. The Chinese Alipay tab is labelled 支付宝/ Alipay+. Its FAQ jump lives in the panel eyebrow, not in the tab. Card is fiat and crypto, same portal, with the Himalayan Bank USD gateway as a callout. Wise/Remitly shows the SWIFT table from `swiftAccounts`. Source line is the Nepal Embassy, India post. Fund total sits under the switcher, rupees plus a dollar conversion.
+5. Verify. Short scam checks. The two official payment domains are bold.
+6. Supplies. What responders are handing out, then the three government drop-off points with contacts.
+7. Questions. Short FAQ. The Alipay+ apps answer copies NCHL's NepalPAY list at `https://nchl.com.np/alipay-mobile-payments-partner/`. Do not copy the global Alipay+ directory.
+8. Share. Copyable post and share image (`public/og.png`).
+9. Sources. Two-column list of notices and reporting used for the copy.
 
 The transparency page reports the Nepal Relief crypto donation drive. It reads
 `src/data/ledger.json` at build time and shows the total received in USD, the
-donation count, anything excluded from the total, and a table of donations that
-links each one to Etherscan.
+donation count, anything excluded from the total, a table of donations linking each
+one to Etherscan, the merge visualisation, the mosaic, the six step pipeline
+explainer, and posts and headlines from outside the project.
 
-All URLs, hub names, phones, source links, and page copy live in `src/data/site.ts`
-and `src/data/site.np.ts`. Edit those files to change content. Do not invent account
-numbers, QR codes, or SWIFT details. Do not add them until a teammate PR lands
-verified figures. The receiving address in `receiving` is verified and may stay.
+All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Simplified Chinese copy is `src/data/site.zh.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`, and `{name}` slots use `fill` in the same file. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures. The receiving address in `receiving` is verified and may stay.
 
 Pages:
 
-- `src/pages/index.astro` is `/`, `src/pages/np/index.astro` is `/np/`
+- `src/pages/index.astro` is `/`
+- `src/pages/np/index.astro` is `/np/`
+- `src/pages/zh/index.astro` is `/zh/`
 - `src/pages/transparency.astro` is `/transparency`, `src/pages/np/transparency.astro` is `/np/transparency`
 - `src/pages/404.astro` is the not-found page
 
@@ -49,17 +62,26 @@ Layout and chrome:
 
 ## Deploying
 
-**Pushing to GitHub deploys nothing.** The Cloudflare git build uploads `dist` and
-nothing else, so it would replace the Worker with an assets only version and
-silently kill the cron. The git build must stay turned off in the Cloudflare
-dashboard. The only way to ship is:
+**Merging to `main` deploys.** The Cloudflare git build runs `npx astro build` and
+then `npx wrangler deploy`, so the site and the Worker go out together. There is no
+separate step and no assets only path that could strand the Worker.
+
+That makes two things prerequisites of the merge rather than jobs for afterwards.
+If either is missing when a Worker change lands, the deploy succeeds and ships an
+indexer that cannot run.
+
+- The KV namespace id is committed in `wrangler.jsonc`. Create the namespace with
+  `npx wrangler kv namespace create LEDGER` and paste the id. It is an identifier,
+  not a credential, and belongs in the repo.
+- The three secrets are pushed with `npx wrangler secret put`: `ETHERSCAN_API_KEY`,
+  `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. They live only in the Cloudflare account
+  and never in the repo. `npx wrangler secret list` shows the names.
+
+To deploy by hand from a machine that is logged in:
 
 ```bash
 npm run deploy
 ```
-
-which runs `astro build` and then `wrangler deploy`, so the assets and the Worker
-always go out together.
 
 Locally the Worker runs through
 `npx wrangler dev --local --env-file .env.local`, which reads the keys from
@@ -109,10 +131,13 @@ Rules for anything that touches these figures:
 - Astro, static output (`astro build` writes `dist/`)
 - Tailwind CSS v4 through `@tailwindcss/vite`
 - `@astrojs/sitemap`
-- Outfit and Noto Sans Devanagari via Astro's `fonts` config
+- Outfit, Noto Sans Devanagari, and Noto Sans SC via Astro's `fonts` config
 - Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
-- Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets.
-- Photos: keep sources in `src/assets/`. Use Astro `<Picture />` with `formats={['avif', 'webp']}`. `astro build` writes the resized AVIF/WebP/JPEG files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
+- Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
+- Photos: keep sources in `src/assets/`. Hero uses Astro `<Picture />` with `formats={['avif', 'webp']}` and mid quality. Portal QR screenshots use `<Picture />` with `formats={['webp']}`, JPEG fallback, and high quality so they still scan. `astro build` writes the resized files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
+- Share image is `public/og.png`, 1200x630. Title is one line. Subtitle is "A public guide for Bhotekoshi flood relief". Button says "See how to donate". Alt text in `Layout.astro` matches. Rebuild it in HTML, do not generate it with an image model.
+- CSS is inlined (`build.inlineStylesheets: 'always'`). The sheet is small. Do not split it back out into a render-blocking file.
+- Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo. Do not add a beacon to kill the Lighthouse chain. Turn it off in the dashboard if you do not want it.
 
 Node 22.12 or newer.
 
@@ -133,7 +158,7 @@ Check current Astro docs before using fonts, sitemap, or adapters.
 ## Copy
 
 - This is an independent public guide, not an official government site. Do not say otherwise.
-- Hero title is Flood Relief Nepal
+- Hero title is Flood Relief Nepal. Chinese brand is 尼泊尔洪灾救济.
 - Sentence case headings
 - No em dashes
 - No curly quotes
@@ -141,7 +166,13 @@ Check current Astro docs before using fonts, sitemap, or adapters.
   active voice, and say what a thing is rather than what it is not
 - Never show a number the data does not support
 - The government card portal is one channel, not the whole identity of the site
-- Header Give is a real button. The pmdrf link in the money section is a real button.
+- Header Donate is a real button. The pmdrf links in the money section are real buttons. The Himalayan Bank domain in the USD callout is a real button.
+- Official outbound links open in a new tab (`target="_blank"` plus `rel="noopener noreferrer"`). Same-page jumps, language switch, skip link, 404 home, and `tel:` stay in this tab.
+- Yellow marker (`.mark-brush`) is only for a few high-stakes phrases: KAST, Solflare, RedotPay, "quotes in USD" / "अमेरिकी डलरमा" / "以美元计价", the private-collection ban, and the USD cell in the SWIFT table. Do not mark the whole Himalayan row. Do not mark every sentence.
+- Remittance source on the page is the Nepal Embassy, India post. Do not put the PMO PDF on Give, FAQ, or Sources.
+- Alipay+ apps that can scan NepalPAY QR come from NCHL (`site.official.alipayPartners`). Cite that page in Sources. Do not add wallets NCHL does not list.
+- Footer made-by is Ronak and Ayushman. Do not add extra makers unless a maintainer asks.
+- The dollar figure next to the fund total is a conversion of the rupee amount at the Nepal Rastra Bank USD buying rate on the `asOf` date. Recalculate it when the rupee figure changes. Do not invent a new total.
 
 ## Commands
 
