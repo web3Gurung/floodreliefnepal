@@ -689,7 +689,7 @@ export const en = {
 		},
 		mosaic: {
 			heading: 'Every donation',
-			lede: 'Each square is one donation, oldest first. A larger square is a larger gift, and the smallest stay easy to tap. Open any square to see that transaction.',
+			lede: 'Each square is one donation, oldest first. A larger square is a larger donation, and the smallest stay easy to tap. Open any square to see that transaction.',
 			tileLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
 			unpricedNote: 'A tile in grey arrived in an asset with no published price.',
 		},
