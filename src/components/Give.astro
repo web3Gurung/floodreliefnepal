@@ -31,19 +31,7 @@ const shotFiles = {
 					give.tabs.map((tab) => (
 						<button class="give-option" type="button" data-pay={tab.id}>
 							<span class="give-option-label">{tab.label}</span>
-							<span class="give-option-detail">
-								{
-									splitBy(tab.detail, alipayAppPhrases).map((chunk) =>
-										chunk.hit ? (
-											<a class="text-inherit underline" href={alipayAppsHref}>
-												{chunk.text}
-											</a>
-										) : (
-											chunk.text
-										),
-									)
-								}
-							</span>
+							<span class="give-option-detail">{tab.detail}</span>
 						</button>
 					))
 				}
@@ -243,10 +231,6 @@ const shotFiles = {
 		root.querySelector('.give-tablist')?.addEventListener('click', (event) => {
 			const option = event.target.closest('.give-option');
 			if (!option || !ids.has(option.dataset.pay)) return;
-			if (event.target.closest('a')) {
-				apply(option.dataset.pay);
-				return;
-			}
 			apply(option.dataset.pay);
 			history.replaceState(null, '', '#' + option.dataset.pay);
 		});

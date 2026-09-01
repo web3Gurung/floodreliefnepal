@@ -264,8 +264,8 @@ export const zh = {
 			},
 			{
 				id: 'alipay-apps',
-				q: '哪些国家的哪些支付应用支持 Alipay+？',
-				a: '中国香港：AlipayHK。\n中国澳门：MPay。\n韩国：Kakao Pay、Naver Pay、Toss Pay。\n菲律宾：GCash、HelloMoney、Maya、BPI、BillEase、Akulaku PayLater。\n马来西亚：Touch \'n Go eWallet、Boost、MyPB（大众银行）。\n新加坡：Changi Pay、OCBC Digital（华侨银行）、GrabPay。\n印度尼西亚：DANA、Akulaku PayLater、Kredivo。\n泰国：TrueMoney、Rabbit LINE Pay。\n意大利：Tinaba。\n蒙古：Hipay。\n哈萨克斯坦：Kaspi。\n这些海外电子钱包的用户可以直接使用本国/本地的电子钱包进行跨境捐款。',
+				q: '哪些 Alipay+ 应用可以扫 NepalPAY 码？',
+				a: 'NCHL 列出了这些可用于 NepalPAY QR 的应用。\n中国大陆：Alipay。\n中国香港：AlipayHK。\n中国澳门：MPay。\n马来西亚：Touch \'n Go eWallet、MyPB by Public Bank Berhad。\n新加坡：Changi Pay、OCBC Digital、BigPay、Starryblu。\n韩国：KakaoPay、Naver Pay、Toss Pay。\n菲律宾：GCash。\n泰国：TrueMoney。\n蒙古：Hipay。\n意大利：Tinaba。\n德国：Bluecode。\nBigPay 在马来西亚和泰国也可用。\n其他 Alipay+ 应用不在此名单。',
 			},
 			{
 				q: '能用 Wise、Remitly 或银行 SWIFT 汇款吗？',
@@ -361,6 +361,11 @@ export const zh = {
 				note: '为在印度的善心人士公布了汇款应用和 SWIFT 账户。',
 				href: sources[12].href,
 			},
+			{
+				label: 'NCHL Alipay+',
+				note: '可扫描 NepalPAY QR 的 Alipay+ 应用官方名单。',
+				href: sources[13].href,
+			},
 		],
 	},
 	footer: {
@@ -377,8 +382,6 @@ export const zh = {
 			ronakLabel: 'Ronak',
 			middle: ' 和 ',
 			ayushmanLabel: 'Ayushman',
-			beforeYanbo: ' ',
-			yanboLabel: 'yanbo',
 			after: ' 制作。',
 		},
 		changelog: [

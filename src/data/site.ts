@@ -5,7 +5,6 @@ export const site = {
 	makers: {
 		ronak: 'https://x.com/Ronak0010',
 		ayushman: 'https://x.com/gurungbuilds',
-		yanbo: 'https://x.com/yanbo2004',
 	},
 	lastChecked: '28 August 2026',
 	/** ISO form of lastChecked, for structured data. Keep the two in sync. */
@@ -30,6 +29,7 @@ export const site = {
 			'https://kathmandupost.com/national/2026/08/26/what-we-know-about-the-bhotekoshi-flood-so-far',
 		ifrc: 'https://www.ifrc.org/press-release/nepal-ifrc-releases-emergency-funds-flash-floods-leave-communities-isolated',
 		raisedReport: 'https://english.onlinekhabar.com/pms-disaster-relief-fund.html',
+		alipayPartners: 'https://nchl.com.np/alipay-mobile-payments-partner/',
 	},
 	routes: {
 		en: '/',
@@ -195,6 +195,11 @@ export const sources = [
 		label: 'Nepal Embassy, India',
 		note: 'Posted the remittance apps and SWIFT accounts for well-wishers in India.',
 		href: site.official.embassyIndia,
+	},
+	{
+		label: 'NCHL Alipay+',
+		note: 'Official list of Alipay+ apps that can scan NepalPAY QR.',
+		href: site.official.alipayPartners,
 	},
 ] as const;
 
@@ -498,8 +503,8 @@ export const en = {
 			},
 			{
 				id: 'alipay-apps',
-				q: 'Which payment apps support Alipay+, and in which countries?',
-				a: 'Hong Kong, China: AlipayHK.\nMacao, China: MPay.\nSouth Korea: Kakao Pay, Naver Pay, Toss Pay.\nPhilippines: GCash, HelloMoney, Maya, BPI, BillEase, Akulaku PayLater.\nMalaysia: Touch \'n Go eWallet, Boost, MyPB (Public Bank).\nSingapore: Changi Pay, OCBC Digital, GrabPay.\nIndonesia: DANA, Akulaku PayLater, Kredivo.\nThailand: TrueMoney, Rabbit LINE Pay.\nItaly: Tinaba.\nMongolia: Hipay.\nKazakhstan: Kaspi.\nPeople who use these overseas e-wallets can donate across borders with their home or local wallet.',
+				q: 'Which Alipay+ apps can scan the NepalPAY code?',
+				a: 'NCHL lists these apps for NepalPAY QR.\nChinese mainland: Alipay.\nHong Kong SAR: AlipayHK.\nMacao SAR: MPay.\nMalaysia: Touch \'n Go eWallet, MyPB by Public Bank Berhad.\nSingapore: Changi Pay, OCBC Digital, BigPay, Starryblu.\nSouth Korea: KakaoPay, Naver Pay, Toss Pay.\nPhilippines: GCash.\nThailand: TrueMoney.\nMongolia: Hipay.\nItaly: Tinaba.\nGermany: Bluecode.\nBigPay also works in Malaysia and Thailand.\nOther Alipay+ apps are not on this list.',
 			},
 			{
 				q: 'Can I use Wise, Remitly, or a bank SWIFT transfer?',
@@ -545,8 +550,6 @@ export const en = {
 			ronakLabel: 'Ronak',
 			middle: ' and ',
 			ayushmanLabel: 'Ayushman',
-			beforeYanbo: ' and ',
-			yanboLabel: 'yanbo',
 			after: '',
 		},
 		changelog,

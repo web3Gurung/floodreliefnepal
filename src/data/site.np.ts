@@ -265,8 +265,8 @@ export const np = {
 			},
 			{
 				id: 'alipay-apps',
-				q: 'कुन देशका कुन भुक्तानी एपले Alipay+ सपोर्ट गर्छन्?',
-				a: 'हङकङ, चीन: AlipayHK।\nमकाउ, चीन: MPay।\nदक्षिण कोरिया: Kakao Pay, Naver Pay, Toss Pay।\nफिलिपिन्स: GCash, HelloMoney, Maya, BPI, BillEase, Akulaku PayLater।\nमलेसिया: Touch \'n Go eWallet, Boost, MyPB (Public Bank)।\nसिंगापुर: Changi Pay, OCBC Digital, GrabPay।\nइन्डोनेसिया: DANA, Akulaku PayLater, Kredivo।\nथाइल्याण्ड: TrueMoney, Rabbit LINE Pay।\nइटाली: Tinaba।\nमङ्गोलिया: Hipay।\nकजाकस्तान: Kaspi।\nयी विदेशी वालेटका प्रयोगकर्ताले आफ्नै देश वा स्थानीय वालेटबाट सीमापार दान गर्न सक्छन्।',
+				q: 'NepalPAY कोड कुन Alipay+ एपले स्क्यान गर्न सक्छन्?',
+				a: 'NCHL ले NepalPAY QR का लागि यी एप राखेको छ।\nचीन: Alipay।\nहङकङ: AlipayHK।\nमकाउ: MPay।\nमलेसिया: Touch \'n Go eWallet, MyPB by Public Bank Berhad।\nसिंगापुर: Changi Pay, OCBC Digital, BigPay, Starryblu।\nदक्षिण कोरिया: KakaoPay, Naver Pay, Toss Pay।\nफिलिपिन्स: GCash।\nथाइल्याण्ड: TrueMoney।\nमङ्गोलिया: Hipay।\nइटाली: Tinaba।\nजर्मनी: Bluecode।\nBigPay मलेसिया र थाइल्याण्डबाट पनि चल्छ।\nअन्य Alipay+ एप यो सूचीमा छैनन्।',
 			},
 			{
 				q: 'के Wise, Remitly वा बैंक SWIFT बाट पठाउन सकिन्छ?',
@@ -362,6 +362,11 @@ export const np = {
 				note: 'भारतमा रहेका शुभेच्छुकका लागि रेमिट्यान्स एप र SWIFT खाता राखिएको।',
 				href: sources[12].href,
 			},
+			{
+				label: 'NCHL Alipay+',
+				note: 'NepalPAY QR स्क्यान गर्न सक्ने Alipay+ एपको आधिकारिक सूची।',
+				href: sources[13].href,
+			},
 		],
 	},
 	footer: {
@@ -378,14 +383,12 @@ export const np = {
 			ronakLabel: 'Ronak',
 			middle: ' र ',
 			ayushmanLabel: 'Ayushman',
-			beforeYanbo: ' र ',
-			yanboLabel: 'yanbo',
 			after: ' ले बनाएका।',
 		},
 		changelog: [
 			{
 				date: '२९ अगस्ट २०२६',
-				note: 'Added a Chinese version at /zh/.',
+				note: 'चिनियाँ संस्करण /zh/ मा थपियो।',
 			},
 			{
 				date: '२८ अगस्ट २०२६',
