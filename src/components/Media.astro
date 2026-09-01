@@ -24,7 +24,6 @@ const lang = langFromPath(Astro.url.pathname);
 // Editor controlled order. The data file is the running order.
 const items = media;
 const hasPosts = items.some((item) => item.type === 'post');
-const hasPlaceholders = items.some((item) => item.placeholder);
 
 const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
 	day: 'numeric',
@@ -41,8 +40,6 @@ const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
 			<div class="wrap">
 				<h2 class="display max-w-none">{copy.heading}</h2>
 				<p class="lede">{copy.lede}</p>
-
-				{hasPlaceholders && <p class="media-notice">{copy.placeholderNotice}</p>}
 
 				<ul class="media-list">
 					{items.map((item) => (
@@ -165,12 +162,5 @@ const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
 
 	.media-card a {
 		text-decoration: underline;
-	}
-
-	.media-notice {
-		margin-top: 1.5rem;
-		border-left: 2px solid var(--ink);
-		padding-left: 0.75rem;
-		font-size: 0.95rem;
 	}
 </style>

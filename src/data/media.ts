@@ -1,18 +1,11 @@
 /**
- * ============================================================================
- * PLACEHOLDER DATA. NONE OF THIS IS REAL COVERAGE.
- * ============================================================================
+ * Posts and news headlines about the donation drive, written by people outside
+ * the project. Its job is to show a reader that this happened in public.
  *
- * Every entry below is invented, marked `placeholder: true`, and written so a
- * reader who somehow sees it cannot mistake it for a real post or a real
- * headline. The accounts, the publications and the links are all fictional.
- *
- * Replace them with real items before this page goes live. Delete the
- * `placeholder` flag as you go. While any entry still carries the flag, the
- * section prints a notice saying so, and nothing here is presented as coverage
- * that happened.
- *
- * An empty list renders no section at all.
+ * Empty until real coverage exists. An empty list renders no section, no
+ * heading, and no request to X. Never fill it with invented entries: this page
+ * asks a reader to trust its numbers, and fabricated coverage would be the one
+ * thing on it that is not checkable.
  *
  * Quotes are never translated. A post said what it said, in the language it was
  * said in, so `quote` is copied verbatim and `lang` tells a screen reader which
@@ -21,7 +14,7 @@
  *
  * For a post, `link` and `postUrl` are the same canonical x.com status URL.
  * X's widget script hydrates the blockquote by reading that URL, and if the
- * script never arrives the quote below stays on the page in our own type.
+ * script never arrives the quote stays on the page in our own type.
  */
 
 export type MediaItem = {
@@ -41,53 +34,6 @@ export type MediaItem = {
 	link: string;
 	/** Canonical x.com status URL. Posts only. */
 	postUrl?: string;
-	/** Invented. Remove once a real item takes its place. */
-	placeholder?: true;
 };
 
-export const media: readonly MediaItem[] = [
-	{
-		type: 'post',
-		quote:
-			'Placeholder text standing in for a real post about the relief drive. It runs to about the length of a short post so the layout can be judged before real coverage arrives.',
-		lang: 'en',
-		author: 'Placeholder account one',
-		source: '@placeholder_one',
-		date: '2026-08-30',
-		link: 'https://x.com/placeholder_one/status/1',
-		postUrl: 'https://x.com/placeholder_one/status/1',
-		placeholder: true,
-	},
-	{
-		type: 'article',
-		quote: 'Placeholder headline standing in for real reporting on the relief drive',
-		lang: 'en',
-		author: '',
-		source: 'Placeholder Publication',
-		date: '2026-08-30',
-		link: 'https://example.com/placeholder-article',
-		placeholder: true,
-	},
-	{
-		type: 'post',
-		quote:
-			'Placeholder text standing in for a second post. This one runs longer, so the section can be checked with items of different heights sitting next to each other in the same row.',
-		lang: 'en',
-		author: 'Placeholder account two',
-		source: '@placeholder_two',
-		date: '2026-08-31',
-		link: 'https://x.com/placeholder_two/status/2',
-		postUrl: 'https://x.com/placeholder_two/status/2',
-		placeholder: true,
-	},
-	{
-		type: 'article',
-		quote: 'Second placeholder headline, standing in for coverage from another publication',
-		lang: 'en',
-		author: 'Placeholder Byline',
-		source: 'Second Placeholder Publication',
-		date: '2026-08-31',
-		link: 'https://example.com/second-placeholder-article',
-		placeholder: true,
-	},
-];
+export const media: readonly MediaItem[] = [];

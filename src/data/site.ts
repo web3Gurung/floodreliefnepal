@@ -694,8 +694,6 @@ export const en = {
 		media: {
 			heading: 'Watched from outside',
 			lede: 'Posts and news about this drive from people who do not run it. Each quote stays in the language it was written in, and each one links to the original.',
-			placeholderNotice:
-				'Some entries below are placeholders. Real posts and headlines replace them before this page goes live.',
 			postLabel: 'Post on X',
 			articleLabel: 'News article',
 			openPost: 'Open the post on X',

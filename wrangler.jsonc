@@ -12,12 +12,12 @@
 		"not_found_handling": "404-page"
 	},
 
-	// Holds one key, `ledger`, written by the cron below. Create the namespace
-	// with `npx wrangler kv namespace create LEDGER` and paste the id here.
+	// Holds one key, `ledger`, written by the cron below. The id is an
+	// identifier, not a credential, so it belongs in the repo.
 	"kv_namespaces": [
 		{
 			"binding": "LEDGER",
-			"id": "PASTE_KV_NAMESPACE_ID_HERE"
+			"id": "2881bd179f754978a66ea065b0bd25e5"
 		}
 	],
 
