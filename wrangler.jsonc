@@ -1,9 +1,21 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "floodreliefnepal",
-	"compatibility_date": "2026-08-27",
+	"compatibility_date": "2026-09-01",
+	"preview_urls": true,
+	"routes": [
+		{
+			"pattern": "floodreliefnepal.com/*",
+			"zone_name": "floodreliefnepal.com"
+		}
+	],
 	"assets": {
 		"directory": "./dist",
+		// Multi-page Astro site with src/pages/404.astro. Do not use
+		// single-page-application: that would serve index.html for unknown routes.
 		"not_found_handling": "404-page"
+	},
+	"observability": {
+		"enabled": true
 	}
 }

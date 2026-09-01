@@ -42,7 +42,7 @@ Layout and chrome:
 - `@astrojs/sitemap`
 - Outfit, Noto Sans Devanagari, and Noto Sans SC via Astro's `fonts` config
 - Light mode only. Do not add a dark theme or `prefers-color-scheme: dark`. Canvas is `#f6f6f4`. Tokens live in `src/styles/global.css`. `color-scheme: light` is set on `:root` and in `Layout.astro`.
-- Cloudflare: connect the GitHub repo. Build command `npx astro build`. Output `dist`. `wrangler.jsonc` is set for Workers static assets. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
+- Cloudflare: Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com` (`floodreliefnepal.com/*` in `wrangler.jsonc`). GitHub `main` runs `npx astro build` then `npx wrangler deploy`. Keep `"name": "floodreliefnepal"`. `not_found_handling` is `404-page` (not an SPA). `dist/` is gitignored build output, not a public URL. No Worker script yet; add cron/APIs in `src/worker.ts` and `triggers` in `wrangler.jsonc`. Secrets: `wrangler secret put`, never git. `www.floodreliefnepal.com` 301s to the apex via a Cloudflare redirect; do not reimplement in app code. Do not reattach the domain to Pages. Manual deploy: `npm run deploy`. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the default short cache so a deploy still shows up. Compression is Cloudflare's job. Do not gzip files in the repo.
 - Photos: keep sources in `src/assets/`. Hero uses Astro `<Picture />` with `formats={['avif', 'webp']}` and mid quality. Portal QR screenshots use `<Picture />` with `formats={['webp']}`, JPEG fallback, and high quality so they still scan. `astro build` writes the resized files into `dist/_astro/`. That is the conversion step. Do not put large JPEGs in `public/`. Do not commit files from `dist/`. Do not add AP, Reuters, AFP, or Getty photos.
 - Share image is `public/og.png`, 1200x630. Title is one line. Subtitle is "A public guide for Bhotekoshi flood relief". Button says "See how to donate". Alt text in `Layout.astro` matches. Rebuild it in HTML, do not generate it with an image model.
 - CSS is inlined (`build.inlineStylesheets: 'always'`). The sheet is small. Do not split it back out into a render-blocking file.
@@ -87,4 +87,6 @@ npm install
 npm run dev
 npm run build
 npm run preview
+npm run preview:worker
+npm run deploy
 ```

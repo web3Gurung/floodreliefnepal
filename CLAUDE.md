@@ -16,6 +16,8 @@ Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP.
 
 CSS is inlined (`build.inlineStylesheets: 'always'`). Do not split it back out. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the short cache so a deploy still shows up. Compression is Cloudflare. Do not gzip files in the repo. Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo.
 
+Deploy as Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com`. Push to `main` builds and deploys. Keep the Wrangler `name` as `floodreliefnepal`. `dist/` is gitignored build output. `npm run deploy` builds then `wrangler deploy`. No Worker script, cron, or secrets yet. Secrets: `wrangler secret put`. `www` redirects to the apex in Cloudflare, not in this repo. Do not reattach the domain to Pages.
+
 Do not invent SWIFT rows, extra account numbers, or extra QR codes. Change `swiftAccounts` only when a teammate PR brings verified details.
 
 Do not commit `.agents/`, `.claude/`, `.opencode/`, or skill lockfiles.
