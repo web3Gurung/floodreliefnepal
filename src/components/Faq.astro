@@ -12,7 +12,10 @@ const faq = copyForPath(Astro.url.pathname).faq;
 		<div class="mx-auto mt-8 max-w-xl text-left">
 			{
 				faq.items.map((item) => (
-					<details class="group border-t border-line py-2 last:border-b">
+					<details
+						class="group border-t border-line py-2 last:border-b"
+						id={'id' in item ? item.id : undefined}
+					>
 						<summary class="flex min-h-11 cursor-pointer list-none items-start justify-between gap-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
 							{item.q}
 							<span class="text-muted group-open:hidden" aria-hidden="true">
@@ -29,3 +32,15 @@ const faq = copyForPath(Astro.url.pathname).faq;
 		</div>
 	</div>
 </section>
+
+<script is:inline>
+	(() => {
+		const openFromHash = () => {
+			const id = location.hash.replace('#', '');
+			const el = id ? document.getElementById(id) : null;
+			if (el instanceof HTMLDetailsElement) el.open = true;
+		};
+		openFromHash();
+		window.addEventListener('hashchange', openFromHash);
+	})();
+</script>

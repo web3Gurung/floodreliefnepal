@@ -10,6 +10,8 @@ const give = copy.give;
 const raised = give.raised;
 const brands = ['KAST', 'Solflare', 'RedotPay'] as const;
 const usdPhrases = ['quotes in USD', 'अमेरिकी डलरमा', '以美元计价'] as const;
+const alipayAppPhrases = ['拥有支持Alipay+的应用'] as const;
+const alipayAppsHref = '#alipay-apps';
 const shotFiles = {
 	fonepay: fonepayShot,
 	nepalpay: nepalpayShot,
@@ -27,10 +29,22 @@ const shotFiles = {
 			<nav class="give-tablist" aria-label={give.tabsLabel}>
 				{
 					give.tabs.map((tab) => (
-						<a class="give-option" href={`#${tab.id}`} data-pay={tab.id}>
+						<button class="give-option" type="button" data-pay={tab.id}>
 							<span class="give-option-label">{tab.label}</span>
-							<span class="give-option-detail">{tab.detail}</span>
-						</a>
+							<span class="give-option-detail">
+								{
+									splitBy(tab.detail, alipayAppPhrases).map((chunk) =>
+										chunk.hit ? (
+											<a class="text-inherit underline" href={alipayAppsHref}>
+												{chunk.text}
+											</a>
+										) : (
+											chunk.text
+										),
+									)
+								}
+							</span>
+						</button>
 					))
 				}
 			</nav>
@@ -43,7 +57,19 @@ const shotFiles = {
 							<div class={`give-panel give-panel-${route.id}`}>
 								<div class="split">
 									<div>
-										<p class="eyebrow">{route.eyebrow}</p>
+										<p class="eyebrow">
+											{
+												splitBy(route.eyebrow, alipayAppPhrases).map((chunk) =>
+													chunk.hit ? (
+														<a class="text-inherit underline" href={alipayAppsHref}>
+															{chunk.text}
+														</a>
+													) : (
+														chunk.text
+													),
+												)
+											}
+										</p>
 										<h3 class="quiet-title mt-3 max-w-[16ch]">{route.heading}</h3>
 										<p class="max-w-[38rem] text-muted">{route.body}</p>
 										<div class="mt-8">
@@ -217,7 +243,10 @@ const shotFiles = {
 		root.querySelector('.give-tablist')?.addEventListener('click', (event) => {
 			const option = event.target.closest('.give-option');
 			if (!option || !ids.has(option.dataset.pay)) return;
-			event.preventDefault();
+			if (event.target.closest('a')) {
+				apply(option.dataset.pay);
+				return;
+			}
 			apply(option.dataset.pay);
 			history.replaceState(null, '', '#' + option.dataset.pay);
 		});

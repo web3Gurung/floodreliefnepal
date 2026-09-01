@@ -72,7 +72,7 @@ export const zh = {
 		tabsLabel: '如何付款',
 		tabs: [
 			{ id: 'upi', label: 'UPI', detail: '若你在印度' },
-			{ id: 'alipay', label: '支付宝/ Alipay+', detail: '若你在中国' },
+			{ id: 'alipay', label: '支付宝/ Alipay+', detail: '若你在中国以及拥有支持Alipay+的应用' },
 			{ id: 'card', label: '银行卡', detail: 'Visa、Mastercard 或尼泊尔应用' },
 			{ id: 'remit', label: 'Wise, Remitly', detail: 'SWIFT 或银行转账' },
 		],
@@ -119,7 +119,7 @@ export const zh = {
 			{
 				id: 'alipay',
 				shot: 'nepalpay',
-				eyebrow: '若你在中国',
+				eyebrow: '若你在中国以及拥有支持Alipay+的应用',
 				heading: '扫描 NepalPAY 码',
 				body: '打开支付宝或支持 Alipay+ 的应用，扫描 NepalPAY 码。也可打开政府门户，选择 NepalPAY QR。不要向聊天里发来的二维码付款。',
 				caption: 'pmdrf.nchl.com.np 上的 NepalPAY QR',
@@ -263,6 +263,7 @@ export const zh = {
 				a: '可以。打开支付宝或支持 Alipay+ 的应用，扫描汇款区的 NepalPAY 码，或打开 pmdrf.nchl.com.np 并选择 NepalPAY QR。',
 			},
 			{
+				id: 'alipay-apps',
 				q: '哪些国家的哪些支付应用支持 Alipay+？',
 				a: '中国香港：AlipayHK。\n中国澳门：MPay。\n韩国：Kakao Pay、Naver Pay、Toss Pay。\n菲律宾：GCash、HelloMoney、Maya、BPI、BillEase、Akulaku PayLater。\n马来西亚：Touch \'n Go eWallet、Boost、MyPB（大众银行）。\n新加坡：Changi Pay、OCBC Digital（华侨银行）、GrabPay。\n印度尼西亚：DANA、Akulaku PayLater、Kredivo。\n泰国：TrueMoney、Rabbit LINE Pay。\n意大利：Tinaba。\n蒙古：Hipay。\n哈萨克斯坦：Kaspi。\n这些海外电子钱包的用户可以直接使用本国/本地的电子钱包进行跨境捐款。',
 			},

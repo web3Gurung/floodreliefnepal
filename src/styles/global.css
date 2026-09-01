@@ -240,7 +240,8 @@
 	}
 
 	.give-option {
-		@apply flex min-h-14 min-w-0 flex-col justify-center rounded-[10px] bg-canvas px-4 py-4 text-left text-ink no-underline sm:px-5;
+		@apply flex min-h-14 min-w-0 cursor-pointer flex-col justify-center rounded-[10px] border-0 bg-canvas px-4 py-4 text-left text-ink no-underline sm:px-5;
+		font: inherit;
 		transition-property: transform;
 		transition-duration: 150ms;
 		transition-timing-function: ease-out;
@@ -265,26 +266,26 @@
 		}
 	}
 
-	.give-switch[data-pay='upi'] .give-option[href='#upi'],
-	.give-switch[data-pay='alipay'] .give-option[href='#alipay'],
-	.give-switch[data-pay='card'] .give-option[href='#card'],
-	.give-switch[data-pay='remit'] .give-option[href='#remit'] {
+	.give-switch[data-pay='upi'] .give-option[data-pay='upi'],
+	.give-switch[data-pay='alipay'] .give-option[data-pay='alipay'],
+	.give-switch[data-pay='card'] .give-option[data-pay='card'],
+	.give-switch[data-pay='remit'] .give-option[data-pay='remit'] {
 		background: var(--ink);
 		color: var(--canvas);
 	}
 
-	.give-switch[data-pay='upi'] .give-option[href='#upi'] .give-option-detail,
-	.give-switch[data-pay='alipay'] .give-option[href='#alipay'] .give-option-detail,
-	.give-switch[data-pay='card'] .give-option[href='#card'] .give-option-detail,
-	.give-switch[data-pay='remit'] .give-option[href='#remit'] .give-option-detail {
+	.give-switch[data-pay='upi'] .give-option[data-pay='upi'] .give-option-detail,
+	.give-switch[data-pay='alipay'] .give-option[data-pay='alipay'] .give-option-detail,
+	.give-switch[data-pay='card'] .give-option[data-pay='card'] .give-option-detail,
+	.give-switch[data-pay='remit'] .give-option[data-pay='remit'] .give-option-detail {
 		color: color-mix(in srgb, var(--canvas) 70%, transparent);
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.give-switch[data-pay='upi'] .give-option[href='#upi']:hover,
-		.give-switch[data-pay='alipay'] .give-option[href='#alipay']:hover,
-		.give-switch[data-pay='card'] .give-option[href='#card']:hover,
-		.give-switch[data-pay='remit'] .give-option[href='#remit']:hover {
+		.give-switch[data-pay='upi'] .give-option[data-pay='upi']:hover,
+		.give-switch[data-pay='alipay'] .give-option[data-pay='alipay']:hover,
+		.give-switch[data-pay='card'] .give-option[data-pay='card']:hover,
+		.give-switch[data-pay='remit'] .give-option[data-pay='remit']:hover {
 			background: var(--ink);
 			opacity: 0.88;
 		}
