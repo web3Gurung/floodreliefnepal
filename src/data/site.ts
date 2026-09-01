@@ -497,6 +497,10 @@ export const en = {
 				a: 'Yes. Open Alipay or an app that supports Alipay+ and scan the NepalPAY code in the money section, or open pmdrf.nchl.com.np and pick NepalPAY QR.',
 			},
 			{
+				q: 'Which payment apps support Alipay+, and in which countries?',
+				a: 'Hong Kong, China: AlipayHK.\nMacao, China: MPay.\nSouth Korea: Kakao Pay, Naver Pay, Toss Pay.\nPhilippines: GCash, HelloMoney, Maya, BPI, BillEase, Akulaku PayLater.\nMalaysia: Touch \'n Go eWallet, Boost, MyPB (Public Bank).\nSingapore: Changi Pay, OCBC Digital, GrabPay.\nIndonesia: DANA, Akulaku PayLater, Kredivo.\nThailand: TrueMoney, Rabbit LINE Pay.\nItaly: Tinaba.\nMongolia: Hipay.\nKazakhstan: Kaspi.\nPeople who use these overseas e-wallets can donate across borders with their home or local wallet.',
+			},
+			{
 				q: 'Can I use Wise, Remitly, or a bank SWIFT transfer?',
 				a: 'Yes. The Nepal Embassy in India posted GME, Remitly, Wise, TapTapSend, and SWIFT accounts named Prime Minister Disaster Relief Fund. Copy the numbers from this page or from that post, not from a chat.',
 			},

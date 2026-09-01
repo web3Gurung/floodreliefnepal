@@ -264,6 +264,10 @@ export const np = {
 				a: 'सकिन्छ। Alipay वा Alipay+ सपोर्ट गर्ने एप खोलेर पैसा खण्डको NepalPAY कोड स्क्यान गर्नुहोस्, वा pmdrf.nchl.com.np खोलेर NepalPAY QR छान्नुहोस्।',
 			},
 			{
+				q: 'कुन देशका कुन भुक्तानी एपले Alipay+ सपोर्ट गर्छन्?',
+				a: 'हङकङ, चीन: AlipayHK।\nमकाउ, चीन: MPay।\nदक्षिण कोरिया: Kakao Pay, Naver Pay, Toss Pay।\nफिलिपिन्स: GCash, HelloMoney, Maya, BPI, BillEase, Akulaku PayLater।\nमलेसिया: Touch \'n Go eWallet, Boost, MyPB (Public Bank)।\nसिंगापुर: Changi Pay, OCBC Digital, GrabPay।\nइन्डोनेसिया: DANA, Akulaku PayLater, Kredivo।\nथाइल्याण्ड: TrueMoney, Rabbit LINE Pay।\nइटाली: Tinaba।\nमङ्गोलिया: Hipay।\nकजाकस्तान: Kaspi।\nयी विदेशी वालेटका प्रयोगकर्ताले आफ्नै देश वा स्थानीय वालेटबाट सीमापार दान गर्न सक्छन्।',
+			},
+			{
 				q: 'के Wise, Remitly वा बैंक SWIFT बाट पठाउन सकिन्छ?',
 				a: 'सकिन्छ। नेपाली दूतावास, भारतले GME, Remitly, Wise, TapTapSend र Prime Minister Disaster Relief Fund नामका SWIFT खाता राखेको छ। नम्बर यो पृष्ठ वा त्यो पोस्टबाट कपी गर्नुहोस्, च्याटबाट होइन।',
 			},

@@ -263,6 +263,10 @@ export const zh = {
 				a: '可以。打开支付宝或支持 Alipay+ 的应用，扫描汇款区的 NepalPAY 码，或打开 pmdrf.nchl.com.np 并选择 NepalPAY QR。',
 			},
 			{
+				q: '哪些国家的哪些支付应用支持 Alipay+？',
+				a: '中国香港：AlipayHK。\n中国澳门：MPay。\n韩国：Kakao Pay、Naver Pay、Toss Pay。\n菲律宾：GCash、HelloMoney、Maya、BPI、BillEase、Akulaku PayLater。\n马来西亚：Touch \'n Go eWallet、Boost、MyPB（大众银行）。\n新加坡：Changi Pay、OCBC Digital（华侨银行）、GrabPay。\n印度尼西亚：DANA、Akulaku PayLater、Kredivo。\n泰国：TrueMoney、Rabbit LINE Pay。\n意大利：Tinaba。\n蒙古：Hipay。\n哈萨克斯坦：Kaspi。\n这些海外电子钱包的用户可以直接使用本国/本地的电子钱包进行跨境捐款。',
+			},
+			{
 				q: '能用 Wise、Remitly 或银行 SWIFT 汇款吗？',
 				a: '可以。尼泊尔驻印度大使馆公布了 GME、Remitly、Wise、TapTapSend，以及账户名为 Prime Minister Disaster Relief Fund 的 SWIFT 账户。请从本页或该帖复制号码，不要从聊天里复制。',
 			},
