@@ -7,7 +7,7 @@ import { site, hubs, sources, raised, swiftAccounts, fundAccountName } from './s
  */
 export const zh = {
 	meta: {
-		title: '尼泊尔洪灾救援，波达科西洪灾救援公共指南',
+		title: '尼泊尔洪灾救济，波达科西洪灾救援公共指南',
 		description:
 			'波达科西洪灾救援独立指南。说明如何通过 UPI、Alipay+、银行卡或 SWIFT 汇款，往哪里送物资，以及如何避开假二维码。',
 	},
@@ -18,7 +18,7 @@ export const zh = {
 		languageLabel: '语言',
 	},
 	header: {
-		brand: '尼泊尔洪灾救援',
+		brand: '尼泊尔洪灾救济',
 		give: '捐款',
 		languages: [
 			{ label: 'English', href: site.routes.en, lang: 'en' },
@@ -28,7 +28,7 @@ export const zh = {
 	},
 	hero: {
 		eyebrow: '独立公共指南',
-		title: '尼泊尔洪灾救援',
+		title: '尼泊尔洪灾救济',
 		lede: '往哪里捐款，往哪里送物资，以及如何避开假二维码。本站不是政府网站。',
 		primary: { label: '查看如何援助', href: '#give' },
 		links: [
@@ -273,8 +273,8 @@ export const zh = {
 		],
 	},
 	notFound: {
-		title: '找不到页面，尼泊尔洪灾救援公共指南',
-		description: '没有这个页面。请回到尼泊尔洪灾救援公共指南。',
+		title: '找不到页面，尼泊尔洪灾救济公共指南',
+		description: '没有这个页面。请回到尼泊尔洪灾救济公共指南。',
 		heading: '这里没有这个页面。',
 		before: '请从',
 		linkLabel: '首页',
