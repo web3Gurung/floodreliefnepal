@@ -142,11 +142,19 @@ function landingSpots(layout: Layout, entries: { tx_hash: string }[]) {
 	});
 }
 
+/**
+ * The page is for Nepal, so times are Nepal time. Every rendered timestamp
+ * says so in words, because the same page tells readers to check the figures
+ * on Etherscan, which shows UTC. A reader who spots the 5 hour 45 minute gap
+ * should find it explained rather than conclude the number is wrong.
+ */
+const NEPAL_TIME = 'Asia/Kathmandu';
+
 const dateFormat = new Intl.DateTimeFormat(lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB', {
 	day: 'numeric',
 	month: 'short',
 	year: 'numeric',
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
 const percent = new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 0 });
 const count = new Intl.NumberFormat('en-US');

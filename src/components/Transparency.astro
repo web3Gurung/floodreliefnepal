@@ -26,6 +26,14 @@ if (ledger.address.toLowerCase() !== receiving.address.toLowerCase()) {
  * Etherscan, which prints Latin numerals, so a total in Devanagari would be
  * harder to compare. Month names still translate.
  */
+/**
+ * The page is for Nepal, so times are Nepal time. Every rendered timestamp
+ * says so in words, because the same page tells readers to check the figures
+ * on Etherscan, which shows UTC. A reader who spots the 5 hour 45 minute gap
+ * should find it explained rather than conclude the number is wrong.
+ */
+const NEPAL_TIME = 'Asia/Kathmandu';
+
 const dateLocale = lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB';
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const count = new Intl.NumberFormat('en-US');
@@ -33,13 +41,13 @@ const shortDate = new Intl.DateTimeFormat(dateLocale, {
 	day: 'numeric',
 	month: 'short',
 	year: 'numeric',
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
 const longDate = new Intl.DateTimeFormat(dateLocale, {
 	day: 'numeric',
 	month: 'long',
 	year: 'numeric',
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
 // Nepali joins a long date to a time with a colon, which reads as part of the
 // clock. Date and time are formatted apart and joined the same way in both.
@@ -47,7 +55,7 @@ const clock = new Intl.DateTimeFormat('en-GB', {
 	hour: '2-digit',
 	minute: '2-digit',
 	hour12: false,
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
 const stamp = (iso: string, date: Intl.DateTimeFormat) => {
 	const at = new Date(iso);
@@ -121,7 +129,7 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 						data-built={updatedAt}
 						data-locale={dateLocale}
 						data-stale-hours={STALE_AFTER_HOURS}
-						data-built-label={`${stamp(updatedAt, longDate)} UTC`}
+						data-built-label={`${stamp(updatedAt, longDate)} ${ui.nepalTime}`}
 						data-tpl-ago={copy.total.updatedAgo}
 						data-tpl-behind={copy.total.feedBehind}
 						data-tpl-stale={copy.total.feedStale}
@@ -133,7 +141,7 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 						data-ago={JSON.stringify(copy.total.ago)}
 					>
 						<p data-ledger-line>
-							{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} UTC` })}
+							{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} ${ui.nepalTime}` })}
 						</p>
 					</div>
 				</div>
