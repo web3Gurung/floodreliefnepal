@@ -68,11 +68,11 @@ export const zh = {
 			note: '最初六小时，据财政部',
 		},
 		raisedReportLabel: '阅读报道',
-		lede: '选择付款方式。在印度用 UPI，有 Alipay+ 就用该钱包，世界各地可用银行卡，也可银行转账。',
+		lede: '选择付款方式。在印度用 UPI，在中国用支付宝或 Alipay+，世界各地可用银行卡，也可银行转账。',
 		tabsLabel: '如何付款',
 		tabs: [
 			{ id: 'upi', label: 'UPI', detail: '若你在印度' },
-			{ id: 'alipay', label: 'Alipay+', detail: '扫描 NepalPAY 码' },
+			{ id: 'alipay', label: '支付宝/ Alipay+', detail: '若你在中国' },
 			{ id: 'card', label: '银行卡', detail: 'Visa、Mastercard 或尼泊尔应用' },
 			{ id: 'remit', label: 'Wise, Remitly', detail: 'SWIFT 或银行转账' },
 		],
@@ -119,11 +119,11 @@ export const zh = {
 			{
 				id: 'alipay',
 				shot: 'nepalpay',
-				eyebrow: '若你使用 Alipay+',
-				heading: '用 Alipay+ 扫描',
-				body: '打开 Alipay+ 或兼容钱包，扫描 NepalPAY 码。也可打开政府门户，选择 NepalPAY QR。不要向聊天里发来的二维码付款。',
+				eyebrow: '若你在中国',
+				heading: '扫描 NepalPAY 码',
+				body: '打开支付宝或 Alipay+，扫描 NepalPAY 码。也可打开政府门户，选择 NepalPAY QR。不要向聊天里发来的二维码付款。',
 				caption: 'pmdrf.nchl.com.np 上的 NepalPAY QR',
-				alt: '政府门户上的官方 NepalPAY QR，供 Alipay+ 使用',
+				alt: '政府门户上的官方 NepalPAY QR，供支付宝和 Alipay+ 使用',
 				action: {
 					label: '打开政府门户',
 					sub: 'pmdrf.nchl.com.np',
@@ -259,8 +259,8 @@ export const zh = {
 				a: '可以。打开 UPI 应用，扫描汇款区的 Fonepay 码，或打开 pmdrf.nchl.com.np 并选择 Fonepay QR。',
 			},
 			{
-				q: '能用 Alipay+ 付款吗？',
-				a: '可以。打开 Alipay+ 或兼容钱包，扫描汇款区的 NepalPAY 码，或打开 pmdrf.nchl.com.np 并选择 NepalPAY QR。',
+				q: '能用支付宝或 Alipay+ 付款吗？',
+				a: '可以。打开支付宝或 Alipay+，扫描汇款区的 NepalPAY 码，或打开 pmdrf.nchl.com.np 并选择 NepalPAY QR。',
 			},
 			{
 				q: '能用 Wise、Remitly 或银行 SWIFT 汇款吗？',
@@ -279,7 +279,7 @@ export const zh = {
 	share: {
 		heading: '分享本页',
 		lede: '复制下面的帖文，发到人们在问如何援助的地方。若按钮无效，文字仍可选取。',
-		post: '波达科西洪灾救援走政府的单一通道。银行卡捐给 pmdrf.nchl.com.np。在印度请扫描 floodreliefnepal.com 上的 Fonepay UPI 码。Alipay+ 用户扫描那里的 NepalPAY 码。聊天里发来的二维码请忽略。',
+		post: '波达科西洪灾救援走政府的单一通道。银行卡捐给 pmdrf.nchl.com.np。在印度请扫描 floodreliefnepal.com 上的 Fonepay UPI 码。在中国请用支付宝或 Alipay+ 扫描那里的 NepalPAY 码。聊天里发来的二维码请忽略。',
 		copyLabel: '复制帖文',
 		copiedLabel: '已复制',
 		image: {
