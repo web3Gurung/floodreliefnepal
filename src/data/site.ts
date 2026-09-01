@@ -504,6 +504,16 @@ export const en = {
 			tileLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
 			unpricedNote: 'A tile in grey arrived in an asset with no published price.',
 		},
+		media: {
+			heading: 'Watched from outside',
+			lede: 'Posts and news about this drive from people who do not run it. Each quote stays in the language it was written in, and each one links to the original.',
+			placeholderNotice:
+				'Some entries below are placeholders. Real posts and headlines replace them before this page goes live.',
+			postLabel: 'Post on X',
+			articleLabel: 'News article',
+			openPost: 'Open the post on X',
+			openArticle: 'Read the article',
+		},
 		steward: [
 			'Engage Nepal holds this address, a charitable organisation registered in the United States under section 501(c)(3).',
 			'It passes what arrives here to the Prime Minister Disaster Relief Fund.',
