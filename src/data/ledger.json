@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-09-01T19:56:56.198Z",
+	"updated_at": "2026-09-01T21:36:57.487Z",
 	"address": "0xA891BB5abf91aBf1796074a1303E75754AF1823D",
 	"chain": "Ethereum mainnet",
 	"pricing": {
@@ -13,8 +13,8 @@
 		"min_confidence": 0.9
 	},
 	"totals": {
-		"usd_received": 128,
-		"donation_count": 17,
+		"usd_received": 128.95,
+		"donation_count": 18,
 		"unpriced_count": 0,
 		"unpriced_tokens": [],
 		"low_confidence_count": 0,
@@ -26,11 +26,11 @@
 		{
 			"token_symbol": "USDC",
 			"token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-			"donation_count": 15,
-			"amount_received": "102.741756",
-			"usd_received": 102.74,
+			"donation_count": 16,
+			"amount_received": "103.694919",
+			"usd_received": 103.69,
 			"unpriced_count": 0,
-			"balance_held": "102.741756"
+			"balance_held": "103.694919"
 		},
 		{
 			"token_symbol": "ETH",
@@ -43,6 +43,14 @@
 		}
 	],
 	"recent": [
+		{
+			"tx_hash": "0x5a2e9b4ab3aa0e9bf293c0fdf11b5dca8a2c4fddde773fc56d41d579dc7d3c59",
+			"block_time": "2026-09-01T21:28:35.000Z",
+			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
+			"token_symbol": "USDC",
+			"amount_token": "0.953163",
+			"usd_at_receipt": 0.953163
+		},
 		{
 			"tx_hash": "0x98bc6d2438021ee0a0952637aece430fa65622080249510f308e9d034c46fbde",
 			"block_time": "2026-09-01T14:19:47.000Z",
@@ -316,6 +324,14 @@
 			"token_symbol": "ETH",
 			"amount_token": "0.00005",
 			"usd_at_receipt": 0.122399
+		},
+		{
+			"tx_hash": "0x5a2e9b4ab3aa0e9bf293c0fdf11b5dca8a2c4fddde773fc56d41d579dc7d3c59",
+			"block_time": "2026-09-01T21:28:35.000Z",
+			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
+			"token_symbol": "USDC",
+			"amount_token": "0.953163",
+			"usd_at_receipt": 0.953163
 		}
 	]
 }

@@ -318,6 +318,7 @@ export const en = {
 	},
 	ui: {
 		skipToContent: 'Skip to content',
+		nepalTime: 'Nepal time',
 		opensInNewTab: 'opens in a new tab',
 		asOf: 'As of',
 		sentenceEnd: '.',
@@ -603,9 +604,9 @@ export const en = {
 		table: {
 			heading: 'Donations',
 			note: 'Showing the {shown} most recent of {total}.',
-			timesNote: 'Times are UTC.',
+			timesNote: 'Times are Nepal time, which is 5 hours 45 minutes ahead of UTC. Etherscan shows UTC.',
 			columns: {
-				time: 'Arrived',
+				time: 'Arrived, Nepal time',
 				asset: 'Asset',
 				amount: 'Amount',
 				usd: 'US dollars',
@@ -625,7 +626,7 @@ export const en = {
 			legendShare: '{percent} of the total',
 			legendCount: '{count}',
 			unknownShare: 'share unknown, this asset has no published price',
-			dotLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
+			dotLabel: '{amount} {token}, {date} Nepal time. Open the transaction on Etherscan',
 			figureLabel:
 				'A diagram of donations by asset flowing into the collection address, with the space for the onward transfer still empty.',
 			motionNote: 'The most recent donations move into the pool once when the page loads.',
@@ -688,7 +689,7 @@ export const en = {
 		mosaic: {
 			heading: 'Every donation as a tile',
 			lede: 'One tile for each donation, oldest first. Tile size follows the amount, and the smallest carry a minimum size so they stay easy to tap.',
-			tileLabel: '{amount} {token}, {date}. Open the transaction on Etherscan',
+			tileLabel: '{amount} {token}, {date} Nepal time. Open the transaction on Etherscan',
 			unpricedNote: 'A tile in grey arrived in an asset with no published price.',
 		},
 		media: {
