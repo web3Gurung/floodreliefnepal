@@ -2,3 +2,10 @@
 # HTML stays on Cloudflare's default (max-age=0, must-revalidate) so a deploy shows up.
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Keep the workers.dev hostname out of search results. The public site is floodreliefnepal.com.
+https://:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex

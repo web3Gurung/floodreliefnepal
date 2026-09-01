@@ -13,9 +13,9 @@ It does not collect donations. It lists where to send money, where to drop suppl
 
 ## Stack
 
-Astro (static HTML) and Tailwind CSS v4. Light mode only. Outfit for type. CSS is inlined. Hashed `/_astro/` files cache for a year via `public/_headers`.
+Astro (static HTML) and Tailwind CSS v4. Light mode only. Outfit for type. Cloudflare Worker with static assets. Build command `npx astro build`, output directory `dist`. CSS is inlined. Hashed `/_astro/` files cache for a year via `public/_headers`. Site routes stay the same (`/`, `/np/`, `/zh/`, `/transparency`, `/np/transparency`, custom `404.html`). This is not an SPA.
 
-A Cloudflare Worker serves that output, answers `GET /api/ledger`, and runs the donation indexer on a cron. Deploy from GitHub on Cloudflare, which runs `npx astro build` and then `npx wrangler deploy`, so a merge to `main` ships the Worker and its cron along with the site.
+The Worker also answers `GET /api/ledger` and runs the donation indexer on a cron.
 
 Photos: `src/assets/hero.jpg` plus official portal screenshots `src/assets/pmdrf-fonepay.jpg` and `src/assets/pmdrf-nepalpay.jpg`. `astro build` turns them into resized AVIF/WebP/JPEG. Do not put the originals in `public/`. Share image: `public/og.png`.
 
@@ -33,18 +33,27 @@ npm run build
 npm run preview
 ```
 
-## Deploy
+## Worker
 
-Merging to `main` deploys. The Cloudflare git build runs `npx astro build` then
-`npx wrangler deploy`, so the site and the Worker go out together.
+Local Worker after a build:
 
-Two things must already be in place when a change to the Worker merges, or the
-deploy ships an indexer that cannot run: the KV namespace id committed in
-`wrangler.jsonc`, and the three secrets pushed with `wrangler secret put`.
-`AGENTS.md` has the detail.
+```bash
+npm run preview:worker
+```
 
-To deploy by hand from a machine that is logged in:
+The Worker `floodreliefnepal` is connected to this GitHub repo. A push to `main` runs `npx astro build` then `npx wrangler deploy`. Other branches upload a preview version.
+
+Manual deploy:
 
 ```bash
 npm run deploy
 ```
+
+That publishes to `*.workers.dev`. Production is `floodreliefnepal.com` (`floodreliefnepal.com/*` in `wrangler.jsonc`). Keep the Worker name `floodreliefnepal`. `dist/` is build output only; it is gitignored and is not a public URL.
+
+`www.floodreliefnepal.com` 301s to `floodreliefnepal.com`. That redirect is a Cloudflare rule, not app code.
+
+The Worker script is `worker/index.ts`, with the indexer in `worker/indexer.ts`. Its cron and its KV binding are in `wrangler.jsonc`.
+
+Two things must be in place before a change to the Worker merges, or the deploy succeeds and ships an indexer that cannot run: the KV namespace id committed in `wrangler.jsonc`, and the three secrets pushed with `npx wrangler secret put`. Do not put secrets in git. Do not reattach the domain to Pages.
+
