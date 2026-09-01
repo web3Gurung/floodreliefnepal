@@ -1,78 +1,172 @@
 ---
 /**
- * Six steps from a donor's wallet to the fund's account, each with what happens
- * and what proof exists.
+ * Six steps from a donor's wallet to the fund's account.
  *
- * The contrast between the first three and the last three is the point of this
- * page, so it is stated in full at the end rather than implied by the badges.
+ * Two rows of three, with a labelled break after the public record. The split
+ * this section exists to show lives in the layout, not only in a badge.
  */
 import { copyForPath } from '../data/copy';
 
 const copy = copyForPath(Astro.url.pathname).transparency.pipeline;
+
+const rows = [
+	{ start: 1, steps: copy.steps.slice(0, 3) },
+	{ start: 4, steps: copy.steps.slice(3) },
+];
 ---
 
 <section class="chapter hairline" id="pipeline">
 	<div class="wrap">
-		<h2 class="display max-w-none">{copy.heading}</h2>
+		<h2 class="chapter-title max-w-none">{copy.heading}</h2>
 		<p class="lede">{copy.lede}</p>
 
-		{/*
-			  * Three across on a wide screen, so the open steps fill the first
-			  * row and the ones waiting on paperwork fill the second. The split
-			  * this section exists to show is then in the layout, not only in
-			  * the badges.
-			  */}
-		<ol
-			class="mt-12 grid gap-px overflow-hidden rounded-[10px] border border-line bg-line md:grid-cols-2 lg:grid-cols-3"
-		>
+		<div class="pipeline">
 			{
-				copy.steps.map((step, index) => (
-					<li class="flex flex-col bg-surface p-7 md:p-8">
-						<div class="flex items-baseline gap-3">
-							<span class="text-muted tabular-nums">{index + 1}</span>
-							<h3 class="card-title text-xl">{step.title}</h3>
-						</div>
-
-						<div class="mt-5 flex flex-wrap gap-2">
-							<span class={`badge ${step.open ? 'badge-open' : 'badge-pending'}`}>
-								{step.open ? copy.openLabel : copy.documentLabel}
-							</span>
-							{!step.live && <span class="badge badge-pending">{copy.notLiveLabel}</span>}
-						</div>
-
-						<p class="eyebrow mt-6">{copy.whatLabel}</p>
-						<p class="mt-1.5">{step.what}</p>
-
-						<p class="eyebrow mt-5">{copy.proofLabel}</p>
-						<p class="mt-1.5 text-muted">{step.proof}</p>
-					</li>
+				rows.map((row, rowIndex) => (
+					<>
+						{rowIndex === 1 && (
+							<p class="pipeline-break">
+								<span>{copy.breakLabel}</span>
+							</p>
+						)}
+						<ol class="pipeline-row" start={row.start}>
+							{row.steps.map((step, index) => (
+								<>
+									<li class="pipeline-step card">
+										<div class="flex items-baseline gap-3">
+											<span class="pipeline-num">{row.start + index}</span>
+											<h3 class="pipeline-title">{step.title}</h3>
+										</div>
+										{!step.live && <p class="eyebrow mt-4">{copy.notLiveLabel}</p>}
+										<p class="mt-4">{step.what}</p>
+										<p class="mt-3 text-[0.95rem] text-muted">{step.proof}</p>
+									</li>
+									{index < row.steps.length - 1 && (
+										<li class="pipeline-arrow" aria-hidden="true">
+											<svg
+												width="20"
+												height="20"
+												viewBox="0 0 20 20"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													d="M4 10h12M12 6l4 4-4 4"
+													stroke="currentColor"
+													stroke-width="1.5"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												></path>
+											</svg>
+										</li>
+									)}
+								</>
+							))}
+						</ol>
+					</>
 				))
 			}
-		</ol>
+		</div>
 
-		<p class="lede mt-10 max-w-[46rem]">{copy.closing}</p>
+		<p class="lede mt-10 mb-0 max-w-[46rem]">{copy.closing}</p>
 	</div>
 </section>
 
 <style>
-	.badge {
-		display: inline-flex;
-		align-items: center;
-		border-radius: 6px;
-		padding: 0.25rem 0.6rem;
-		font-size: 0.8rem;
-		line-height: 1.35;
+	.pipeline {
+		margin-top: 2.5rem;
+	}
+
+	.pipeline-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.75rem;
+		align-items: stretch;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.pipeline-step {
+		height: 100%;
+		padding: 1.75rem;
+	}
+
+	.pipeline-num {
+		font-size: 1.65rem;
+		line-height: 1;
 		font-weight: 500;
-	}
-
-	/* The accent carries the same meaning here as in the merge: this is onchain. */
-	.badge-open {
-		background: var(--accent);
-		color: var(--canvas);
-	}
-
-	.badge-pending {
-		border: 1px solid var(--line);
+		letter-spacing: -0.03em;
+		font-variant-numeric: tabular-nums;
 		color: var(--muted);
+	}
+
+	.pipeline-title {
+		font-size: 1.25rem;
+		line-height: 1.2;
+		font-weight: 500;
+		letter-spacing: -0.02em;
+	}
+
+	:global(html.lang-np) .pipeline-num,
+	:global(html.lang-np) .pipeline-title {
+		letter-spacing: normal;
+	}
+
+	.pipeline-arrow {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--muted);
+		line-height: 0;
+	}
+
+	.pipeline-arrow svg {
+		transform: rotate(90deg);
+	}
+
+	.pipeline-break {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin: 2.25rem 0;
+		font-size: 0.75rem;
+		font-weight: 500;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.pipeline-break::before,
+	.pipeline-break::after {
+		content: '';
+		flex: 1 1 auto;
+		height: 1px;
+		background: var(--line);
+	}
+
+	:global(html.lang-np) .pipeline-break {
+		font-size: 0.95rem;
+		letter-spacing: normal;
+		text-transform: none;
+	}
+
+	@media (min-width: 64rem) {
+		.pipeline-row {
+			grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+			gap: 1.25rem 0.35rem;
+		}
+
+		.pipeline-step {
+			padding: 2rem;
+		}
+
+		.pipeline-arrow {
+			min-width: 2.25rem;
+		}
+
+		.pipeline-arrow svg {
+			transform: none;
+		}
 	}
 </style>

@@ -56,9 +56,10 @@ switcher and the canonical alternates follow the page being rendered.
 
 Layout and chrome:
 
+- Visual rules live in `DESIGN.md`. Read it before changing layout, type, colour, motion, or components. It is the design counterpart to this file.
 - `src/layouts/Layout.astro` wraps every page (fonts, metadata, header, footer)
 - Components sit in `src/components/`
-- Shared Tailwind classes sit in `src/styles/global.css` under `@layer components` (`wrap`, `chapter`, `btn`, and similar)
+- Shared Tailwind classes sit in `src/styles/global.css` under `@layer components` (`wrap`, `chapter`, `btn`, and similar). Tokens in that file are the source of truth for the values named in `DESIGN.md`.
 
 ## Deploying
 

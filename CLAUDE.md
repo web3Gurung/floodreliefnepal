@@ -1,10 +1,12 @@
 # Flood Relief Nepal
 
-See `AGENTS.md` for stack, content rules, and commands.
+See `AGENTS.md` for stack, content rules, and commands. See `DESIGN.md` for how pages should look and feel. Read it before changing layout, type, colour, motion, or components.
 
 Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`.
 
-This is a static Astro site with Tailwind. Light mode only. Outfit for type, Noto Sans Devanagari on `/np/`, Noto Sans SC on `/zh/`. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
+This is a static Astro site with Tailwind. Light mode only. Outfit for type, Noto Sans Devanagari on `/np/`, Noto Sans SC on `/zh/`. Tokens and shared classes live in `src/styles/global.css`. Do not invent a second palette or typeface.
+
+It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
 
 That last sentence and the transparency page disagree, and the disagreement is open
 on purpose. See the note at the top of `AGENTS.md`. Do not resolve it by editing the
