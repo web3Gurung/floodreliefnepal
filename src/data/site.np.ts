@@ -373,6 +373,8 @@ export const np = {
 			ronakLabel: 'Ronak',
 			middle: ' र ',
 			ayushmanLabel: 'Ayushman',
+			beforeYanbo: ' र ',
+			yanboLabel: 'yanbo',
 			after: ' ले बनाएका।',
 		},
 		changelog: [

@@ -372,6 +372,8 @@ export const zh = {
 			ronakLabel: 'Ronak',
 			middle: ' 和 ',
 			ayushmanLabel: 'Ayushman',
+			beforeYanbo: ' ',
+			yanboLabel: 'yanbo',
 			after: ' 制作。',
 		},
 		changelog: [

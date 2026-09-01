@@ -5,6 +5,7 @@ export const site = {
 	makers: {
 		ronak: 'https://x.com/Ronak0010',
 		ayushman: 'https://x.com/gurungbuilds',
+		yanbo: 'https://x.com/yanbo2004',
 	},
 	lastChecked: '28 August 2026',
 	/** ISO form of lastChecked, for structured data. Keep the two in sync. */
@@ -539,6 +540,8 @@ export const en = {
 			ronakLabel: 'Ronak',
 			middle: ' and ',
 			ayushmanLabel: 'Ayushman',
+			beforeYanbo: ' and ',
+			yanboLabel: 'yanbo',
 			after: '',
 		},
 		changelog,
