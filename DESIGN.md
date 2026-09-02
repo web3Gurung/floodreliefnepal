@@ -189,7 +189,8 @@ Freshness copy is relative once JS can ask the feed ("This page last read the ch
 - Do not put `.display` on every `h2`.
 - Do not invent SWIFT rows, account numbers, QR codes, or Alipay apps NCHL does not list.
 - Do not add AP, Reuters, AFP, or Getty photos. Photos live in `src/assets/`, not `public/`.
-- Do not host embassy tweet photos or extra bank QRs from the PMO PDF.
+- Do not host embassy tweet photos or extra bank QRs from the PMO PDF. A post's own attached image in `src/assets/media/` is the one exception.
+- Do not add a third party script. The site has none, and the X embeds that used to be on `/transparency` are why that sentence is worth keeping.
 - Do not split the inlined CSS back into a render-blocking file.
 - Do not add an analytics beacon.
 - Do not quietly reword the homepage into a crypto fundraising site.
