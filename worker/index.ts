@@ -57,6 +57,16 @@ const LEDGER_KEY = 'ledger';
  */
 const LAST_RUN_KEY = 'last-run';
 
+/**
+ * When the chain was last read *successfully*, written only after the indexer
+ * returns. `last-run` records an attempt and is written before the work, which
+ * is what makes it a usable lock, and is exactly why it must not be the thing
+ * the page reports. An indexer failing on every attempt still advances an
+ * attempt, and a page saying "last read the chain a minute ago" on the back of
+ * that would be a lie of the same shape as the two this feature already had.
+ */
+const LAST_OK_KEY = 'last-ok';
+
 /** A caller may not force a run more often than this. */
 const REFRESH_MIN_INTERVAL_MS = 30 * 1000;
 
@@ -143,11 +153,17 @@ function startRefresh(env: WorkerEnv, ctx: ExecutionContext, reason: string): vo
 	ctx.waitUntil(inFlight);
 }
 
-async function lastRunAt(env: WorkerEnv): Promise<number> {
-	const raw = await env.LEDGER.get(LAST_RUN_KEY);
+async function timestampAt(env: WorkerEnv, key: string): Promise<number> {
+	const raw = await env.LEDGER.get(key);
 	const at = raw ? Date.parse(raw) : Number.NaN;
 	return Number.isNaN(at) ? 0 : at;
 }
+
+/** Last attempt. Gates the rate limit and the traffic refresh. */
+const lastRunAt = (env: WorkerEnv) => timestampAt(env, LAST_RUN_KEY);
+
+/** Last success. The only one the page is allowed to call a read. */
+const lastOkAt = (env: WorkerEnv) => timestampAt(env, LAST_OK_KEY);
 
 /**
  * Constant time compare, so a caller cannot learn the token one byte at a time
@@ -172,6 +188,9 @@ async function refresh(env: WorkerEnv): Promise<{ changed: boolean; payload: Led
 		supabaseSecretKey: env.SUPABASE_SECRET_KEY,
 		log: (message) => console.log(message),
 	});
+
+	// Past this line the chain really was read, so this is safe to publish.
+	await env.LEDGER.put(LAST_OK_KEY, new Date().toISOString());
 
 	const stored = (await env.LEDGER.get<LedgerPayload>(LEDGER_KEY, 'json')) ?? null;
 	const changed = payloadChanged(stored, payload);
@@ -264,8 +283,11 @@ export default {
 			// Every page load hits this endpoint for the freshness line, so a
 			// reader arriving at stale data starts the refresh that fixes it.
 			// The response below is not held up for it.
+			// Gated on the last attempt, so an indexer that is failing is retried
+			// on a schedule rather than by every single reader.
 			const lastRun = await lastRunAt(env);
 			if (Date.now() - lastRun > REFRESH_STALE_AFTER_MS) startRefresh(env, ctx, 'traffic');
+			const lastOk = await lastOkAt(env);
 
 			const stored = await env.LEDGER.getWithMetadata<{ updatedAt?: string }>(LEDGER_KEY, 'text');
 			if (stored.value) {
@@ -280,13 +302,13 @@ export default {
 						updatedAt = null;
 					}
 				}
-				return ledgerResponse(stored.value, 'kv', updatedAt, lastRun);
+				return ledgerResponse(stored.value, 'kv', updatedAt, lastOk);
 			}
 			return ledgerResponse(
 				JSON.stringify(buildTimeLedger),
 				'build',
 				buildTimeLedger.updated_at,
-				lastRun,
+				lastOk,
 			);
 		}
 

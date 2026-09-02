@@ -91,12 +91,21 @@ const label = (entry: (typeof all)[number]) =>
 				</ul>
 
 				{totals.excluded_count > 0 && <p class="quiet">{copy.unpricedNote}</p>}
+				<p class="ledger-notice quiet" data-since-drawn="mosaic" hidden></p>
+
 			</div>
 		</section>
 	)
 }
 
 <style>
+	/* Filled in by the page script when the live feed is ahead of what was drawn. */
+	.ledger-notice {
+		border-left: 2px solid var(--ink);
+		padding-left: 0.75rem;
+		color: var(--ink);
+	}
+
 	.mosaic {
 		--cell: 44px;
 		display: grid;

@@ -118,6 +118,34 @@ value before any writes the new one, which is exactly what happened in testing.
 An in-isolate promise handle collapses a burst into one run. Two isolates in two
 locations can still race, and that is fine, because the indexer is idempotent.
 
+### The page updates itself
+
+The baked `ledger.json` is the first paint and the fallback, not the answer. On
+load the page fetches `/api/ledger` and replaces the headline, the donation
+count, the timestamp line and the table rows with what the feed reports, because
+donations keep arriving after a deploy and a frozen number is the one thing this
+page must not show.
+
+The merge and the mosaic stay as drawn at build time. When the feed is ahead,
+each prints one line saying how many donations have arrived since.
+
+The baked figures survive as the answer for a reader with no JavaScript, and as
+the fallback when the feed does not respond, and in that case the page says the
+feed is not answering rather than leaving a stale number unexplained.
+
+The script never localises a date. The browser has no Nepali locale data,
+`Intl.DateTimeFormat.supportedLocalesOf('ne-NP')` comes back empty and it
+silently answers in English in the wrong field order, so month names and the
+field order are handed to it from the server.
+
+Three timestamps, and they are not interchangeable. `updated_at` is when the
+figures were produced and only moves on a write. `last-run` is when a run was
+last attempted, written before the work so it can act as a lock and a rate
+limit. `last-ok` is when the chain was last read successfully, written only
+after the indexer returns, and it is the only one the page may call a read. An
+indexer failing on every attempt still advances an attempt, so reporting that as
+a read would be a lie.
+
 ### Telling a dead cron from a healthy one
 
 This was the failure mode worth designing against: when the indexer dies,
