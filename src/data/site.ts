@@ -616,6 +616,7 @@ export const en = {
 			checkLabel: 'Etherscan',
 			checkAria: 'Open transaction {hash} on Etherscan',
 		},
+		sinceDrawn: '{count} have arrived since this was drawn.',
 		merge: {
 			heading: 'Where it came from and where it sits',
 			lede: 'Each ribbon is one asset people sent. Its width is that asset\u2019s share of the total, so the picture reads the same way the number does.',
