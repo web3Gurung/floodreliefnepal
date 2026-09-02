@@ -246,6 +246,17 @@
 		@apply mt-3 text-[0.95rem] text-muted;
 	}
 
+	/*
+	 * The line that says the page is behind, stale, or reading a baked figure.
+	 * The total, the merge and the mosaic all raise it, so it is set once here
+	 * rather than repeated in three scoped blocks.
+	 */
+	.ledger-notice {
+		border-left: 2px solid var(--ink);
+		padding-left: 0.75rem;
+		color: var(--ink);
+	}
+
 	.hairline {
 		@apply border-t border-line;
 	}

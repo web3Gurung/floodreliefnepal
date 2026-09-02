@@ -103,6 +103,64 @@ Locally the Worker runs through
 `.env.local` and simulates KV. Visiting `/__scheduled` fires the cron by hand when
 started with `--test-scheduled`.
 
+### The cron does not fire, so three things can run the indexer
+
+Cloudflare's Cron Trigger has never invoked this Worker. Three separate Workers
+on this account registered a `* * * * *` schedule that Cloudflare accepted,
+reported back through its own API and displayed in the dashboard, and none of
+them ever fired. One of those three was written entirely in the dashboard editor,
+so it is not our code and not our tooling.
+
+The indexer therefore has three ways to run, and the cron is the least of them.
+
+- **`POST /api/refresh`**, every five minutes from an outside scheduler. This is
+  the floor and it works when nobody is reading. It needs the `REFRESH_TOKEN`
+  secret in an `x-refresh-token` header, refuses `GET` outright, compares the
+  token in constant time, refuses a second run within thirty seconds, and fails
+  closed with a 503 if the secret is missing.
+- **Traffic.** A `GET /api/ledger` that finds the last run older than five
+  minutes starts a refresh behind the response. Every page load hits that
+  endpoint for the freshness line, so readers keep the figures current by
+  reading them. The response is not held up: it is served in about four
+  milliseconds while the refresh runs in `waitUntil`.
+- **The cron**, still registered and still wired to the same code, so the day
+  Cloudflare starts firing it we get the cadence back with no change.
+
+`last-run` in KV is written before each run, not after, so a run that dies still
+holds the others off. It rate limits the endpoint and gates the traffic path. It
+does not stop a stampede on its own: three concurrent readers all read the old
+value before any writes the new one, which is exactly what happened in testing.
+An in-isolate promise handle collapses a burst into one run. Two isolates in two
+locations can still race, and that is fine, because the indexer is idempotent.
+
+### The page updates itself
+
+The baked `ledger.json` is the first paint and the fallback, not the answer. On
+load the page fetches `/api/ledger` and replaces the headline, the donation
+count, the timestamp line and the table rows with what the feed reports, because
+donations keep arriving after a deploy and a frozen number is the one thing this
+page must not show.
+
+The merge and the mosaic stay as drawn at build time. When the feed is ahead,
+each prints one line saying how many donations have arrived since.
+
+The baked figures survive as the answer for a reader with no JavaScript, and as
+the fallback when the feed does not respond, and in that case the page says the
+feed is not answering rather than leaving a stale number unexplained.
+
+The script never localises a date. The browser has no Nepali locale data,
+`Intl.DateTimeFormat.supportedLocalesOf('ne-NP')` comes back empty and it
+silently answers in English in the wrong field order, so month names and the
+field order are handed to it from the server.
+
+Three timestamps, and they are not interchangeable. `updated_at` is when the
+figures were produced and only moves on a write. `last-run` is when a run was
+last attempted, written before the work so it can act as a lock and a rate
+limit. `last-ok` is when the chain was last read successfully, written only
+after the indexer returns, and it is the only one the page may call a read. An
+indexer failing on every attempt still advances an attempt, so reporting that as
+a read would be a lie.
+
 ### Telling a dead cron from a healthy one
 
 This was the failure mode worth designing against: when the indexer dies,

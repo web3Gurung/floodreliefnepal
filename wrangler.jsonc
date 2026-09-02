@@ -2,6 +2,12 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "floodreliefnepal",
 	"main": "./worker/index.ts",
+
+	// Secrets live in the Worker's runtime Variables and Secrets, added in the
+	// dashboard. Wrangler treats this file as the source of truth by default and
+	// deletes anything it does not find here, which is what wiped the three keys
+	// on the deploy of 1 September. This keeps them.
+	"keep_vars": true,
 	"compatibility_date": "2026-09-01",
 	"preview_urls": true,
 	"routes": [

@@ -26,6 +26,14 @@ if (ledger.address.toLowerCase() !== receiving.address.toLowerCase()) {
  * Etherscan, which prints Latin numerals, so a total in Devanagari would be
  * harder to compare. Month names still translate.
  */
+/**
+ * The page is for Nepal, so times are Nepal time. Every rendered timestamp
+ * says so in words, because the same page tells readers to check the figures
+ * on Etherscan, which shows UTC. A reader who spots the 5 hour 45 minute gap
+ * should find it explained rather than conclude the number is wrong.
+ */
+const NEPAL_TIME = 'Asia/Kathmandu';
+
 const dateLocale = lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB';
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const count = new Intl.NumberFormat('en-US');
@@ -33,13 +41,13 @@ const shortDate = new Intl.DateTimeFormat(dateLocale, {
 	day: 'numeric',
 	month: 'short',
 	year: 'numeric',
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
 const longDate = new Intl.DateTimeFormat(dateLocale, {
 	day: 'numeric',
 	month: 'long',
 	year: 'numeric',
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
 // Nepali joins a long date to a time with a colon, which reads as part of the
 // clock. Date and time are formatted apart and joined the same way in both.
@@ -47,8 +55,34 @@ const clock = new Intl.DateTimeFormat('en-GB', {
 	hour: '2-digit',
 	minute: '2-digit',
 	hour12: false,
-	timeZone: 'UTC',
+	timeZone: NEPAL_TIME,
 });
+/**
+ * The browser has no Nepali locale data. `Intl.DateTimeFormat.supportedLocalesOf('ne-NP')`
+ * comes back empty and it silently answers "Sep 1, 2026" in English, in the
+ * wrong order. So the client is never asked to localise a date. It gets the
+ * month names and the field order from here, taken from Node's full ICU, and
+ * assembles the string itself.
+ */
+const monthNames = Array.from({ length: 12 }, (_, month) =>
+	new Intl.DateTimeFormat(dateLocale, { month: 'short', timeZone: 'UTC' }).format(
+		new Date(Date.UTC(2026, month, 15)),
+	),
+);
+
+const datePattern = shortDate
+	.formatToParts(new Date(Date.UTC(2026, 0, 9, 12)))
+	.map((part) =>
+		part.type === 'day'
+			? '{day}'
+			: part.type === 'month'
+				? '{month}'
+				: part.type === 'year'
+					? '{year}'
+					: part.value,
+	)
+	.join('');
+
 const stamp = (iso: string, date: Intl.DateTimeFormat) => {
 	const at = new Date(iso);
 	return `${date.format(at)}, ${clock.format(at)}`;
@@ -119,10 +153,13 @@ const steward = copy.steward.join(' ');
 			hasDonations ? (
 				<div class="mt-14 md:mt-16">
 					<p class="eyebrow">{copy.total.label}</p>
-					<p class="mt-3 text-[clamp(3.25rem,12vw,7rem)] leading-[0.92] font-medium tracking-[-0.045em] tabular-nums">
+					<p
+						class="mt-3 text-[clamp(3.25rem,12vw,7rem)] leading-[0.92] font-medium tracking-[-0.045em] tabular-nums"
+						data-ledger-total
+					>
 						{usd.format(totals.usd_received)}
 					</p>
-					<p class="mt-4 text-lg text-muted tabular-nums">
+					<p class="mt-4 text-lg text-muted tabular-nums" data-ledger-count>
 						{donations(totals.donation_count)}
 					</p>
 					<p class="quiet max-w-[42rem]">{copy.total.basis}</p>
@@ -141,7 +178,7 @@ const steward = copy.steward.join(' ');
 						data-built={updatedAt}
 						data-locale={dateLocale}
 						data-stale-hours={STALE_AFTER_HOURS}
-						data-built-label={`${stamp(updatedAt, longDate)} UTC`}
+						data-built-label={`${stamp(updatedAt, longDate)} ${ui.nepalTime}`}
 						data-tpl-ago={copy.total.updatedAgo}
 						data-tpl-behind={copy.total.feedBehind}
 						data-tpl-stale={copy.total.feedStale}
@@ -152,8 +189,33 @@ const steward = copy.steward.join(' ');
 						data-word-many={copy.total.donationsMany}
 						data-ago={JSON.stringify(copy.total.ago)}
 					>
+						{/*
+						  * Everything the script needs to render a row the way the
+						  * server would. It never localises a date itself, because
+						  * the browser has no Nepali data and answers in English.
+						  */}
+						<script
+							type="application/json"
+							data-ledger-config
+							is:inline
+							set:html={JSON.stringify({
+								explorer: receiving.explorer,
+								nepalTime: ui.nepalTime,
+								opensInNewTab: ui.opensInNewTab,
+								months: monthNames,
+								datePattern,
+								noPrice: copy.table.noPrice,
+								checkLabel: copy.table.checkLabel,
+								checkAria: copy.table.checkAria,
+								tableNote: copy.table.note,
+								timesNote: copy.table.timesNote,
+								sinceDrawn: copy.sinceDrawn,
+								builtCount: totals.donation_count,
+								recentLimit: recent.length,
+							})}
+						/>
 						<p data-ledger-line>
-							{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} UTC` })}
+							{fill(copy.total.updated, { when: `${stamp(updatedAt, longDate)} ${ui.nepalTime}` })}
 						</p>
 					</div>
 				</div>
@@ -215,7 +277,7 @@ const steward = copy.steward.join(' ');
 		<section class="chapter hairline">
 			<div class="wrap">
 				<h2 class="chapter-title max-w-none">{copy.table.heading}</h2>
-				<p class="quiet mt-0 mb-8">
+				<p class="quiet mt-0 mb-8" data-ledger-note>
 					{trimmed
 						? `${fill(copy.table.note, { shown: count.format(recent.length), total: donations(all.length) })} ${copy.table.timesNote}`
 						: copy.table.timesNote}
@@ -232,7 +294,7 @@ const steward = copy.steward.join(' ');
 								<th scope="col">{copy.table.columns.check}</th>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody data-ledger-rows>
 							{recent.map((row) => (
 								<tr>
 									<td class="whitespace-nowrap tabular-nums">
@@ -337,16 +399,33 @@ const steward = copy.steward.join(' ');
 
 <script is:inline>
 	/*
-	 * The only client script on this page. A static page cannot know the time,
-	 * so it cannot tell a fresh feed from a dead one. This asks.
+	 * The only client script on this page, and it is not decoration. The page
+	 * ships figures baked in at deploy time, and donations keep arriving after
+	 * that, so without this a reader sees a number frozen at the last deploy.
 	 *
-	 * It never rewrites a figure. The numbers on the page stay the ones that
-	 * were read at build time, and this reports how the live feed compares, so
-	 * the page can be behind without being wrong about it.
+	 * It replaces the headline, the count, the timestamp line and the table with
+	 * whatever /api/ledger reports. The baked figures survive as the answer for
+	 * a reader with no JavaScript, and as the fallback when the feed does not
+	 * respond, and in that case the page says so rather than pretending.
+	 *
+	 * It never localises a date. The browser has no Nepali locale data and
+	 * answers in English, so month names and field order come from the server.
 	 */
 	(function () {
 		var box = document.querySelector('[data-ledger]');
 		if (!box) return;
+
+		var configTag = box.querySelector('[data-ledger-config]');
+		if (!configTag) return;
+
+		var cfg;
+		var words;
+		try {
+			cfg = JSON.parse(configTag.textContent);
+			words = JSON.parse(box.dataset.ago);
+		} catch (error) {
+			return;
+		}
 
 		var line = box.querySelector('[data-ledger-line]');
 		var built = Date.parse(box.dataset.built);
@@ -359,21 +438,45 @@ const steward = copy.steward.join(' ');
 			});
 		}
 
-		/*
-		 * Units come from the copy data rather than Intl.RelativeTimeFormat,
-		 * which has no Nepali relative time data in some browsers and quietly
-		 * answers in English. A page that mixes the two languages mid sentence
-		 * is worse than one that spells the units out.
-		 */
-		var words = JSON.parse(box.dataset.ago);
+		function donations(n) {
+			return n + ' ' + (n === 1 ? box.dataset.wordOne : box.dataset.wordMany);
+		}
+
+		function money(n) {
+			return new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD',
+			}).format(n);
+		}
+
+		/* Nepal time, assembled from en-GB parts plus the server's month names. */
+		function nepalStamp(iso) {
+			var at = new Date(iso);
+			if (isNaN(at.getTime())) return '';
+			var parts = new Intl.DateTimeFormat('en-GB', {
+				day: 'numeric',
+				month: 'numeric',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: false,
+				timeZone: 'Asia/Kathmandu',
+			}).formatToParts(at);
+			var got = {};
+			for (var i = 0; i < parts.length; i += 1) got[parts[i].type] = parts[i].value;
+			var date = fill(cfg.datePattern, {
+				day: String(Number(got.day)),
+				month: cfg.months[Number(got.month) - 1],
+				year: got.year,
+			});
+			return date + ', ' + got.hour + ':' + got.minute;
+		}
 
 		function ago(from) {
 			var minutes = Math.floor((Date.now() - from) / 60000);
 			if (minutes < 1) return words.lessThanAMinute;
-
 			var value = minutes;
 			var unit = minutes === 1 ? words.minute : words.minutes;
-
 			if (minutes >= 1440) {
 				value = Math.floor(minutes / 1440);
 				unit = value === 1 ? words.day : words.days;
@@ -381,55 +484,154 @@ const steward = copy.steward.join(' ');
 				value = Math.floor(minutes / 60);
 				unit = value === 1 ? words.hour : words.hours;
 			}
-
 			return fill(words.template, { value: String(value), unit: unit });
 		}
 
 		function notice(text) {
 			line.textContent = text;
-			line.className = 'ledger-notice';
+			// Add, so the element keeps whatever the template gave it. The
+			// merge and mosaic notices are `ledger-notice quiet` in markup.
+			line.classList.add('ledger-notice');
+		}
+
+		function renderRows(rows) {
+			var body = document.querySelector('[data-ledger-rows]');
+			if (!body || !rows || !rows.length) return;
+
+			var html = '';
+			for (var i = 0; i < rows.length; i += 1) {
+				var row = rows[i];
+				var priced = row.usd_at_receipt !== null && row.usd_at_receipt !== undefined;
+				var label = fill(cfg.checkAria, { hash: row.tx_hash }) + ', ' + cfg.opensInNewTab;
+				html +=
+					/*
+					 * These rows replace the ones Astro rendered, so they carry
+					 * the same classes. Padding and the row rule belong to
+					 * `.data-table` in global.css. Repeating them here doubled
+					 * the cell padding and drew a line under the last row.
+					 */
+					'<tr>' +
+					'<td class="whitespace-nowrap tabular-nums">' +
+					escape(nepalStamp(row.block_time)) +
+					'</td>' +
+					'<td class="whitespace-nowrap">' +
+					escape(row.token_symbol) +
+					'</td>' +
+					'<td class="text-right tabular-nums">' +
+					escape(row.amount_token) +
+					'</td>' +
+					'<td class="text-right tabular-nums">' +
+					(priced
+						? escape(money(row.usd_at_receipt))
+						: '<span class="text-muted">' + escape(cfg.noPrice) + '</span>') +
+					'</td>' +
+					'<td>' +
+					'<a class="underline" href="' +
+					escape(cfg.explorer + '/tx/' + row.tx_hash) +
+					'" target="_blank" rel="noopener noreferrer" aria-label="' +
+					escape(label) +
+					'">' +
+					escape(cfg.checkLabel) +
+					'</a>' +
+					'</td>' +
+					'</tr>';
+			}
+			body.innerHTML = html;
+		}
+
+		/* Everything written into markup goes through here. The feed is our own,
+		   but a value that reaches innerHTML is never trusted on that basis. */
+		function escape(value) {
+			return String(value)
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#39;');
+		}
+
+		function setSinceDrawn(liveCount) {
+			var behind = liveCount - cfg.builtCount;
+			var notes = document.querySelectorAll('[data-since-drawn]');
+			for (var i = 0; i < notes.length; i += 1) {
+				if (behind > 0) {
+					notes[i].textContent = fill(cfg.sinceDrawn, { count: donations(behind) });
+					notes[i].hidden = false;
+				} else {
+					notes[i].hidden = true;
+				}
+			}
 		}
 
 		fetch('/api/ledger', { headers: { accept: 'application/json' } })
 			.then(function (response) {
 				if (!response.ok) throw new Error(String(response.status));
-				return response.json();
+				/*
+				 * Two clocks. `updated_at` is when the figures were produced and
+				 * only moves when a run finds something worth writing, so a
+				 * healthy feed that reads the chain and finds nothing new leaves
+				 * it standing still. `x-ledger-last-run` is when the chain was
+				 * actually read, which is the question this line asks.
+				 */
+				var lastRun = response.headers.get('x-ledger-last-run');
+				return response.json().then(function (feed) {
+					return { feed: feed, lastRun: lastRun };
+				});
 			})
-			.then(function (feed) {
-				var read = Date.parse(feed.updated_at);
+			.then(function (answer) {
+				var feed = answer.feed;
+				if (!feed || !feed.totals) throw new Error('malformed payload');
+				var read = Date.parse(answer.lastRun || '') || Date.parse(feed.updated_at);
 				if (!read) throw new Error('no timestamp');
 
+				// The live figures replace the baked ones, which is the whole point.
+				var total = box.parentNode.querySelector('[data-ledger-total]');
+				var countEl = box.parentNode.querySelector('[data-ledger-count]');
+				if (total) total.textContent = money(feed.totals.usd_received);
+				if (countEl) countEl.textContent = donations(feed.totals.donation_count);
+
+				renderRows(feed.recent);
+
+				var note = document.querySelector('[data-ledger-note]');
+				if (note && feed.all) {
+					var shown = Math.min(feed.recent ? feed.recent.length : 0, feed.all.length);
+					note.textContent =
+						shown < feed.all.length
+							? fill(cfg.tableNote, {
+									shown: String(shown),
+									total: donations(feed.all.length),
+								}) +
+								' ' +
+								cfg.timesNote
+							: cfg.timesNote;
+				}
+
+				// The merge and the mosaic are still the picture drawn at deploy
+				// time, so they say how far behind they are rather than pretend.
+				setSinceDrawn(feed.totals.donation_count);
+
 				if (Date.now() - read > staleMs) {
-					notice(fill(box.dataset.tplStale, { ago: ago(read), when: builtLabel }));
+					/*
+					 * The figures on screen are the feed's now, not the baked
+					 * ones, so this cites when the feed produced them. Using the
+					 * build time here would describe numbers the page is no
+					 * longer showing.
+					 */
+					notice(
+						fill(box.dataset.tplStale, {
+							ago: ago(read),
+							when: nepalStamp(feed.updated_at) + ' ' + cfg.nepalTime,
+						}),
+					);
 					return;
 				}
 
-				var same =
-					feed.totals &&
-					feed.totals.donation_count === Number(box.dataset.donations) &&
-					feed.totals.usd_received === Number(box.dataset.total);
-
-				if (same) {
-					line.textContent = fill(box.dataset.tplAgo, { ago: ago(read) });
-					return;
-				}
-
-				var n = feed.totals.donation_count;
-				notice(
-					fill(box.dataset.tplBehind, {
-						count: n + ' ' + (n === 1 ? box.dataset.wordOne : box.dataset.wordMany),
-						total: new Intl.NumberFormat('en-US', {
-							style: 'currency',
-							currency: 'USD',
-						}).format(feed.totals.usd_received),
-						when: builtLabel,
-					}),
-				);
+				line.textContent = fill(box.dataset.tplAgo, { ago: ago(read) });
 			})
 			.catch(function () {
-				if (Date.now() - built > staleMs) {
-					notice(fill(box.dataset.tplDown, { when: builtLabel }));
-				}
+				// Nothing was replaced, so the page is still showing the baked
+				// figures. Say that, rather than leave a stale number unexplained.
+				notice(fill(box.dataset.tplDown, { when: builtLabel }));
 			});
 	})();
 </script>
@@ -473,12 +675,6 @@ const steward = copy.steward.join(' ');
 </script>
 
 <style>
-	.ledger-notice {
-		border-left: 2px solid var(--ink);
-		padding-left: 0.75rem;
-		color: var(--ink);
-	}
-
 	.address-copy {
 		display: flex;
 		flex-wrap: wrap;
