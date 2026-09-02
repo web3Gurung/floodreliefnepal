@@ -2,28 +2,61 @@
 /**
  * Posts and headlines about this drive, written by people outside it.
  *
- * Posts use X's own embed so a reader sees the real thing with the avatar and
- * the account. Embeds fail often, whether blocked, offline or merely slow, so
- * every post also carries its quote and its author in our own data. What sits
- * inside the blockquote is what X replaces on success and what the reader keeps
- * on failure, in the site's own type, with a link to the original. Never an
- * empty box.
+ * The post card is ours. It reads like a post on X, deliberately, because that
+ * is what it is showing, but nothing here is an embed: no widget script, no
+ * iframe, no request to X, and so no layout shift while a reader waits for one.
+ * Avatar, badge, image and counts are all committed data from `media.ts`.
  *
- * Headlines from publications are never embeds. There is nothing to hydrate and
- * no reason to hand a third party a request for one.
+ * That replaced four real embeds. Three of the four posts quote the same Solana
+ * post, and X's widget renders a quoted post in full, image and all, so the same
+ * black graphic landed on the page four times and the section ran to about
+ * 4,000px. The rule that fixed it lives in `media.ts` and is worth repeating
+ * here: a post's own image only, and the quoted post is never rendered.
  *
- * The widget script is the only third party script on this site, it loads once,
- * deferred, and only when a post is actually on the page.
+ * Counts are frozen on the day they were fetched. `countsAsOf` records that day
+ * and gates whether counts render at all, so a number can never appear without
+ * the file saying when it was true, even though the card no longer prints the
+ * date. Refresh both together with `npm run index:posts`. There is no bookmark
+ * count because X does not publish one on this endpoint.
+ *
+ * Headlines from publications are never posts. There is nothing to hydrate and
+ * nobody to ask.
  */
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { media } from '../data/media';
 import { copyForPath, dateLocaleFor, langFromPath } from '../data/copy';
+
+import avatarSolana from '../assets/media/avatar-solana.jpg';
+import avatarSuperteamNpl from '../assets/media/avatar-superteamnpl.jpg';
+import avatarRonak0010 from '../assets/media/avatar-ronak0010.png';
+import avatarNirajBhusal from '../assets/media/avatar-nirajbhusal.jpg';
+import postSolana from '../assets/media/post-solana-adspace.png';
+import postSuperteamNpl from '../assets/media/post-superteamnpl-raised.jpg';
+
+/**
+ * Assets are imported here rather than in `media.ts` so the data file stays
+ * data, which is how `Give.astro` already handles its portal shots. A key with
+ * no entry falls back to initials rather than throwing, so adding a post never
+ * has to wait on an image.
+ */
+const avatars: Record<string, ImageMetadata> = {
+	solana: avatarSolana,
+	superteamnpl: avatarSuperteamNpl,
+	ronak0010: avatarRonak0010,
+	nirajbhusal: avatarNirajBhusal,
+};
+
+const postImages: Record<string, ImageMetadata> = {
+	solana: postSolana,
+	superteamnpl: postSuperteamNpl,
+};
 
 const copy = copyForPath(Astro.url.pathname).transparency.media;
 const lang = langFromPath(Astro.url.pathname);
 
 // Editor controlled order. The data file is the running order.
 const items = media;
-const hasPosts = items.some((item) => item.type === 'post');
 
 /**
  * The page is for Nepal, so times are Nepal time. Every rendered timestamp
@@ -40,6 +73,20 @@ const dateFormat = new Intl.DateTimeFormat(dateLocaleFor(lang), {
 	timeZone: NEPAL_TIME,
 });
 const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
+
+/** Counts share the page's numbering system, so 3,408 reads the same in all three. */
+const countFormat = new Intl.NumberFormat(dateLocaleFor(lang));
+const count = (n: number) => countFormat.format(n);
+
+/** Initials for a post with no committed avatar. Two letters at most. */
+const initialsOf = (name: string) =>
+	name
+		.split(/\s+/)
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((word) => Array.from(word)[0] ?? '')
+		.join('')
+		.toUpperCase();
 ---
 
 {
@@ -50,62 +97,185 @@ const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
 				<p class="lede">{copy.lede}</p>
 
 				<ul class="media-list">
-					{items.map((item) => (
-						<li class="media-item">
-							<p class="eyebrow">
-								{item.type === 'post' ? copy.postLabel : copy.articleLabel}
-							</p>
+					{items.map((item) => {
+						const avatar = item.assetKey ? avatars[item.assetKey] : undefined;
+						const image = item.assetKey ? postImages[item.assetKey] : undefined;
+						const showCounts =
+							item.countsAsOf &&
+							(typeof item.likes === 'number' || typeof item.replies === 'number');
 
-							{item.type === 'post' ? (
-								<blockquote
-									class="twitter-tweet media-card"
-									data-dnt="true"
-									data-theme="light"
-									data-conversation="none"
-								>
-									<p class="media-quote" lang={item.lang}>
-										{item.quote}
-									</p>
-									<p class="media-by">
-										{item.author}
-										<span class="text-muted"> {item.source}</span>
-									</p>
-									{/* X reads the last link in here to find the post. */}
-									<a href={item.postUrl ?? item.link}>{on(item.date)}</a>
-								</blockquote>
-							) : (
-								<div class="media-card">
-									<p class="media-headline" lang={item.lang}>
-										{item.quote}
-									</p>
-									<p class="media-by">
-										{item.source}
-										{item.author ? <span class="text-muted">, {item.author}</span> : null}
-										<span class="text-muted">, {on(item.date)}</span>
-									</p>
-									<p class="mt-4">
-										<a
-											class="underline"
-											href={item.link}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{copy.openArticle}
-										</a>
-									</p>
-								</div>
-							)}
-						</li>
-					))}
+						return (
+							<li class="media-item">
+								{/*
+								 * A post needs no eyebrow. The avatar, the handle and X's mark
+								 * already say what it is, and the link underneath says so in
+								 * words for a screen reader. An article has none of those, so
+								 * it keeps its label.
+								 */}
+								{item.type !== 'post' && <p class="eyebrow">{copy.articleLabel}</p>}
+
+								{item.type === 'post' ? (
+									<article class="post">
+										<header class="post-head">
+											{/*
+											 * Avatar, name and handle are one link to the post, the
+											 * way they are on X. One target rather than three, so a
+											 * thumb on a phone cannot land in the gap between them.
+											 */}
+											<a
+												class="post-id"
+												href={item.postUrl ?? item.link}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{avatar ? (
+													<Picture
+														src={avatar}
+														formats={['webp']}
+														fallbackFormat="png"
+														widths={[40, 80, 120]}
+														sizes="40px"
+														quality="high"
+														alt=""
+														aria-hidden="true"
+														class="avatar"
+														pictureAttributes={{ class: 'contents' }}
+														loading="lazy"
+														decoding="async"
+													/>
+												) : (
+													<span class="avatar avatar-fallback" aria-hidden="true">
+														{initialsOf(item.author)}
+													</span>
+												)}
+
+												<span class="post-who">
+													<span class="post-name">
+														<span class="post-nm">{item.author}</span>
+														{item.verified && (
+															/*
+															 * X's own mark, drawn once. It records that X showed
+															 * a badge when the entry was fetched, which is why it
+															 * is a fetched flag rather than one we set by hand.
+															 */
+															<svg
+																class="badge"
+																viewBox="0 0 22 22"
+																role="img"
+																aria-label="Verified on X"
+															>
+																<path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.816.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" />
+															</svg>
+														)}
+													</span>
+													<span class="post-handle">{item.source}</span>
+												</span>
+											</a>
+
+											{/* Marks the card as a post without spending a word on it. */}
+											<svg class="post-mark" viewBox="0 0 24 24" aria-hidden="true">
+												<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+											</svg>
+										</header>
+
+										{/*
+										 * Line breaks are part of what the person wrote, so they are
+										 * kept. The clamp is visual only: the full verbatim text stays
+										 * in the DOM for a screen reader and for a search engine.
+										 */}
+										<p class="post-text" lang={item.lang}>
+											{item.quote}
+										</p>
+
+										{image && (
+											<Picture
+												src={image}
+												formats={['webp']}
+												fallbackFormat="jpg"
+												widths={[400, 600, 800, 1200]}
+												sizes="(min-width: 48rem) min(32rem, calc((68rem - 2rem) / 2)), calc(100vw - 2.5rem)"
+												quality="high"
+												alt={item.imageAlt ?? ''}
+												class="post-img"
+												pictureAttributes={{ class: 'post-img-frame' }}
+												loading="lazy"
+												decoding="async"
+											/>
+										)}
+
+										<p class="post-foot">
+											<time datetime={item.date}>{on(item.date)}</time>
+
+											{showCounts && (
+												<>
+													{typeof item.likes === 'number' && (
+														<span
+															class="post-count"
+															aria-label={`${count(item.likes)} ${copy.likeLabel}`}
+														>
+															<svg class="count-icon" viewBox="0 0 24 24" aria-hidden="true">
+																<path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />
+															</svg>
+															<span class="tnum" aria-hidden="true">
+																{count(item.likes)}
+															</span>
+														</span>
+													)}
+
+													{typeof item.replies === 'number' && (
+														<span
+															class="post-count"
+															aria-label={`${count(item.replies)} ${copy.replyLabel}`}
+														>
+															<svg class="count-icon" viewBox="0 0 24 24" aria-hidden="true">
+																<path d="M20 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4v4l5.333-4H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+															</svg>
+															<span class="tnum" aria-hidden="true">
+																{count(item.replies)}
+															</span>
+														</span>
+													)}
+												</>
+											)}
+
+											<a
+												class="post-read"
+												href={item.postUrl ?? item.link}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{copy.openPost}
+											</a>
+										</p>
+									</article>
+								) : (
+									<div class="media-card">
+										<p class="media-headline" lang={item.lang}>
+											{item.quote}
+										</p>
+										<p class="media-by">
+											{item.source}
+											{item.author ? <span class="text-muted">, {item.author}</span> : null}
+											<span class="text-muted">, {on(item.date)}</span>
+										</p>
+										<p class="mt-4">
+											<a
+												class="underline"
+												href={item.link}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{copy.openArticle}
+											</a>
+										</p>
+									</div>
+								)}
+							</li>
+						);
+					})}
 				</ul>
 			</div>
 		</section>
-	)
-}
-
-{
-	hasPosts && (
-		<script is:inline defer src="https://platform.twitter.com/widgets.js" charset="utf-8" />
 	)
 }
 
@@ -115,7 +285,7 @@ const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
 	.media-list {
 		display: grid;
 		gap: 1.5rem;
-		align-items: start;
+		align-items: stretch;
 		list-style: none;
 		padding: 0;
 		margin: 2.5rem 0 0;
@@ -130,29 +300,207 @@ const on = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
 
 	.media-item {
 		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	/* ---------- The post card ---------- */
+
+	/*
+	 * The card borrows X's proportions on purpose, so a reader recognises what
+	 * they are looking at. It does not borrow X's typeface: the page has one,
+	 * and a second would be the only place on the site with two.
+	 */
+	.post {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		border: 1px solid var(--line);
+		border-radius: 12px;
+		background: var(--surface);
+		padding: 1.25rem;
+		transition: border-color 150ms ease;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.post:hover {
+			border-color: #d2d2cd;
+		}
+	}
+
+	.post-head {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		margin-bottom: 0.9rem;
+	}
+
+	/* Avatar, name and handle are one target. The underline waits for hover so
+	   the card stays quiet at rest, the way the rest of the page does. */
+	.post-id {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		min-width: 0;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.post-id:hover .post-nm {
+			text-decoration: underline;
+			text-underline-offset: 2px;
+		}
 	}
 
 	/*
-	 * For a post this is the fallback. X swaps the whole blockquote for an
-	 * iframe when its script arrives, and these rules stop applying. If the
-	 * script never arrives, this is the finished thing.
+	 * A hairline inside the edge, the same treatment `.photo` gives every other
+	 * image on the site, so a white or pale avatar still has an edge on a white
+	 * card. Width and height are fixed so nothing reflows as the image decodes.
 	 */
+	.avatar {
+		width: 2.5rem;
+		height: 2.5rem;
+		flex: none;
+		border-radius: 999px;
+		object-fit: cover;
+		outline: 1px solid oklch(0 0 0 / 0.1);
+		outline-offset: -1px;
+	}
+
+	.avatar-fallback {
+		display: grid;
+		place-items: center;
+		background: var(--line);
+		color: var(--muted);
+		font-size: 0.8rem;
+		font-weight: 500;
+	}
+
+	.post-who {
+		min-width: 0;
+	}
+
+	.post-name {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		min-width: 0;
+		font-weight: 500;
+		line-height: 1.25;
+	}
+
+	/* Truncates rather than wrapping, so a long name cannot push a card taller
+	   than the one beside it. */
+	.post-nm {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.badge {
+		width: 0.95rem;
+		height: 0.95rem;
+		flex: none;
+		fill: #1d9bf0;
+	}
+
+	.post-handle {
+		display: block;
+		font-size: 0.85rem;
+		line-height: 1.25;
+		color: var(--muted);
+	}
+
+	.post-mark {
+		margin-left: auto;
+		align-self: flex-start;
+		width: 0.95rem;
+		height: 0.95rem;
+		flex: none;
+		fill: var(--ink);
+	}
+
+	.post-text {
+		margin: 0;
+		white-space: pre-wrap;
+		text-wrap: pretty;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 4;
+		line-clamp: 4;
+		overflow: hidden;
+	}
+
+	.post-img-frame {
+		display: block;
+		margin-top: 0.9rem;
+	}
+
+	.post-img {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 8px;
+		background: var(--canvas);
+		outline: 1px solid oklch(0 0 0 / 0.1);
+		outline-offset: -1px;
+	}
+
+	/* `margin-top: auto` holds the footer to the card floor, so dates and links
+	   line up across a row even when one quote runs shorter than its neighbour. */
+	.post-foot {
+		margin: 0;
+		margin-top: auto;
+		padding-top: 1.1rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.35rem 0.85rem;
+		font-size: 0.9rem;
+		color: var(--muted);
+	}
+
+	.post-count {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.count-icon {
+		width: 0.9rem;
+		height: 0.9rem;
+		flex: none;
+		fill: currentColor;
+		opacity: 0.75;
+	}
+
+	.tnum {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.post-read {
+		margin-left: auto;
+		color: var(--ink);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		transition: transform 150ms ease-out;
+	}
+
+	.post-read:active {
+		transform: scale(0.98);
+	}
+
+	/* ---------- Article card ---------- */
+
 	.media-card {
-		margin: 0.75rem 0 0;
+		flex: 1;
 		border: 1px solid var(--line);
 		border-radius: 10px;
 		background: var(--surface);
 		padding: 1.5rem;
-	}
-
-	/*
-	 * Line breaks are part of what the person wrote, so the fallback keeps them
-	 * rather than collapsing the post into one paragraph. X replaces this whole
-	 * blockquote when its script arrives, so this only styles the fallback.
-	 */
-	.media-quote {
-		margin: 0;
-		white-space: pre-wrap;
 	}
 
 	.media-headline {
