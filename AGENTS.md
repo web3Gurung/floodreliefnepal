@@ -272,5 +272,6 @@ npm run build
 npm run preview
 npm run preview:worker
 npm run index:donations
+npm run index:posts
 npm run deploy
 ```

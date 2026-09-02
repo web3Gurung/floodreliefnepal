@@ -506,6 +506,8 @@ export const zh = {
 			articleLabel: '新闻报道',
 			openPost: '在 X 打开帖文',
 			openArticle: '阅读文章',
+			likeLabel: '次点赞',
+			replyLabel: '条回复',
 		},
 		steward: [
 			'这个地址由 Engage Nepal 持有。它是在美国按 501(c)(3) 注册的慈善机构。',

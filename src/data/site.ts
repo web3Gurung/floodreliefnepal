@@ -717,6 +717,8 @@ export const en = {
 			articleLabel: 'News article',
 			openPost: 'Open the post on X',
 			openArticle: 'Read the article',
+			likeLabel: 'likes',
+			replyLabel: 'replies',
 		},
 		steward: [
 			'Engage Nepal holds this address, a US 501(c)(3), and sends what arrives to the Prime Minister Disaster Relief Fund.',

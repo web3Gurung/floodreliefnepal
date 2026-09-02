@@ -134,6 +134,9 @@ Six steps, two rows of three. Real gaps, not a 1px bento. A muted SVG arrow betw
 **Merge**
 The signature visual on `/transparency`. SVG, two layouts (wide and stacked), no client island. Ribbon width follows USD share. Accent weights by token. Empty reserved slot for the onward transfer stays visible at low opacity. Travelling dots are SMIL `animateMotion`, about three seconds on first load, then stop. `prefers-reduced-motion` shows resting dots only.
 
+**Post card (`/transparency`, "Watched from outside")**
+Ours, not an embed. The site loads no third party script and makes no third party request, and this section is the one that used to. It borrows X's proportions so a reader recognises what it is, but not X's typeface: 40px avatar with the `.photo` hairline, name at medium weight, X's blue check where `media.ts` records that X showed one, X's mark top right, handle and counts muted. Body clamped to four lines, visual only, full text stays in the DOM. A post's own image only, 8px radius, never the image of a post it quotes. Avatar, name and handle are one link to the post. No eyebrow: the avatar, handle and X mark already say what it is. Footer pinned with `margin-top: auto` so dates line up across a row. Likes and replies are frozen on the day `media.ts` says they were fetched. No bookmark or repost count: X does not publish one.
+
 **Mosaic**
 One tile per donation, oldest first, area from USD, 44px floor. Colour follows route/token weight, not amount. Each tile is an ordinary link. Hover opacity 0.72 on fine pointers. Active `scale(0.97)`.
 
