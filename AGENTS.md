@@ -91,6 +91,11 @@ indexer that cannot run.
 - The three secrets are pushed with `npx wrangler secret put`: `ETHERSCAN_API_KEY`,
   `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. They live only in the Cloudflare account
   and never in the repo. `npx wrangler secret list` shows the names.
+- `keep_vars: true` must stay in `wrangler.jsonc`. Wrangler treats that file as the
+  source of truth for a Worker's variables and deletes anything it does not find
+  there, which is what wiped the three secrets on the deploy of 1 September. The
+  flag is the only thing standing between a routine merge and an indexer that
+  cannot authenticate. Do not remove it.
 
 To deploy by hand from a machine that is logged in:
 

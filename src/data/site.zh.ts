@@ -370,7 +370,7 @@ export const zh = {
 	},
 	footer: {
 		lastChecked: '最近核对',
-		lastCheckedDate: '2026年8月28日',
+		lastCheckedDate: '2026年9月2日',
 		independent: '独立指南。不是政府网站。',
 		contribute: {
 			before: '',
@@ -385,6 +385,18 @@ export const zh = {
 			after: ' 制作。',
 		},
 		changelog: [
+			{
+				date: '2026年9月2日',
+				note: '透明度页面现在实时读取链上数据，时间以尼泊尔时间显示，并列出项目之外的报道。',
+			},
+			{
+				date: '2026年9月1日',
+				note: '增加了透明度页面（仅英文和尼泊尔文），对照公开记录报告加密捐赠募集情况。',
+			},
+			{
+				date: '2026年9月1日',
+				note: '增加了合并图示、六个步骤的流程、捐赠明细表和马赛克图。',
+			},
 			{
 				date: '2026年8月29日',
 				note: '在 /zh/ 增加了简体中文版。',

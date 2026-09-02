@@ -21,9 +21,9 @@ export const site = {
 		ronak: 'https://x.com/Ronak0010',
 		ayushman: 'https://x.com/gurungbuilds',
 	},
-	lastChecked: '28 August 2026',
+	lastChecked: '2 September 2026',
 	/** ISO form of lastChecked, for structured data. Keep the two in sync. */
-	lastCheckedIso: '2026-08-28',
+	lastCheckedIso: '2026-09-02',
 	official: {
 		pmdrf: 'https://pmdrf.nchl.com.np/',
 		himalayan: 'https://pmrelieffund.himalayanbank.com/',
@@ -217,6 +217,18 @@ export const sources = [
 
 /** Newest first. The footer shows the three most recent entries. */
 export const changelog = [
+	{
+		date: '2 September 2026',
+		note: 'The transparency page now reads the chain live, shows times in Nepal time, and lists coverage from outside the project.',
+	},
+	{
+		date: '1 September 2026',
+		note: 'Added the transparency page at /transparency and /np/transparency, reporting the crypto donation drive against the public record.',
+	},
+	{
+		date: '1 September 2026',
+		note: 'Added the merge visualisation, the six step pipeline, the donations table and the mosaic.',
+	},
 	{
 		date: '29 August 2026',
 		note: 'Added a Chinese version at /zh/.',
