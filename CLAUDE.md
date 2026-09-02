@@ -12,8 +12,12 @@ That last sentence and the transparency page disagree, and the disagreement is o
 on purpose. See the note at the top of `AGENTS.md`. Do not resolve it by editing the
 homepage copy or the private collection warnings.
 
-The guide is at `/`, `/np/` and `/zh/`. The transparency page is at `/transparency`
-and `/np/transparency`, in English and Nepali only, on purpose.
+The guide is at `/`, `/np/` and `/zh/`. The transparency page is at `/transparency`,
+`/np/transparency`, and `/zh/transparency`. The Chinese came from an outside
+contributor and nobody here reads it well enough to check a page about money.
+Figures, the address, hashes and Etherscan links are generated and identical in all
+three languages. Chinese prose in `src/data/site.zh.ts` wants a Chinese reader
+before it ships. See `AGENTS.md`.
 
 Cash: `https://pmdrf.nchl.com.np/` (card, Fonepay/UPI, NepalPAY/Alipay+). Second government gateway, quotes in USD: `https://pmrelieffund.himalayanbank.com/`. SWIFT table is on the Wise/Remitly panel, sourced from the Nepal Embassy, India post. Alipay+ apps that can scan NepalPAY QR come from NCHL: `https://nchl.com.np/alipay-mobile-payments-partner/`.
 

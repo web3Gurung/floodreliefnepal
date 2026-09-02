@@ -5,7 +5,7 @@ import Mosaic from './Mosaic.astro';
 import Pipeline from './Pipeline.astro';
 import ledger from '../data/ledger.json';
 import { receiving, site } from '../data/site';
-import { copyForPath, fill, langFromPath, splitBy } from '../data/copy';
+import { copyForPath, dateLocaleFor, fill, langFromPath, splitBy } from '../data/copy';
 
 const lang = langFromPath(Astro.url.pathname);
 const copy = copyForPath(Astro.url.pathname).transparency;
@@ -34,7 +34,7 @@ if (ledger.address.toLowerCase() !== receiving.address.toLowerCase()) {
  */
 const NEPAL_TIME = 'Asia/Kathmandu';
 
-const dateLocale = lang === 'ne' ? 'ne-NP-u-nu-latn' : 'en-GB';
+const dateLocale = dateLocaleFor(lang);
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const count = new Intl.NumberFormat('en-US');
 const shortDate = new Intl.DateTimeFormat(dateLocale, {

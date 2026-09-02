@@ -13,7 +13,7 @@ It does not collect donations. It lists where to send money, where to drop suppl
 
 ## Stack
 
-Astro (static HTML) and Tailwind CSS v4. Light mode only. Outfit for type. Cloudflare Worker with static assets. Build command `npx astro build`, output directory `dist`. CSS is inlined. Hashed `/_astro/` files cache for a year via `public/_headers`. Site routes stay the same (`/`, `/np/`, `/zh/`, `/transparency`, `/np/transparency`, custom `404.html`). This is not an SPA.
+Astro (static HTML) and Tailwind CSS v4. Light mode only. Outfit for type. Cloudflare Worker with static assets. Build command `npx astro build`, output directory `dist`. CSS is inlined. Hashed `/_astro/` files cache for a year via `public/_headers`. Site routes stay the same (`/`, `/np/`, `/zh/`, `/transparency`, `/np/transparency`, `/zh/transparency`, custom `404.html`). This is not an SPA.
 
 The Worker also answers `GET /api/ledger` and runs the donation indexer on a cron.
 
