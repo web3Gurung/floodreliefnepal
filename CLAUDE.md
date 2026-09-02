@@ -29,6 +29,17 @@ confidence a row stays unpriced, out of the total, and counted on the page.
 Merging to `main` deploys the site and the Worker together. The KV namespace id must
 be committed and the three secrets pushed before a Worker change merges.
 
+The cron interval is a KV write budget, not a freshness judgement. The free plan
+allows 1,000 writes a day, resetting at 00:00 UTC, and a run costs two before it
+stores anything plus at most one for the ledger however many donations it found.
+Ten minutes is 432 writes in the worst case. Reads have never been close.
+The interval is one setting in three files and they must move together:
+`triggers.crons` in `wrangler.jsonc`, `REFRESH_MIN_INTERVAL_MS` and
+`REFRESH_STALE_AFTER_MS` in `worker/index.ts`, `REFRESH_EVERY_MINUTES` in
+`Transparency.astro`. See `AGENTS.md`. The KV payload carries `recent` only,
+never every donation: Supabase is the full record, KV is a cache of what the
+page shows.
+
 Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Posts and news on the transparency page: `src/data/media.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
 
 Post counts on `/transparency`: `npm run index:posts` refetches likes, replies and

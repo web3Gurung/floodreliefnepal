@@ -36,11 +36,29 @@
 		}
 	],
 
-	// Every 60 seconds. Ethereum blocks are 12 seconds and the free Etherscan
-	// quota is 100,000 calls a day, so anything faster spends quota for no
-	// freshness.
+	// Every ten minutes, and the number is set by KV writes, not by Etherscan.
+	// Etherscan's free quota is 100,000 calls a day and was never the binding
+	// constraint; the KV free plan allows 1,000 writes a day, resetting at
+	// 00:00 UTC, and a run costs two of them before it writes anything (the
+	// `last-run` lock, then `last-ok`). At one tick a minute that is 2,880
+	// writes and the namespace stops accepting them before nine in the morning,
+	// which is what happened on 2 September: 1,781 writes against a cap of
+	// 1,000 while reads sat at 1,431 against a cap of 100,000.
+	//
+	// 144 ticks a day is 288 writes, and the ledger write is one per run at
+	// most however many donations that run finds, so the true ceiling is 432 on
+	// a day busy enough that every single tick has something new to store. That
+	// is 43% of the cap in the worst case and about 34% on a quiet day. Four
+	// minutes was the first fix and it does not survive its own worst case:
+	// 360 ticks writing the ledger every time is 1,080.
+	//
+	// Anything changed here has to move REFRESH_STALE_AFTER_MS and
+	// REFRESH_MIN_INTERVAL_MS in worker/index.ts with it, and the cadence in
+	// the freshness line on the transparency page. Both of those constants are
+	// sized against this interval, and a mismatch quietly hands the writes back
+	// to readers and to the outside scheduler.
 	"triggers": {
-		"crons": ["* * * * *"]
+		"crons": ["*/10 * * * *"]
 	},
 
 	// A cron that fails does so silently. This is how you find out.

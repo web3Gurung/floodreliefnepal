@@ -4,22 +4,31 @@
  * `GET /api/ledger` serves the payload. Everything else falls through to the
  * static assets Astro built.
  *
- * Three things can run the indexer, because Cloudflare's cron has never once
- * invoked this Worker. Three separate Workers on this account, one of them
- * written entirely in the dashboard, all registered a schedule that Cloudflare
- * accepted, reported back and displayed, and none of them ever fired.
+ * Three things can run the indexer. For a long time only two of them worked,
+ * because Cloudflare's cron never once invoked this Worker: three separate
+ * Workers on this account, one written entirely in the dashboard, all
+ * registered a schedule that Cloudflare accepted, reported back and displayed,
+ * and none of them ever fired. It fires now. That is good news that arrived as
+ * an outage, because the three had been sized on the assumption that the cron
+ * was dead, and the moment it woke up they added up to about 65 runs an hour
+ * and spent the KV free plan's whole daily write budget by nine in the morning.
+ * So the order below is now a hierarchy rather than three equal chances.
  *
- * 1. `POST /api/refresh`, called by an outside scheduler every five minutes.
- *    This is the floor, and it works when nobody is reading.
- * 2. A `GET /api/ledger` that finds the data older than five minutes starts a
+ * 1. The cron, every ten minutes. This is the one that runs, and the interval
+ *    is a KV write budget rather than a freshness judgement. See wrangler.jsonc.
+ * 2. `POST /api/refresh`, called by an outside scheduler every five minutes.
+ *    The standby. While the cron is healthy every POST arrives inside
+ *    REFRESH_MIN_INTERVAL_MS and is skipped for one KV read; if the cron stops
+ *    the window lapses and this picks the cadence back up within five minutes.
+ * 3. A `GET /api/ledger` that finds the data older than five minutes starts a
  *    refresh behind the response. Every page load fetches that endpoint for the
- *    freshness line, so readers keep the figures current by reading them.
- * 3. The cron, still registered and still wired up. It costs nothing to leave
- *    in place and the day Cloudflare fixes it we get the cadence back for free.
+ *    freshness line, so readers keep the figures current by reading them. A
+ *    ten-minute cron keeps the data inside that window, so this too now costs
+ *    nothing until both of the others are gone.
  *
- * Each of the first two has a gap the other covers: the scheduler is a third
- * party that can quietly die, and traffic driven refresh does nothing at four
- * in the morning.
+ * Each covers a gap the one above it has: the cron was dead for months without
+ * saying so, the scheduler is a third party that can quietly die, and traffic
+ * driven refresh does nothing at four in the morning.
  *
  * The frontend never calls Etherscan. The keys stay here, the page loads from a
  * cached blob, and a traffic spike costs nothing.
@@ -67,11 +76,31 @@ const LAST_RUN_KEY = 'last-run';
  */
 const LAST_OK_KEY = 'last-ok';
 
-/** A caller may not force a run more often than this. */
-const REFRESH_MIN_INTERVAL_MS = 30 * 1000;
+/**
+ * A caller may not force a run more often than this.
+ *
+ * Set just under the cron's ten minutes, which turns the outside scheduler
+ * from a second cron into a standby. At thirty seconds its five-minute POST
+ * almost always fell outside the window and did the work again, so the two
+ * schedules added up and together they cost more KV writes a day than the free
+ * plan allows. Now, while the cron is firing, every POST lands inside the
+ * window and is skipped for the price of one KV read. If the cron stops, the
+ * window lapses and the next POST runs, so the floor is still a floor and it
+ * comes back within five minutes.
+ */
+const REFRESH_MIN_INTERVAL_MS = 9 * 60 * 1000;
 
-/** Older than this and the next reader's request starts a refresh behind it. */
-const REFRESH_STALE_AFTER_MS = 5 * 60 * 1000;
+/**
+ * Older than this and the next reader's request starts a refresh behind it.
+ *
+ * Must stay comfortably above the cron interval or it inverts: at five minutes
+ * against a ten minute cron, `last-run` is stale for most of every cycle and
+ * ordinary page loads start firing their own runs at two KV writes each, which
+ * would put the write budget straight back over the free plan's daily cap. At
+ * fifteen it only fires once the cron has missed about one and a half ticks,
+ * which is the case it exists for.
+ */
+const REFRESH_STALE_AFTER_MS = 15 * 60 * 1000;
 
 /**
  * Longest the stored payload may claim to be, while the cron is healthy.
@@ -316,9 +345,9 @@ export default {
 	},
 
 	/**
-	 * Still here, still registered in wrangler.jsonc, and it has never once been
-	 * invoked. Left in place because it costs nothing and the day Cloudflare
-	 * starts firing it we get the cadence back with no change.
+	 * The primary. Registered in wrangler.jsonc, dead for months, and firing
+	 * again since early September, which is why the other two callers are now
+	 * gated behind intervals wide enough to stay out of its way.
 	 */
 	async scheduled(_event: ScheduledController, env: WorkerEnv, ctx: ExecutionContext): Promise<void> {
 		// A failed tick leaves the previous payload in place. Serving the last
