@@ -593,7 +593,7 @@ export const en = {
 			donationsOne: 'donation',
 			donationsMany: 'donations',
 			updated: 'This page last read the chain on {when}.',
-			updatedAgo: 'This page last read the chain {ago}.',
+			updatedAgo: 'This page last read the chain {ago} · updates every {every} minutes',
 			ago: {
 				template: '{value} {unit} ago',
 				lessThanAMinute: 'less than a minute ago',

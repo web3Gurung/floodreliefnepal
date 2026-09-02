@@ -98,8 +98,19 @@ export type LedgerPayload = {
 		usd_sent_onward: number;
 	};
 	by_token: LedgerTokenTotal[];
+	/**
+	 * The most recent RECENT_LIMIT donations, newest first, and deliberately
+	 * the only rows in the payload.
+	 *
+	 * This used to sit beside an `all` holding every donation ever. The page
+	 * never rendered it; it read `all.length` for one count that
+	 * `totals.donation_count` already gives. Meanwhile the blob is what goes
+	 * into KV, at roughly 630 bytes a donation, and KV caps a value at 25 MB.
+	 * Carrying `all` made the cache grow without bound to answer a question it
+	 * was already answering. Supabase `inflows` is the full record, and it
+	 * stays the full record.
+	 */
 	recent: LedgerEntry[];
-	all: LedgerEntry[];
 };
 
 export type IndexerStats = {
@@ -604,7 +615,10 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 			});
 		}
 
-		const entries: LedgerEntry[] = rows.map((row) => ({
+		// Only the tail is mapped. The payload never carries more than
+		// RECENT_LIMIT rows, so the work and the blob are both flat in the
+		// number of donations.
+		const entries: LedgerEntry[] = rows.slice(-RECENT_LIMIT).map((row) => ({
 			tx_hash: row.tx_hash,
 			// Postgres hands back +00:00, the payload uses Z throughout.
 			block_time: new Date(row.block_time).toISOString(),
@@ -635,8 +649,7 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 				usd_sent_onward: 0,
 			},
 			by_token: byToken,
-			recent: entries.slice(-RECENT_LIMIT).reverse(),
-			all: entries,
+			recent: entries.reverse(),
 		};
 	}
 

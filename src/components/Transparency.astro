@@ -11,7 +11,7 @@ const lang = langFromPath(Astro.url.pathname);
 const copy = copyForPath(Astro.url.pathname).transparency;
 const ui = copyForPath(Astro.url.pathname).ui;
 
-const { totals, recent, all, updated_at: updatedAt } = ledger;
+const { totals, recent, updated_at: updatedAt } = ledger;
 
 // The figures describe one address. Fail the build rather than publish numbers
 // under an address they do not belong to.
@@ -117,7 +117,24 @@ if (totals.excluded_count > 0) {
 /** Past this, the feed is described as behind rather than merely timestamped. */
 const STALE_AFTER_HOURS = 6;
 
-const trimmed = all.length > recent.length;
+/**
+ * How often the Worker's cron reads the chain, stated on the page so a reader
+ * knows when to look again rather than being handed a countdown the page
+ * cannot keep. The cron has been dead for months at a time without saying so;
+ * a clock ticking down to an update that is never coming would be a worse lie
+ * than a timestamp going quietly stale. This is a policy, the `ago` beside it
+ * is an observation, and only one of them can be wrong.
+ *
+ * Must match `triggers.crons` in wrangler.jsonc.
+ */
+const REFRESH_EVERY_MINUTES = 10;
+
+/**
+ * The table shows the most recent rows and the payload now carries only those,
+ * so the full count comes from the totals rather than from a second copy of
+ * every donation. See `recent` in worker/indexer.ts.
+ */
+const trimmed = totals.donation_count > recent.length;
 const addressUrl = `${receiving.explorer}/address/${ledger.address}`;
 const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 const orgName = lang === 'ne' ? 'एन्गेज नेपाल' : 'Engage Nepal';
@@ -179,6 +196,7 @@ const steward = copy.steward.join(' ');
 						data-built={updatedAt}
 						data-locale={dateLocale}
 						data-stale-hours={STALE_AFTER_HOURS}
+						data-every-minutes={REFRESH_EVERY_MINUTES}
 						data-built-label={`${stamp(updatedAt, longDate)} ${ui.nepalTime}`}
 						data-tpl-ago={copy.total.updatedAgo}
 						data-tpl-behind={copy.total.feedBehind}
@@ -280,7 +298,7 @@ const steward = copy.steward.join(' ');
 				<h2 class="chapter-title max-w-none">{copy.table.heading}</h2>
 				<p class="quiet mt-0 mb-8" data-ledger-note>
 					{trimmed
-						? `${fill(copy.table.note, { shown: count.format(recent.length), total: donations(all.length) })} ${copy.table.timesNote}`
+						? `${fill(copy.table.note, { shown: count.format(recent.length), total: donations(totals.donation_count) })} ${copy.table.timesNote}`
 						: copy.table.timesNote}
 				</p>
 
@@ -594,13 +612,14 @@ const steward = copy.steward.join(' ');
 				renderRows(feed.recent);
 
 				var note = document.querySelector('[data-ledger-note]');
-				if (note && feed.all) {
-					var shown = Math.min(feed.recent ? feed.recent.length : 0, feed.all.length);
+				if (note && feed.totals) {
+					var known = feed.totals.donation_count;
+					var shown = Math.min(feed.recent ? feed.recent.length : 0, known);
 					note.textContent =
-						shown < feed.all.length
+						shown < known
 							? fill(cfg.tableNote, {
 									shown: String(shown),
-									total: donations(feed.all.length),
+									total: donations(known),
 								}) +
 								' ' +
 								cfg.timesNote
@@ -627,7 +646,10 @@ const steward = copy.steward.join(' ');
 					return;
 				}
 
-				line.textContent = fill(box.dataset.tplAgo, { ago: ago(read) });
+				line.textContent = fill(box.dataset.tplAgo, {
+					ago: ago(read),
+					every: box.dataset.everyMinutes,
+				});
 			})
 			.catch(function () {
 				// Nothing was replaced, so the page is still showing the baked

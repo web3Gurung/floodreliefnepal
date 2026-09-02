@@ -119,28 +119,45 @@ Locally the Worker runs through
 `.env.local` and simulates KV. Visiting `/__scheduled` fires the cron by hand when
 started with `--test-scheduled`.
 
-### The cron does not fire, so three things can run the indexer
+### Three things can run the indexer, and now only one of them usually does
 
-Cloudflare's Cron Trigger has never invoked this Worker. Three separate Workers
-on this account registered a `* * * * *` schedule that Cloudflare accepted,
-reported back through its own API and displayed in the dashboard, and none of
-them ever fired. One of those three was written entirely in the dashboard editor,
-so it is not our code and not our tooling.
+Cloudflare's Cron Trigger did not invoke this Worker for months. Three separate
+Workers on this account registered a `* * * * *` schedule that Cloudflare
+accepted, reported back through its own API and displayed in the dashboard, and
+none of them ever fired. One of those three was written entirely in the
+dashboard editor, so it was not our code and not our tooling.
 
-The indexer therefore has three ways to run, and the cron is the least of them.
+It fires now, and it arrived as an outage rather than as good news. All three
+callers had been sized on the assumption that the cron was dead, so the moment
+it woke up they stacked: about 65 runs an hour, which spent the whole KV daily
+write budget before nine in the morning. See the write budget below. The three
+are now a hierarchy rather than three equal chances.
 
-- **`POST /api/refresh`**, every five minutes from an outside scheduler. This is
-  the floor and it works when nobody is reading. It needs the `REFRESH_TOKEN`
-  secret in an `x-refresh-token` header, refuses `GET` outright, compares the
-  token in constant time, refuses a second run within thirty seconds, and fails
-  closed with a 503 if the secret is missing.
-- **Traffic.** A `GET /api/ledger` that finds the last run older than five
-  minutes starts a refresh behind the response. Every page load hits that
-  endpoint for the freshness line, so readers keep the figures current by
-  reading them. The response is not held up: it is served in about four
-  milliseconds while the refresh runs in `waitUntil`.
-- **The cron**, still registered and still wired to the same code, so the day
-  Cloudflare starts firing it we get the cadence back with no change.
+- **The cron**, every ten minutes. This is the one that runs. The interval is a
+  KV write budget, not a freshness judgement.
+- **`POST /api/refresh`**, every five minutes from an outside scheduler. The
+  standby. While the cron is healthy every POST lands inside
+  `REFRESH_MIN_INTERVAL_MS` and is skipped for the price of one KV read; if the
+  cron stops the window lapses and this picks the cadence back up within five
+  minutes. It needs the `REFRESH_TOKEN` secret in an `x-refresh-token` header,
+  refuses `GET` outright, compares the token in constant time, and fails closed
+  with a 503 if the secret is missing. A skipped tick answers 200, because
+  schedulers disable a job that keeps returning errors.
+- **Traffic.** A `GET /api/ledger` that finds the last run older than
+  `REFRESH_STALE_AFTER_MS` starts a refresh behind the response. Every page load
+  hits that endpoint for the freshness line, so readers keep the figures current
+  by reading them. The response is not held up: it is served in about four
+  milliseconds while the refresh runs in `waitUntil`. A healthy ten-minute cron
+  keeps the data inside that window, so this now costs nothing until the first
+  two are gone.
+
+**The three intervals are one setting in three files.** `triggers.crons` in
+`wrangler.jsonc`, `REFRESH_MIN_INTERVAL_MS` and `REFRESH_STALE_AFTER_MS` in
+`worker/index.ts`, and `REFRESH_EVERY_MINUTES` in `Transparency.astro`. Change
+one and you must change all four. The failure is silent in both directions: a
+stale window shorter than the cron interval hands the writes back to readers,
+and a refresh window shorter than the scheduler's five minutes turns the standby
+back into a second cron.
 
 `last-run` in KV is written before each run, not after, so a run that dies still
 holds the others off. It rate limits the endpoint and gates the traffic path. It
@@ -148,6 +165,41 @@ does not stop a stampede on its own: three concurrent readers all read the old
 value before any writes the new one, which is exactly what happened in testing.
 An in-isolate promise handle collapses a burst into one run. Two isolates in two
 locations can still race, and that is fine, because the indexer is idempotent.
+
+### The KV write budget is what sets the cadence
+
+The Workers free plan allows **1,000 KV writes a day**, resetting at 00:00 UTC,
+against 100,000 reads. Reads have never been close: on 2 September the namespace
+took 1,431 of them. Writes on that same day hit **1,781 against a cap of 1,000**
+and the Worker started throwing, which is the outage that produced this section.
+
+A run costs **two writes before it stores anything**: `last-run` to claim the
+lock, then `last-ok` once the chain has actually been read. It costs a third
+when it writes the ledger, and that write is **one per run however many
+donations that run found**, because the payload goes into KV as a single blob.
+So the ceiling is three writes a run and the floor is two.
+
+At ten minutes that is 144 runs a day: 288 writes on a quiet day, 432 on a day
+busy enough that every single tick has something new. **43% of the cap in the
+worst case.** Four minutes was the first fix and it does not survive its own
+worst case, at 1,080.
+
+The rule for changing the interval: multiply runs per day by three and stay
+under 950. Do not reason from Etherscan's quota, which is 100,000 calls a day
+and has never been the binding constraint.
+
+### The payload carries fifty rows, not every donation
+
+`recent` holds the most recent `RECENT_LIMIT` donations and is the only list in
+the payload. It used to sit beside an `all` carrying every donation ever, which
+the page never rendered: it read `all.length` for one count that
+`totals.donation_count` already gives.
+
+That mattered because the payload is what goes into KV, at roughly 630 bytes a
+donation against a 25 MB cap on a single KV value, so the cache grew without
+bound to answer a question it was already answering. Supabase `inflows` is the
+full record and stays the full record; KV is a cache of what the page shows.
+Anything that needs every donation reads the database, not the payload.
 
 ### The page updates itself
 

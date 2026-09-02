@@ -387,7 +387,7 @@ export const np = {
 			donationsOne: 'सहयोग',
 			donationsMany: 'सहयोग',
 			updated: 'यो पृष्ठले चेन अन्तिम पटक {when}मा पढेको हो।',
-			updatedAgo: 'यो पृष्ठले चेन {ago} पढेको हो।',
+			updatedAgo: 'यो पृष्ठले चेन {ago} पढेको हो · हरेक {every} मिनेटमा अद्यावधिक हुन्छ',
 			ago: {
 				template: '{value} {unit} पहिले',
 				lessThanAMinute: 'एक मिनेटभन्दा कम पहिले',
