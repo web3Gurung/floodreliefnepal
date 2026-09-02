@@ -29,7 +29,14 @@ confidence a row stays unpriced, out of the total, and counted on the page.
 Merging to `main` deploys the site and the Worker together. The KV namespace id must
 be committed and the three secrets pushed before a Worker change merges.
 
-Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
+Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Posts and news on the transparency page: `src/data/media.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
+
+Post counts on `/transparency`: `npm run index:posts` refetches likes, replies and
+the verification flag from X's public syndication endpoint, no credential needed.
+Unlike the ledger it does not write the file, because `media.ts` also holds
+verbatim quotes and hand written alt text. It prints what moved; edit `media.ts`
+by hand and move `countsAsOf` with the numbers. Never paraphrase a quote and never
+invent an entry. A post's own image only, never the post it quotes.
 
 The receiving address for the crypto drive is verified and lives in `receiving` in
 `src/data/site.ts`. Do not add other bank account numbers or QR codes until a
@@ -37,9 +44,9 @@ teammate PR brings verified details.
 
 Official outbound links open in a new tab. Yellow marker is only for the named high-stakes phrases in `AGENTS.md`. Recalculate the dollar conversion of the fund total from the NRB USD buying rate on the amount's `asOf` date.
 
-Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP. Portal QR shots: `<Picture />` with WebP plus a high-quality JPEG fallback. `npm run build` (`astro build`) emits the resized files into `dist/_astro/`. Do not hand-convert, do not commit `dist/`, and do not add AP, Reuters, AFP, or Getty photos. Do not host extra bank QRs or embassy tweet photos. Share image is `public/og.png` (1200x630). Title on one line, button "See how to donate". Rebuild it in HTML, not with an image model.
+Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP. Portal QR shots: `<Picture />` with WebP plus a high-quality JPEG fallback. Post avatars and post images for `/transparency`: `src/assets/media/`, `<Picture />` with WebP plus a PNG or JPEG fallback. `npm run build` (`astro build`) emits the resized files into `dist/_astro/`. Do not hand-convert, do not commit `dist/`, and do not add AP, Reuters, AFP, or Getty photos. Do not host extra bank QRs or embassy tweet photos. The two graphics in `src/assets/media/` are the exception and the only one: they are a post's own attached image, committed so the page can show it without an embed. Never the image of a post it quotes. Share image is `public/og.png` (1200x630). Title on one line, button "See how to donate". Rebuild it in HTML, not with an image model.
 
-CSS is inlined (`build.inlineStylesheets: 'always'`). Do not split it back out. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the short cache so a deploy still shows up. Compression is Cloudflare. Do not gzip files in the repo. Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo.
+CSS is inlined (`build.inlineStylesheets: 'always'`). Do not split it back out. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the short cache so a deploy still shows up. Compression is Cloudflare. Do not gzip files in the repo. The site loads no third party script and makes no third party request. The X embeds on `/transparency` were the last one, and `Media.astro` replaced them. Do not add one back. Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo.
 
 Deploy as Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com`. Merging to `main` deploys: the Cloudflare git build runs `astro build` then `wrangler deploy`, so the site and the Worker go out together. Other branches upload a preview version with `wrangler versions upload` and do not touch production. That needs **Builds for non-production branches** in the Worker dashboard (Settings, Build, Branch control) and `preview_urls: true` in `wrangler.jsonc`. The stable preview is `https://<branch>-floodreliefnepal.gurungbuilds.workers.dev`. Keep the Wrangler `name` as `floodreliefnepal`. `dist/` is gitignored build output. `npm run deploy` builds then `wrangler deploy`. The Worker script is `worker/index.ts`, its cron and KV binding are in `wrangler.jsonc`, and its three secrets live only in the Cloudflare account. Secrets: `wrangler secret put`. `keep_vars: true` in `wrangler.jsonc` is what keeps them through a deploy: Wrangler treats that file as the source of truth and deletes any variable it does not find there, which is how the three keys were wiped on 1 September. Do not remove it. `www` redirects to the apex in Cloudflare, not in this repo. Do not reattach the domain to Pages.
 

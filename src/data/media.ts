@@ -94,8 +94,8 @@ export const media: readonly MediaItem[] = [
 		verified: true,
 		imageAlt:
 			'Nine numbered slots laid over the three bars of the Solana logo, on black. Captioned advertising space segmentation for Solana logo, and all proceeds to Nepal.',
-		likes: 3412,
-		replies: 830,
+		likes: 3418,
+		replies: 836,
 		countsAsOf: '2026-09-02',
 	},
 	{
@@ -111,7 +111,7 @@ export const media: readonly MediaItem[] = [
 		verified: true,
 		imageAlt:
 			'A Solana and Superteam graphic reading support the Nepal relief fund, with $127,777.44 raised and the auction ending in 20 hours 50 minutes. Powered by mallow.',
-		likes: 74,
+		likes: 75,
 		replies: 8,
 		countsAsOf: '2026-09-02',
 	},
@@ -126,7 +126,7 @@ export const media: readonly MediaItem[] = [
 		postUrl: 'https://x.com/Ronak0010/status/2094796825693683811',
 		assetKey: 'ronak0010',
 		verified: true,
-		likes: 132,
+		likes: 133,
 		replies: 12,
 		countsAsOf: '2026-09-02',
 	},
@@ -141,7 +141,7 @@ export const media: readonly MediaItem[] = [
 		postUrl: 'https://x.com/nirajbhusal/status/2094797732410228967',
 		assetKey: 'nirajbhusal',
 		verified: true,
-		likes: 84,
+		likes: 85,
 		replies: 8,
 		countsAsOf: '2026-09-02',
 	},

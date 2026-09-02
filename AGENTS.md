@@ -50,7 +50,7 @@ donation count, anything excluded from the total, a table of donations linking e
 one to Etherscan, the merge visualisation, the mosaic, the six step pipeline
 explainer, and posts and headlines from outside the project.
 
-All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Simplified Chinese copy is `src/data/site.zh.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`, and `{name}` slots use `fill` in the same file. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. Change `swiftAccounts` only when a teammate PR lands verified figures. The receiving address in `receiving` is verified and may stay.
+All URLs, hub names, phones, source links, SWIFT rows, and most copy live in `src/data/site.ts`. Nepali copy is `src/data/site.np.ts`. Simplified Chinese copy is `src/data/site.zh.ts`. Posts and news headlines on the transparency page live in `src/data/media.ts`. Phrase highlighting uses `splitBy` in `src/data/copy.ts`, and `{name}` slots use `fill` in the same file. Edit those files to change content. Do not invent account numbers, extra QR codes, or SWIFT rows. Do not host embassy tweet photos or bank QRs from the PMO PDF. A post's own attached image in `src/assets/media/` is the one exception, and never the image of a post it quotes. Change `swiftAccounts` only when a teammate PR lands verified figures. The receiving address in `receiving` is verified and may stay.
 
 Pages:
 
@@ -214,6 +214,33 @@ Rules for anything that touches these figures:
 - The `route` column stays in the database and reaches neither the payload nor
   the page. A smart contract wallet is also a contract, so that label cannot
   carry a public claim about how someone gave.
+
+## Posts and news on the transparency page
+
+`src/data/media.ts` holds the posts and headlines in "Watched from outside". It
+is hand maintained, which is the opposite of `ledger.json`, because it carries
+verbatim quotes and hand written alt text that no script should overwrite.
+
+`npm run index:posts` refetches likes, replies and the verification flag from X's
+public syndication endpoint. No credential. It prints what moved and writes
+nothing. Edit `media.ts` yourself and move `countsAsOf` with the numbers, or the
+page starts asserting a figure it cannot date.
+
+Nothing here is an embed. `Media.astro` renders our own card, so the site loads no
+third party script. Rules that keep it honest:
+
+- A post's own attached image only. Never the image of a post it quotes, and never
+  the quoted post itself. Three of the four posts quote the same Solana post, and
+  rendering it put the same graphic on the page four times.
+- Quotes are verbatim and never translated. `lang` tells a screen reader which
+  voice to use.
+- `verified` records what X displayed when the entry was fetched. It is not us
+  vouching for an account.
+- Counts show only where `countsAsOf` says when they were true. X publishes likes
+  and replies on that endpoint and nothing else, so there is no bookmark, repost
+  or view count to add.
+- Never invent an entry. Fabricated coverage would be the one thing on this page
+  that is not checkable.
 
 ## Tech stack
 
