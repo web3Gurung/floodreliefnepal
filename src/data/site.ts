@@ -218,6 +218,10 @@ export const sources = [
 export const changelog = [
 	{
 		date: '2 September 2026',
+		note: 'Added a Simplified Chinese transparency page at /zh/transparency. The figures, the address and the Etherscan links are the same on all three.',
+	},
+	{
+		date: '2 September 2026',
 		note: 'The transparency page now reads the chain live, shows times in Nepal time, and lists coverage from outside the project.',
 	},
 	{

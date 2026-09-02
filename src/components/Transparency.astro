@@ -22,9 +22,10 @@ if (ledger.address.toLowerCase() !== receiving.address.toLowerCase()) {
 }
 
 /**
- * Numerals stay Latin in both languages. A reader checks these figures against
- * Etherscan, which prints Latin numerals, so a total in Devanagari would be
- * harder to compare. Month names still translate.
+ * Numerals stay Latin in all three languages. A reader checks these figures
+ * against Etherscan, which prints Latin numerals, so a total in Devanagari or in
+ * Chinese numerals would be harder to compare. `dateLocaleFor` pins the numbering
+ * system for Nepali and Chinese. Month names still translate.
  */
 /**
  * The page is for Nepal, so times are Nepal time. Every rendered timestamp
