@@ -4,13 +4,12 @@
  * transparency page reaches the English transparency page rather than the
  * homepage.
  *
- * The guide exists in three languages. The transparency page exists in two, and
- * deliberately offers no Chinese rather than machine translating a page about
- * money into a language nobody on the team reads.
+ * The guide and the transparency page both exist in English, Nepali, and
+ * Simplified Chinese.
  */
 export const routes = {
 	home: { en: '/', ne: '/np/', zh: '/zh/' },
-	transparency: { en: '/transparency', ne: '/np/transparency' },
+	transparency: { en: '/transparency', ne: '/np/transparency', zh: '/zh/transparency' },
 } as const;
 
 export const site = {

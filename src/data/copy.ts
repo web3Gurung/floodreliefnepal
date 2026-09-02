@@ -21,6 +21,13 @@ export function copyForPath(pathname: string) {
 	return copyFor(langFromPath(pathname));
 }
 
+/** Calendar dates stay Gregorian. Numerals stay Latin so they match Etherscan. */
+export function dateLocaleFor(lang: Lang): string {
+	if (lang === 'ne') return 'ne-NP-u-nu-latn';
+	if (lang === 'zh') return 'zh-CN-u-nu-latn';
+	return 'en-GB';
+}
+
 /** Split copy so known names can be marked in the page without putting HTML in the strings. */
 export function splitBy(text: string, needles: readonly string[]) {
 	const pattern = new RegExp(

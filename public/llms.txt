@@ -19,6 +19,9 @@
 - [English guide](https://floodreliefnepal.com/): donation channels (UPI, Alipay+, card, SWIFT), supply drop-off hubs, scam checks, FAQ, sources.
 - [Nepali guide](https://floodreliefnepal.com/np/): the same content in Nepali.
 - [Chinese guide](https://floodreliefnepal.com/zh/): the same content in Simplified Chinese.
+- [English transparency](https://floodreliefnepal.com/transparency/): crypto donations to Nepal Relief, totals, and Etherscan links.
+- [Nepali transparency](https://floodreliefnepal.com/np/transparency/): the same ledger in Nepali.
+- [Chinese transparency](https://floodreliefnepal.com/zh/transparency/): the same ledger in Simplified Chinese.
 
 ## Sources
 

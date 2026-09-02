@@ -46,7 +46,7 @@ Shadow is a hairline, not a drop: `--shadow-border` (1px ring plus a 1–2px whi
 - **Nepali:** Noto Sans Devanagari, 400 / 500, on `html.lang-np`. Line-height 1.75. No letter-spacing on display sizes. Eyebrows stay sentence case. Tracking on Devanagari breaks conjuncts.
 - **Simplified Chinese:** Noto Sans SC, 400 / 500, on `html.lang-zh`. Same tracking and eyebrow rules as Nepali.
 - **Mono:** System ui-monospace stack, only for addresses, account numbers, and SWIFT codes. 0.85rem for the receiving address. `user-select: all` on copyable values.
-- **Numerals:** Latin tabular numerals in both English and Nepali wherever a figure will be checked against Etherscan or a bank table.
+- **Numerals:** Latin tabular numerals in all three languages wherever a figure will be checked against Etherscan or a bank table. `dateLocaleFor` in `src/data/copy.ts` pins the numbering system for Nepali and Chinese so a figure on the page matches the one on Etherscan character for character.
 
 Body is 1.0625rem, line-height 1.6, ink on canvas. Lede is 1.125rem, muted, max-width 38rem. Quiet captions are 0.95rem muted.
 
@@ -154,8 +154,8 @@ Do not animate keyboard-driven actions. Do not animate from `scale(0)`. Do not a
 **Homepage (`/`, `/np/`, `/zh/`)**
 Hero (centered), Situation, Policy, Give, Verify, Supplies, Questions, Share, Sources. Voice: a public guide to official channels. The one-door warning and "this site does not collect money" stay as they are until the team decides otherwise.
 
-**Transparency (`/transparency`, `/np/transparency`)**
-English and Nepali only. Headline number, merge, six-step pipeline, donations table, mosaic, verify-it-yourself, outside media. The merge is the one loud thing. Everything around it uses the quieter chapter register of the homepage. Do not restyle this page as a crypto dashboard.
+**Transparency (`/transparency`, `/np/transparency`, `/zh/transparency`)**
+English, Nepali and Simplified Chinese. Headline number, merge, six-step pipeline, donations table, mosaic, verify-it-yourself, outside media. The merge is the one loud thing. Everything around it uses the quieter chapter register of the homepage. Do not restyle this page as a crypto dashboard.
 
 Freshness copy is relative once JS can ask the feed ("This page last read the chain 4 hours ago"), so it reads the same for everyone. The absolute UTC stamp is the no-JS fallback and the line used when the feed is behind, stale, or down. Do not replace the relative line with a clock time as the happy path.
 
@@ -168,7 +168,7 @@ Freshness copy is relative once JS can ask the feed ("This page last read the ch
 - Keep the homepage hero centered, photo under the copy, on every viewport.
 - Put official outbound links in a new tab.
 - Recalculate the homepage dollar conversion from the NRB USD buying rate when the rupee total changes.
-- Write English and Nepali together for transparency strings. Chinese only exists on the guide.
+- Write English and Nepali together for transparency strings, then Chinese. Chinese prose on the transparency page wants a Chinese reader before it ships. See `AGENTS.md`.
 - Prefer a quieter line over a new component.
 
 ## Don'ts
