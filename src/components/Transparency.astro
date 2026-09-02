@@ -4,8 +4,8 @@ import Merge from './Merge.astro';
 import Mosaic from './Mosaic.astro';
 import Pipeline from './Pipeline.astro';
 import ledger from '../data/ledger.json';
-import { receiving } from '../data/site';
-import { copyForPath, fill, langFromPath } from '../data/copy';
+import { receiving, site } from '../data/site';
+import { copyForPath, fill, langFromPath, splitBy } from '../data/copy';
 
 const lang = langFromPath(Astro.url.pathname);
 const copy = copyForPath(Astro.url.pathname).transparency;
@@ -119,6 +119,8 @@ const STALE_AFTER_HOURS = 6;
 const trimmed = all.length > recent.length;
 const addressUrl = `${receiving.explorer}/address/${ledger.address}`;
 const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
+const orgName = lang === 'ne' ? 'एन्गेज नेपाल' : 'Engage Nepal';
+const steward = copy.steward.join(' ');
 ---
 
 <section class="chapter">
@@ -127,7 +129,25 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 		<h1 class="display mt-4 max-w-[18ch]">
 			{hasDonations ? copy.heading : copy.empty.heading}
 		</h1>
-		<p class="lede">{copy.lede}</p>
+		<p class="lede">
+			{
+				splitBy(copy.lede, [orgName]).map((chunk) =>
+					chunk.hit ? (
+						<a
+							class="underline"
+							href={site.official.engageNepal}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{chunk.text}
+							<span class="sr-only">, {ui.opensInNewTab}</span>
+						</a>
+					) : (
+						chunk.text
+					),
+				)
+			}
+		</p>
 
 		{
 			hasDonations ? (
@@ -203,7 +223,16 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 				<div class="card mt-14 max-w-[42rem] md:mt-16">
 					<p class="text-muted">{copy.empty.body}</p>
 					<p class="eyebrow mt-7">{fill(copy.verify.addressLabel, { chain: copy.chainName })}</p>
-					<p class="mt-2 font-mono text-[0.85rem] break-all">{ledger.address}</p>
+					<p
+						class="address-copy"
+						data-copy-text={ledger.address}
+						data-copied={copy.verify.copiedLabel}
+						data-hint={copy.verify.copyHint}
+						data-aria={copy.verify.copyAria}
+					>
+						<span class="address-copy-value">{ledger.address}</span>
+						<span class="address-copy-status" data-copy-status>{copy.verify.copyHint}</span>
+					</p>
 					<p class="mt-4">
 						<a
 							class="underline"
@@ -214,7 +243,25 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 							{copy.verify.addressLink}<span class="sr-only">, {ui.opensInNewTab}</span>
 						</a>
 					</p>
-					<p class="quiet">{copy.steward.join(' ')}</p>
+					<p class="quiet">
+						{
+							splitBy(steward, [orgName]).map((chunk) =>
+								chunk.hit ? (
+									<a
+										class="underline"
+										href={site.official.engageNepal}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{chunk.text}
+										<span class="sr-only">, {ui.opensInNewTab}</span>
+									</a>
+								) : (
+									chunk.text
+								),
+							)
+						}
+					</p>
 				</div>
 			)
 		}
@@ -229,50 +276,40 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 	hasDonations && (
 		<section class="chapter hairline">
 			<div class="wrap">
-				<h2 class="display max-w-none">{copy.table.heading}</h2>
+				<h2 class="chapter-title max-w-none">{copy.table.heading}</h2>
 				<p class="quiet mt-0 mb-8" data-ledger-note>
 					{trimmed
 						? `${fill(copy.table.note, { shown: count.format(recent.length), total: donations(all.length) })} ${copy.table.timesNote}`
 						: copy.table.timesNote}
 				</p>
 
-				<div class="overflow-x-auto">
-					<table class="w-full min-w-[30rem] border-collapse text-left text-[0.95rem]">
+				<div class="data-table-wrap">
+					<table class="data-table min-w-[30rem]">
 						<thead>
-							<tr class="border-b border-line">
-								<th class="py-3 pr-4 font-medium text-muted md:pr-6" scope="col">
-									{copy.table.columns.time}
-								</th>
-								<th class="py-3 pr-4 font-medium text-muted md:pr-6" scope="col">
-									{copy.table.columns.asset}
-								</th>
-								<th class="py-3 pr-4 text-right font-medium text-muted md:pr-6" scope="col">
-									{copy.table.columns.amount}
-								</th>
-								<th class="py-3 pr-4 text-right font-medium text-muted md:pr-6" scope="col">
-									{copy.table.columns.usd}
-								</th>
-								<th class="py-3 font-medium text-muted" scope="col">
-									{copy.table.columns.check}
-								</th>
+							<tr>
+								<th scope="col">{copy.table.columns.time}</th>
+								<th scope="col">{copy.table.columns.asset}</th>
+								<th class="text-right" scope="col">{copy.table.columns.amount}</th>
+								<th class="text-right" scope="col">{copy.table.columns.usd}</th>
+								<th scope="col">{copy.table.columns.check}</th>
 							</tr>
 						</thead>
 						<tbody data-ledger-rows>
 							{recent.map((row) => (
-								<tr class="border-b border-line">
-									<td class="py-3 pr-4 whitespace-nowrap tabular-nums md:pr-6">
+								<tr>
+									<td class="whitespace-nowrap tabular-nums">
 										{stamp(row.block_time, shortDate)}
 									</td>
-									<td class="py-3 pr-4 whitespace-nowrap md:pr-6">{row.token_symbol}</td>
-									<td class="py-3 pr-4 text-right tabular-nums md:pr-6">{row.amount_token}</td>
-									<td class="py-3 pr-4 text-right tabular-nums md:pr-6">
+									<td class="whitespace-nowrap">{row.token_symbol}</td>
+									<td class="text-right tabular-nums">{row.amount_token}</td>
+									<td class="text-right tabular-nums">
 										{row.usd_at_receipt === null ? (
 											<span class="text-muted">{copy.table.noPrice}</span>
 										) : (
 											usd.format(row.usd_at_receipt)
 										)}
 									</td>
-									<td class="py-3">
+									<td>
 										<a
 											class="underline"
 											href={txUrl(row.tx_hash)}
@@ -300,12 +337,21 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 		<section class="chapter hairline">
 			<div class="wrap split">
 				<div>
-					<h2 class="display">{copy.verify.heading}</h2>
+					<h2 class="chapter-title max-w-none">{copy.verify.heading}</h2>
 					<p class="lede mb-0">{copy.verify.lede}</p>
 				</div>
 				<div>
 					<p class="eyebrow">{fill(copy.verify.addressLabel, { chain: copy.chainName })}</p>
-					<p class="mt-2 font-mono text-[0.85rem] break-all">{ledger.address}</p>
+					<p
+						class="address-copy"
+						data-copy-text={ledger.address}
+						data-copied={copy.verify.copiedLabel}
+						data-hint={copy.verify.copyHint}
+						data-aria={copy.verify.copyAria}
+					>
+						<span class="address-copy-value">{ledger.address}</span>
+						<span class="address-copy-status" data-copy-status>{copy.verify.copyHint}</span>
+					</p>
 					<p class="mt-3">
 						<a
 							class="underline"
@@ -316,7 +362,25 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 							{copy.verify.addressLink}<span class="sr-only">, {ui.opensInNewTab}</span>
 						</a>
 					</p>
-					<p class="quiet max-w-[34rem]">{copy.steward.join(' ')}</p>
+					<p class="quiet max-w-[34rem]">
+						{
+							splitBy(steward, [orgName]).map((chunk) =>
+								chunk.hit ? (
+									<a
+										class="underline"
+										href={site.official.engageNepal}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{chunk.text}
+										<span class="sr-only">, {ui.opensInNewTab}</span>
+									</a>
+								) : (
+									chunk.text
+								),
+							)
+						}
+					</p>
 					<ol class="mt-8 space-y-4 text-muted">
 						{copy.verify.steps.map((step, index) => (
 							<li class="grid grid-cols-[1.5rem_1fr] gap-3">
@@ -425,7 +489,9 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 
 		function notice(text) {
 			line.textContent = text;
-			line.className = 'ledger-notice';
+			// Add, so the element keeps whatever the template gave it. The
+			// merge and mosaic notices are `ledger-notice quiet` in markup.
+			line.classList.add('ledger-notice');
 		}
 
 		function renderRows(rows) {
@@ -438,22 +504,28 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 				var priced = row.usd_at_receipt !== null && row.usd_at_receipt !== undefined;
 				var label = fill(cfg.checkAria, { hash: row.tx_hash }) + ', ' + cfg.opensInNewTab;
 				html +=
-					'<tr class="border-b border-line">' +
-					'<td class="py-3 pr-4 whitespace-nowrap tabular-nums md:pr-6">' +
+					/*
+					 * These rows replace the ones Astro rendered, so they carry
+					 * the same classes. Padding and the row rule belong to
+					 * `.data-table` in global.css. Repeating them here doubled
+					 * the cell padding and drew a line under the last row.
+					 */
+					'<tr>' +
+					'<td class="whitespace-nowrap tabular-nums">' +
 					escape(nepalStamp(row.block_time)) +
 					'</td>' +
-					'<td class="py-3 pr-4 whitespace-nowrap md:pr-6">' +
+					'<td class="whitespace-nowrap">' +
 					escape(row.token_symbol) +
 					'</td>' +
-					'<td class="py-3 pr-4 text-right tabular-nums md:pr-6">' +
+					'<td class="text-right tabular-nums">' +
 					escape(row.amount_token) +
 					'</td>' +
-					'<td class="py-3 pr-4 text-right tabular-nums md:pr-6">' +
+					'<td class="text-right tabular-nums">' +
 					(priced
 						? escape(money(row.usd_at_receipt))
 						: '<span class="text-muted">' + escape(cfg.noPrice) + '</span>') +
 					'</td>' +
-					'<td class="py-3">' +
+					'<td>' +
 					'<a class="underline" href="' +
 					escape(cfg.explorer + '/tx/' + row.tx_hash) +
 					'" target="_blank" rel="noopener noreferrer" aria-label="' +
@@ -564,10 +636,100 @@ const txUrl = (hash: string) => `${receiving.explorer}/tx/${hash}`;
 	})();
 </script>
 
+<script is:inline>
+	(function () {
+		document.querySelectorAll('[data-copy-text]').forEach(function (el) {
+			if (!navigator.clipboard) return;
+
+			var status = el.querySelector('[data-copy-status]');
+			var hint = el.dataset.hint;
+			var copied = el.dataset.copied;
+			var reset;
+
+			el.setAttribute('role', 'button');
+			el.setAttribute('tabindex', '0');
+			el.setAttribute('aria-label', el.dataset.aria);
+
+			function copy() {
+				navigator.clipboard.writeText(el.dataset.copyText).then(function () {
+					if (!status) return;
+					status.textContent = copied;
+					el.classList.add('is-copied');
+					clearTimeout(reset);
+					reset = setTimeout(function () {
+						status.textContent = hint;
+						el.classList.remove('is-copied');
+					}, 2000);
+				});
+			}
+
+			el.addEventListener('click', copy);
+			el.addEventListener('keydown', function (event) {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault();
+					copy();
+				}
+			});
+		});
+	})();
+</script>
+
 <style>
-	.ledger-notice {
-		border-left: 2px solid var(--ink);
-		padding-left: 0.75rem;
+	.address-copy {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.75rem 1rem;
+		width: 100%;
+		min-height: 2.75rem;
+		margin: 0.5rem 0 0;
+	}
+
+	.address-copy[role='button'] {
+		cursor: pointer;
+		border-radius: 6px;
+	}
+
+	.address-copy[role='button']:focus-visible {
+		outline: 2px solid var(--ink);
+		outline-offset: 2px;
+	}
+
+	.address-copy-value {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 0.85rem;
+		overflow-wrap: anywhere;
+		user-select: all;
+	}
+
+	.address-copy-status {
+		display: none;
+		font-size: 0.85rem;
+		color: var(--muted);
+	}
+
+	.address-copy[role='button'] .address-copy-status {
+		display: inline;
+	}
+
+	.address-copy.is-copied .address-copy-status {
 		color: var(--ink);
+	}
+
+	.address-copy:active {
+		transform: scale(0.99);
+		transition: transform 160ms ease-out;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.address-copy[role='button']:hover .address-copy-value {
+			text-decoration: underline;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.address-copy:active {
+			transform: none;
+		}
 	}
 </style>

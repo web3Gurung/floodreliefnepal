@@ -56,15 +56,30 @@ switcher and the canonical alternates follow the page being rendered.
 
 Layout and chrome:
 
+- Visual rules live in `DESIGN.md`. Read it before changing layout, type, colour, motion, or components. It is the design counterpart to this file.
 - `src/layouts/Layout.astro` wraps every page (fonts, metadata, header, footer)
 - Components sit in `src/components/`
-- Shared Tailwind classes sit in `src/styles/global.css` under `@layer components` (`wrap`, `chapter`, `btn`, and similar)
+- Shared Tailwind classes sit in `src/styles/global.css` under `@layer components` (`wrap`, `chapter`, `btn`, and similar). Tokens in that file are the source of truth for the values named in `DESIGN.md`.
 
 ## Deploying
 
 **Merging to `main` deploys.** The Cloudflare git build runs `npx astro build` and
 then `npx wrangler deploy`, so the site and the Worker go out together. There is no
 separate step and no assets only path that could strand the Worker.
+
+Pull requests do not go to `floodreliefnepal.com`. A push to any other branch runs
+`npx astro build` then `npx wrangler versions upload`, which uploads a Worker
+version and returns a preview URL. The stable one is
+`https://<branch>-floodreliefnepal.gurungbuilds.workers.dev`. Cloudflare attaches
+it to the GitHub check on that commit.
+
+Two dashboard facts that live outside this repo, and that are easy to forget:
+
+- **Builds for non-production branches** must be on. Worker, Settings, Build,
+  Branch control. If that box is off, PRs get no build and no preview.
+- Preview URLs themselves are opt-in. `preview_urls: true` is already in
+  `wrangler.jsonc`. Do not remove it. Do not reattach the domain to Pages to get
+  previews back.
 
 That makes two things prerequisites of the merge rather than jobs for afterwards.
 If either is missing when a Worker change lands, the deploy succeeds and ships an
@@ -76,6 +91,11 @@ indexer that cannot run.
 - The three secrets are pushed with `npx wrangler secret put`: `ETHERSCAN_API_KEY`,
   `SUPABASE_URL`, `SUPABASE_SECRET_KEY`. They live only in the Cloudflare account
   and never in the repo. `npx wrangler secret list` shows the names.
+- `keep_vars: true` must stay in `wrangler.jsonc`. Wrangler treats that file as the
+  source of truth for a Worker's variables and deletes anything it does not find
+  there, which is what wiped the three secrets on the deploy of 1 September. The
+  flag is the only thing standing between a routine merge and an indexer that
+  cannot authenticate. Do not remove it.
 
 To deploy by hand from a machine that is logged in:
 

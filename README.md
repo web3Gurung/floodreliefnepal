@@ -41,7 +41,9 @@ Local Worker after a build:
 npm run preview:worker
 ```
 
-The Worker `floodreliefnepal` is connected to this GitHub repo. A push to `main` runs `npx astro build` then `npx wrangler deploy`. Other branches upload a preview version.
+The Worker `floodreliefnepal` is connected to this GitHub repo. A push to `main` runs `npx astro build` then `npx wrangler deploy`.
+
+Other branches run `npx astro build` then `npx wrangler versions upload`, which does not touch production. That needs **Builds for non-production branches** on in the Worker dashboard under Settings, Build, Branch control. Preview URLs need `preview_urls: true` in `wrangler.jsonc`, which is already set. The stable link is `https://<branch>-floodreliefnepal.gurungbuilds.workers.dev`. Cloudflare puts it on the GitHub check for the commit.
 
 Manual deploy:
 

@@ -217,7 +217,7 @@ const dotLabel = (entry: (typeof entries)[number]) =>
 	totals.donation_count > 0 && (
 		<section class="chapter hairline" id="merge">
 			<div class="wrap">
-				<h2 class="display max-w-none">{copy.heading}</h2>
+				<h2 class="chapter-title max-w-none">{copy.heading}</h2>
 				<p class="lede">{copy.lede}</p>
 
 				<figure class="merge mt-10">
@@ -426,12 +426,6 @@ const dotLabel = (entry: (typeof entries)[number]) =>
 
 <style>
 	/* Filled in by the page script when the live feed is ahead of what was drawn. */
-	.ledger-notice {
-		border-left: 2px solid var(--ink);
-		padding-left: 0.75rem;
-		color: var(--ink);
-	}
-
 	.merge-svg {
 		display: block;
 		width: 100%;

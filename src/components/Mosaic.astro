@@ -72,7 +72,7 @@ const label = (entry: (typeof all)[number]) =>
 	totals.donation_count > 0 && (
 		<section class="chapter hairline" id="mosaic">
 			<div class="wrap">
-				<h2 class="display max-w-none">{copy.heading}</h2>
+				<h2 class="chapter-title max-w-none">{copy.heading}</h2>
 				<p class="lede">{copy.lede}</p>
 
 				<ul class="mosaic mt-10">
@@ -100,12 +100,6 @@ const label = (entry: (typeof all)[number]) =>
 
 <style>
 	/* Filled in by the page script when the live feed is ahead of what was drawn. */
-	.ledger-notice {
-		border-left: 2px solid var(--ink);
-		padding-left: 0.75rem;
-		color: var(--ink);
-	}
-
 	.mosaic {
 		--cell: 44px;
 		display: grid;
@@ -130,7 +124,11 @@ const label = (entry: (typeof all)[number]) =>
 		width: 100%;
 		height: 100%;
 		border-radius: 3px;
-		transition: opacity 160ms ease;
+		transition: opacity 160ms ease-out, transform 160ms ease-out;
+	}
+
+	.mosaic-tile:active {
+		transform: scale(0.97);
 	}
 
 	.mosaic-accent {
@@ -163,6 +161,10 @@ const label = (entry: (typeof all)[number]) =>
 	@media (prefers-reduced-motion: reduce) {
 		.mosaic-tile {
 			transition: none;
+		}
+
+		.mosaic-tile:active {
+			transform: none;
 		}
 	}
 </style>

@@ -1,10 +1,12 @@
 # Flood Relief Nepal
 
-See `AGENTS.md` for stack, content rules, and commands.
+See `AGENTS.md` for stack, content rules, and commands. See `DESIGN.md` for how pages should look and feel. Read it before changing layout, type, colour, motion, or components.
 
 Always `git pull` on the branch you will edit before making changes. If you already have local commits, `git pull --rebase`.
 
-This is a static Astro site with Tailwind. Light mode only. Outfit for type, Noto Sans Devanagari on `/np/`, Noto Sans SC on `/zh/`. It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
+This is a static Astro site with Tailwind. Light mode only. Outfit for type, Noto Sans Devanagari on `/np/`, Noto Sans SC on `/zh/`. Tokens and shared classes live in `src/styles/global.css`. Do not invent a second palette or typeface.
+
+It is an independent public guide, not a government website. It lists official channels after the Bhotekoshi disaster. It does not collect money.
 
 That last sentence and the transparency page disagree, and the disagreement is open
 on purpose. See the note at the top of `AGENTS.md`. Do not resolve it by editing the
@@ -35,7 +37,7 @@ Photos live in `src/assets/`, not `public/`. Hero: `<Picture />` with AVIF/WebP.
 
 CSS is inlined (`build.inlineStylesheets: 'always'`). Do not split it back out. `public/_headers` caches hashed `/_astro/` files for a year. Leave HTML on the short cache so a deploy still shows up. Compression is Cloudflare. Do not gzip files in the repo. Cloudflare Web Analytics, if it is on, is a dashboard setting. It is not a script in this repo.
 
-Deploy as Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com`. Push to `main` builds and deploys. Keep the Wrangler `name` as `floodreliefnepal`. `dist/` is gitignored build output. `npm run deploy` builds then `wrangler deploy`. The Worker script is `worker/index.ts`, its cron and KV binding are in `wrangler.jsonc`, and its three secrets live only in the Cloudflare account. Secrets: `wrangler secret put`. `www` redirects to the apex in Cloudflare, not in this repo. Do not reattach the domain to Pages.
+Deploy as Worker `floodreliefnepal` with static assets, not Pages. Production is `floodreliefnepal.com`. Merging to `main` deploys: the Cloudflare git build runs `astro build` then `wrangler deploy`, so the site and the Worker go out together. Other branches upload a preview version with `wrangler versions upload` and do not touch production. That needs **Builds for non-production branches** in the Worker dashboard (Settings, Build, Branch control) and `preview_urls: true` in `wrangler.jsonc`. The stable preview is `https://<branch>-floodreliefnepal.gurungbuilds.workers.dev`. Keep the Wrangler `name` as `floodreliefnepal`. `dist/` is gitignored build output. `npm run deploy` builds then `wrangler deploy`. The Worker script is `worker/index.ts`, its cron and KV binding are in `wrangler.jsonc`, and its three secrets live only in the Cloudflare account. Secrets: `wrangler secret put`. `keep_vars: true` in `wrangler.jsonc` is what keeps them through a deploy: Wrangler treats that file as the source of truth and deletes any variable it does not find there, which is how the three keys were wiped on 1 September. Do not remove it. `www` redirects to the apex in Cloudflare, not in this repo. Do not reattach the domain to Pages.
 
 Do not invent SWIFT rows, extra account numbers, or extra QR codes. Change `swiftAccounts` only when a teammate PR brings verified details.
 
