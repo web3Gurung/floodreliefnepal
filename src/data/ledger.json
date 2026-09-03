@@ -1,5 +1,5 @@
 {
-	"updated_at": "2026-09-02T05:20:28.995Z",
+	"updated_at": "2026-09-03T13:05:14.432Z",
 	"address": "0xA891BB5abf91aBf1796074a1303E75754AF1823D",
 	"chain": "Ethereum mainnet",
 	"pricing": {
@@ -13,8 +13,8 @@
 		"min_confidence": 0.9
 	},
 	"totals": {
-		"usd_received": 129.92,
-		"donation_count": 19,
+		"usd_received": 167079.2,
+		"donation_count": 25,
 		"unpriced_count": 0,
 		"unpriced_tokens": [],
 		"low_confidence_count": 0,
@@ -26,11 +26,11 @@
 		{
 			"token_symbol": "USDC",
 			"token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-			"donation_count": 17,
-			"amount_received": "104.659474",
-			"usd_received": 104.66,
+			"donation_count": 23,
+			"amount_received": "167053.941303",
+			"usd_received": 167053.94,
 			"unpriced_count": 0,
-			"balance_held": "104.659474"
+			"balance_held": "167053.941303"
 		},
 		{
 			"token_symbol": "ETH",
@@ -42,8 +42,62 @@
 			"balance_held": "0.01005"
 		}
 	],
+	"integrity": {
+		"ok": true,
+		"checked_at": "2026-09-03T13:05:14.432Z",
+		"last_reconciled_at": "2026-09-03T13:05:12.805Z",
+		"issues": []
+	},
 	"recent": [
 		{
+			"tx_hash": "0x8caac513f6f5351fbe12376c76fabee74906cd341fbea55bc7f0fcb6f0ceec17",
+			"block_time": "2026-09-03T03:40:59.000Z",
+			"from_address": "0x71e2194cb82ebd7d3d6836726643deb91aa7e864",
+			"token_symbol": "USDC",
+			"amount_token": "1.796832",
+			"usd_at_receipt": 1.796832
+		},
+		{
+			"tx_hash": "0x13f4a49cf42885ef1516b48820663bfa5fc1890a7f3050c873daab8c3bf168e2",
+			"block_time": "2026-09-02T13:50:47.000Z",
+			"from_address": "0x6046ec5da35d353e649badbf40225377bfc2dee0",
+			"token_symbol": "USDC",
+			"amount_token": "66946.5005",
+			"usd_at_receipt": 66946.5005
+		},
+		{
+			"tx_hash": "0x4df1faf99287e1e8a22a8a47794e35539c9cfbe54e5893395d67683b4496251d",
+			"block_time": "2026-09-02T13:41:11.000Z",
+			"from_address": "0x6046ec5da35d353e649badbf40225377bfc2dee0",
+			"token_symbol": "USDC",
+			"amount_token": "50000",
+			"usd_at_receipt": 50000
+		},
+		{
+			"tx_hash": "0xd7dea4113aa078605fdf3b5face0316289352d12c9c71f4c27875ff6f9c391ae",
+			"block_time": "2026-09-02T13:32:59.000Z",
+			"from_address": "0x6046ec5da35d353e649badbf40225377bfc2dee0",
+			"token_symbol": "USDC",
+			"amount_token": "50000.0001",
+			"usd_at_receipt": 50000.0001
+		},
+		{
+			"tx_hash": "0x5bb0d4888455ea92e5b3cb03ea9075406cb2c393bd70ea3343aa99a6f0e7240f",
+			"block_time": "2026-09-02T13:24:47.000Z",
+			"from_address": "0x6046ec5da35d353e649badbf40225377bfc2dee0",
+			"token_symbol": "USDC",
+			"amount_token": "0.04",
+			"usd_at_receipt": 0.04
+		},
+		{
+			"tx_hash": "0x31ee5b78a630be8cc011474e8c3d5d30234347beda1068d25da11fc7bd40654e",
+			"block_time": "2026-09-02T05:28:47.000Z",
+			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
+			"token_symbol": "USDC",
+			"amount_token": "0.944397",
+			"usd_at_receipt": 0.944397
+		},
+		{
 			"tx_hash": "0x10bb48c1e6fa9604a53d6b18d37585470d854ed6be7758650dcdc5fd99494d0b",
 			"block_time": "2026-09-02T03:28:11.000Z",
 			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
@@ -194,160 +248,6 @@
 			"token_symbol": "USDC",
 			"amount_token": "1.364776",
 			"usd_at_receipt": 1.364776
-		}
-	],
-	"all": [
-		{
-			"tx_hash": "0xa34de88763881c127240ecf0e4ac8e20555f8a7342cdb6fae3fbced4ce61207e",
-			"block_time": "2026-08-30T17:15:35.000Z",
-			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
-			"token_symbol": "USDC",
-			"amount_token": "1.364776",
-			"usd_at_receipt": 1.364776
-		},
-		{
-			"tx_hash": "0xb743eb49a49ab796e92222369efef2d3c848a10a8f29d21fc85053da8ac7bfe3",
-			"block_time": "2026-08-30T17:16:23.000Z",
-			"from_address": "0x4e7f8a0da914fa859e87d447b5366c5c1446a504",
-			"token_symbol": "ETH",
-			"amount_token": "0.01",
-			"usd_at_receipt": 25.136407
-		},
-		{
-			"tx_hash": "0x9ee69dbc1e5526e53f87aa46e4b947c59af5678c833fd1661dd7f9229f6162f4",
-			"block_time": "2026-08-30T17:17:11.000Z",
-			"from_address": "0x34fbea433b4eb7733c6b2581ff9e5c8f5ef30c4f",
-			"token_symbol": "USDC",
-			"amount_token": "1.092764",
-			"usd_at_receipt": 1.092764
-		},
-		{
-			"tx_hash": "0x0c49f2db06d11140e850b8df502dd29a74f4a2de352ab8c63eaebadccc878490",
-			"block_time": "2026-08-30T17:31:59.000Z",
-			"from_address": "0x7661bbcb364c0ca256884312b70a11379d9428e9",
-			"token_symbol": "USDC",
-			"amount_token": "49.645596",
-			"usd_at_receipt": 49.645596
-		},
-		{
-			"tx_hash": "0x0d21c6c373f273e68e610c943903997eee0014b041dde1ab6065e1b38d4013c7",
-			"block_time": "2026-08-30T18:13:59.000Z",
-			"from_address": "0xcef5643233cd247c55e0fcb2e3a70482c9620d8d",
-			"token_symbol": "USDC",
-			"amount_token": "0.311281",
-			"usd_at_receipt": 0.311281
-		},
-		{
-			"tx_hash": "0x31129cdaec1895d077fa1e3910852f3c2439b2f8329487747cc944e33474451b",
-			"block_time": "2026-08-30T19:15:59.000Z",
-			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
-			"token_symbol": "USDC",
-			"amount_token": "1.706491",
-			"usd_at_receipt": 1.706491
-		},
-		{
-			"tx_hash": "0xe2d5b3cf6c2871e83aaa16a301d3bccd96000b21b0c613ed91bf9e5a1c436166",
-			"block_time": "2026-08-30T19:24:23.000Z",
-			"from_address": "0xfe9d90291e303d1fd726a87848639da25022ea14",
-			"token_symbol": "USDC",
-			"amount_token": "0.454263",
-			"usd_at_receipt": 0.454263
-		},
-		{
-			"tx_hash": "0x47a96ea7a6b995ae5a14edddd08eeb3f322c13a7ef6bfdc8d763485681804ec6",
-			"block_time": "2026-08-30T19:27:35.000Z",
-			"from_address": "0xed2eff6b8a8b472be7823329202a09d7eb94e123",
-			"token_symbol": "USDC",
-			"amount_token": "0.406342",
-			"usd_at_receipt": 0.406342
-		},
-		{
-			"tx_hash": "0xa9cf84844e507fa665744ddfc784a31aa0909ab7ac6283394d08a1119e7e6acc",
-			"block_time": "2026-08-31T14:44:35.000Z",
-			"from_address": "0x95eb242e5690bef90fd313e166a963a07b659282",
-			"token_symbol": "USDC",
-			"amount_token": "0.465136",
-			"usd_at_receipt": 0.465136
-		},
-		{
-			"tx_hash": "0xa6e60c250b69309173bda502ab7412d8ef44db6c9d6d2ec937c80c580ab0749a",
-			"block_time": "2026-08-31T14:48:23.000Z",
-			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
-			"token_symbol": "USDC",
-			"amount_token": "1.420928",
-			"usd_at_receipt": 1.420928
-		},
-		{
-			"tx_hash": "0x842f55219d0b8a9e7b5406fc0c6da89a7a906e1f45b0a7ba95af00f8a796ebe6",
-			"block_time": "2026-08-31T16:33:11.000Z",
-			"from_address": "0xce27d8bcee45db3e457ecf8629264ca7893aaaac",
-			"token_symbol": "USDC",
-			"amount_token": "10.00156",
-			"usd_at_receipt": 10.00156
-		},
-		{
-			"tx_hash": "0x08c2d4a4fa9febe2b6fc3a38d91067577e32e4ceec6f6d4652913dfdb322cad6",
-			"block_time": "2026-08-31T16:33:11.000Z",
-			"from_address": "0x9cec96321d5a54df2277fe3dbb2405016a3bbf96",
-			"token_symbol": "USDC",
-			"amount_token": "5.000775",
-			"usd_at_receipt": 5.000775
-		},
-		{
-			"tx_hash": "0x7bf34ebf9f281f526497b5770b1db39dca5fd5f4841d372e1db0d3a7855bf4f7",
-			"block_time": "2026-08-31T16:47:47.000Z",
-			"from_address": "0xfa7093cdd9ee6932b4eb2c9e1cde7ce00b1fa4b9",
-			"token_symbol": "USDC",
-			"amount_token": "10",
-			"usd_at_receipt": 10
-		},
-		{
-			"tx_hash": "0xa1e9d5fbbfaa8d3a26b1b286f4e7a5bebcc06a4c123fdb8504240a8db865c765",
-			"block_time": "2026-08-31T17:10:23.000Z",
-			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
-			"token_symbol": "USDC",
-			"amount_token": "9.871844",
-			"usd_at_receipt": 9.871844
-		},
-		{
-			"tx_hash": "0x1be20f91c762adcf781ebcc4e919fe2a74578a2a4b2a18e46ea143ac81b94a6d",
-			"block_time": "2026-08-31T21:34:47.000Z",
-			"from_address": "0x0e941bae5379ca90b91acf5bccda11504cb52093",
-			"token_symbol": "USDC",
-			"amount_token": "10",
-			"usd_at_receipt": 10
-		},
-		{
-			"tx_hash": "0xee710937f55ff2c7a46c25f33f2cb4fc30b9bd99e1c3986685fb1b3f3531f813",
-			"block_time": "2026-09-01T11:59:35.000Z",
-			"from_address": "0x6046ec5da35d353e649badbf40225377bfc2dee0",
-			"token_symbol": "USDC",
-			"amount_token": "1",
-			"usd_at_receipt": 1
-		},
-		{
-			"tx_hash": "0x98bc6d2438021ee0a0952637aece430fa65622080249510f308e9d034c46fbde",
-			"block_time": "2026-09-01T14:19:47.000Z",
-			"from_address": "0xbbc1fe874422f61fb135e72c3229fffc3cb266fb",
-			"token_symbol": "ETH",
-			"amount_token": "0.00005",
-			"usd_at_receipt": 0.122399
-		},
-		{
-			"tx_hash": "0x5a2e9b4ab3aa0e9bf293c0fdf11b5dca8a2c4fddde773fc56d41d579dc7d3c59",
-			"block_time": "2026-09-01T21:28:35.000Z",
-			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
-			"token_symbol": "USDC",
-			"amount_token": "0.953163",
-			"usd_at_receipt": 0.953163
-		},
-		{
-			"tx_hash": "0x10bb48c1e6fa9604a53d6b18d37585470d854ed6be7758650dcdc5fd99494d0b",
-			"block_time": "2026-09-02T03:28:11.000Z",
-			"from_address": "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",
-			"token_symbol": "USDC",
-			"amount_token": "0.964555",
-			"usd_at_receipt": 0.964555
 		}
 	]
 }
