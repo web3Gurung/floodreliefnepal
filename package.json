@@ -13,6 +13,7 @@
     "deploy": "npm run build && wrangler deploy",
     "preview:worker": "npm run build && wrangler dev",
     "index:donations": "node --env-file=.env.local scripts/index-donations.ts",
+    "index:donations:full": "node --env-file=.env.local scripts/index-donations.ts --full",
     "index:posts": "node scripts/index-posts.ts"
   },
   "dependencies": {

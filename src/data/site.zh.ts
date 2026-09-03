@@ -401,6 +401,10 @@ export const zh = {
 			feedStale: '实时数据上次读取链上数据是 {ago}。本页数字读取于 {when}。',
 			feedDown: '实时数据没有响应。本页数字读取于 {when}。',
 		},
+		integrity: {
+			heading: '这些数字正在核实中。',
+			body: '地址中持有的余额与本页记录的捐款不一致，因此在记录核对完成之前不显示总额。下面列出的每一笔交易仍然真实，仍可在 Etherscan 上核对。',
+		},
 		excluded: {
 			covers: '总额覆盖 {total} 中的 {covered} 笔。',
 			unpriced: '其中 {count} 所用资产没有公开价格。',

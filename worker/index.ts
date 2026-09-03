@@ -235,11 +235,24 @@ async function refresh(env: WorkerEnv): Promise<{ changed: boolean; payload: Led
 	}
 
 	console.log(
-		`indexed blocks ${stats.startBlock} to ${stats.headBlock}, ` +
+		`indexed blocks ${stats.startBlock} to ${stats.endBlock} (tip ${stats.headBlock}${stats.fullScan ? ', full reconcile' : ''}), ` +
 			`${stats.inserted} new rows, ${stats.backfilled} priced, ` +
 			`${payload.totals.donation_count} donations, ${payload.totals.usd_received} USD, ` +
+			`integrity ${payload.integrity.ok ? 'ok' : 'FAILED'}, ` +
 			`kv ${write ? (changed ? 'written, figures moved' : 'written, keeping the age honest') : 'unchanged'}`,
 	);
+
+	// console.error, so a search of the Worker's logs for errors finds these
+	// without knowing the wording. The indexer already logged the detail.
+	if (stats.reconcile && (stats.reconcile.missing.length > 0 || stats.reconcile.unknown.length > 0)) {
+		console.error(
+			`RECONCILE MISMATCH: ${stats.reconcile.missing.length} rows were missing from the table, ` +
+				`${stats.reconcile.unknown.length} rows in the table are not on chain`,
+		);
+	}
+	if (!payload.integrity.ok) {
+		console.error(`INTEGRITY FAILED: ${JSON.stringify(payload.integrity.issues)}`);
+	}
 
 	return { changed: write, payload };
 }

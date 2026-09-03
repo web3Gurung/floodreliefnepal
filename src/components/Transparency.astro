@@ -91,6 +91,16 @@ const stamp = (iso: string, date: Intl.DateTimeFormat) => {
 
 const hasDonations = totals.donation_count > 0;
 
+/**
+ * The indexer checks every run that what each asset's contract says the address
+ * holds equals what the table says arrived minus what left. When that fails the
+ * total is a number we know is wrong, so the page says the figures are being
+ * verified and shows no total. The rows below stay: each is a real transaction.
+ * The optional chain is for a `ledger.json` written before the check existed.
+ */
+const verifying =
+	(ledger as { integrity?: { ok: boolean } }).integrity?.ok === false;
+
 const donations = (n: number) =>
 	`${count.format(n)} ${n === 1 ? copy.total.donationsOne : copy.total.donationsMany}`;
 
@@ -171,13 +181,18 @@ const steward = copy.steward.join(' ');
 			hasDonations ? (
 				<div class="mt-14 md:mt-16">
 					<p class="eyebrow">{copy.total.label}</p>
+					<div class="ledger-notice mt-3 max-w-[42rem]" data-ledger-verifying hidden={!verifying}>
+						<p class="font-medium">{copy.integrity.heading}</p>
+						<p class="quiet mt-1">{copy.integrity.body}</p>
+					</div>
 					<p
 						class="mt-3 text-[clamp(3.25rem,12vw,7rem)] leading-[0.92] font-medium tracking-[-0.045em] tabular-nums"
 						data-ledger-total
+						hidden={verifying}
 					>
 						{usd.format(totals.usd_received)}
 					</p>
-					<p class="mt-4 text-lg text-muted tabular-nums" data-ledger-count>
+					<p class="mt-4 text-lg text-muted tabular-nums" data-ledger-count hidden={verifying}>
 						{donations(totals.donation_count)}
 					</p>
 					<p class="quiet max-w-[42rem]">{copy.total.basis}</p>
@@ -604,10 +619,21 @@ const steward = copy.steward.join(' ');
 				if (!read) throw new Error('no timestamp');
 
 				// The live figures replace the baked ones, which is the whole point.
+				// Unless the feed says its own figures do not add up, in which case
+				// the total is withheld and the notice shows instead.
+				var verifying = !!(feed.integrity && feed.integrity.ok === false);
+				var verifyBox = box.parentNode.querySelector('[data-ledger-verifying]');
 				var total = box.parentNode.querySelector('[data-ledger-total]');
 				var countEl = box.parentNode.querySelector('[data-ledger-count]');
-				if (total) total.textContent = money(feed.totals.usd_received);
-				if (countEl) countEl.textContent = donations(feed.totals.donation_count);
+				if (verifyBox) verifyBox.hidden = !verifying;
+				if (total) {
+					total.hidden = verifying;
+					total.textContent = money(feed.totals.usd_received);
+				}
+				if (countEl) {
+					countEl.hidden = verifying;
+					countEl.textContent = donations(feed.totals.donation_count);
+				}
 
 				renderRows(feed.recent);
 

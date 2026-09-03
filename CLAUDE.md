@@ -40,6 +40,15 @@ The interval is one setting in three files and they must move together:
 never every donation: Supabase is the full record, KV is a cache of what the
 page shows.
 
+The indexer stops each scan `SAFETY_LAG_BLOCKS` (12) short of `eth_blockNumber`,
+starts it `OVERLAP_BLOCKS` (900) behind the stored watermark, and once a day
+rescans from block zero and reconciles the table against the chain. Etherscan's
+token index trails the node tip and a scan bounded at the tip lost a $50,000
+donation on 2 September. Do not move the watermark to the tip. Every run checks
+that balance held equals received minus outflows per asset; `integrity.ok` in the
+payload carries the verdict and the page withholds the total while it is false.
+`npm run index:donations:full` forces a full reconcile. See `AGENTS.md`.
+
 Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Posts and news on the transparency page: `src/data/media.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
 
 Post counts on `/transparency`: `npm run index:posts` refetches likes, replies and
