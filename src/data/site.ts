@@ -610,6 +610,10 @@ export const en = {
 				'The live feed last read the chain {ago}. The figures on this page were read on {when}.',
 			feedDown: 'The live feed is not answering. The figures on this page were read on {when}.',
 		},
+		integrity: {
+			heading: 'These figures are being verified.',
+			body: 'The balance held at the address does not match the donations recorded on this page, so the total is withheld until the record is reconciled. Every transaction listed below is still real and still checkable on Etherscan.',
+		},
 		excluded: {
 			covers: 'The total covers {covered} of {total}.',
 			unpriced: 'Of those, {count} arrived in an asset whose price no source publishes.',
