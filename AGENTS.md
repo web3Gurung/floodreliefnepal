@@ -166,6 +166,49 @@ value before any writes the new one, which is exactly what happened in testing.
 An in-isolate promise handle collapses a burst into one run. Two isolates in two
 locations can still race, and that is fine, because the indexer is idempotent.
 
+### Where a scan stops, where it starts, and the daily reconcile
+
+`eth_blockNumber` is the tip of Etherscan's node. The account indexes behind
+`txlist`, `txlistinternal` and `tokentx` are a separate pipeline that trails
+that tip, `tokentx` most of all: measured on 3 September against an address that
+moves tokens every block, it sat 5 to 11 blocks behind across a minute while
+`txlist` stayed within one. Until 3 September every run scanned up to the tip
+and stored the tip as its watermark, so a transfer that landed in the gap
+between the token index and the tip at the moment of a run was never asked for
+again. That lost a $50,000 USDC transfer and a $0.94 one on 2 September.
+
+Three things now prevent it, all in `worker/indexer.ts`:
+
+- **`SAFETY_LAG_BLOCKS = 12`.** A scan stops twelve blocks short of the tip,
+  about two and a half minutes, several times the lag observed. Etherscan
+  publishes no "indexed up to" figure, so the lag cannot be read, only allowed
+  for.
+- **`OVERLAP_BLOCKS = 900`.** Each scan starts nine hundred blocks, about three
+  hours, behind the stored watermark rather than one block after it. The
+  `(tx_hash, log_index)` primary key makes the re-read free, and the window
+  costs the same three Etherscan calls a scan always cost.
+- **A full reconcile once a day.** When `last_full_reconcile` in
+  `indexer_state` is older than 24 hours, that run scans from block zero,
+  compares every inbound row on chain against the table before writing, inserts
+  what is missing, and logs `RECONCILE MISMATCH` with the hashes if anything
+  was. The Worker repeats it through `console.error`. `npm run
+  index:donations:full` forces one by hand.
+
+### The integrity invariant
+
+Every run checks, per asset, that the balance the token contract reports for the
+address equals what the table says arrived minus what the `outflows` table says
+left. Both sides come from the same run. The payload carries the verdict as
+`integrity.ok` with the issues listed, and while it is false the page withholds
+the total and says the figures are being verified. The rows stay, because each
+one is a real transaction. `payloadChanged` ignores `integrity.checked_at`, so
+the check costs no KV writes.
+
+This is the check that would have caught the September loss the day it
+happened: the payload already reported `balance_held` of 167,053 USDC against
+`amount_received` of 117,052 with nothing sent onward, and nothing compared the
+two. ETH will need gas accounted for once the address ever sends; it has not.
+
 ### The KV write budget is what sets the cadence
 
 The Workers free plan allows **1,000 KV writes a day**, resetting at 00:00 UTC,
@@ -255,6 +298,10 @@ generated, and it is committed so the site builds without any credential.
 actions for the receiving address, labels each inflow, prices it through DefiLlama,
 upserts into Supabase, and writes the payload. It is idempotent: a replay from
 block 0 inserts nothing.
+
+`npm run index:donations:full` does the same from block zero and reconciles the
+whole table against the chain. Run it after any suspected gap. It exits 2 when the
+integrity check fails, after writing the payload and printing the report.
 
 Rules for anything that touches these figures:
 
