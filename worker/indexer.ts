@@ -29,7 +29,50 @@ const ETHERSCAN_MIN_INTERVAL_MS = 260;
 const LLAMA_MIN_INTERVAL_MS = 220;
 
 const STATE_KEY = 'last_indexed_block';
+const RECONCILE_KEY = 'last_full_reconcile';
 const RECENT_LIMIT = 50;
+
+/**
+ * Where a scan stops, measured back from the node tip.
+ *
+ * `eth_blockNumber` is the head of Etherscan's node. The account indexes the
+ * three list actions read from (`tokentx` above all) are a separate pipeline
+ * that trails that head, by a few blocks most of the time and by minutes under
+ * load. Measured on 3 September: `tokentx` for an address that moves tokens
+ * every block sat frozen 5 to 11 blocks behind the tip across a minute while
+ * `txlist` stayed within one. A scan bounded at the tip asks for rows the
+ * index does not hold yet, gets an honest empty answer, and if the stored
+ * watermark then advances to the tip those rows are never asked for again.
+ * That is how a $50,000 USDC transfer and a $0.94 one went missing on
+ * 2 September: both landed in the gap between the token index and the tip at
+ * the moment a run happened.
+ *
+ * Etherscan publishes no "indexed up to" figure, so the lag cannot be read;
+ * it can only be allowed for. Twelve blocks is about two and a half minutes at
+ * twelve seconds a block, several times the lag observed. It is not the whole
+ * defence, see OVERLAP_BLOCKS.
+ */
+const SAFETY_LAG_BLOCKS = 12;
+
+/**
+ * How far behind the stored watermark each scan starts.
+ *
+ * Re-reading is free: the (tx_hash, log_index) primary key makes every upsert
+ * idempotent, and the address has had 25 donations in five days, so the
+ * window costs the same three Etherscan calls it always did. Nine hundred
+ * blocks is about three hours. A transfer is lost only if the token index
+ * stays more than three hours behind the tip for every run across those three
+ * hours, which the daily reconcile below would then catch and repair anyway.
+ */
+const OVERLAP_BLOCKS = 900;
+
+/**
+ * Once a day a run scans from block zero instead of the window, compares the
+ * chain's full inbound list against the table, inserts anything missing and
+ * says so loudly. This is the check that would have caught the September loss
+ * on the day it happened.
+ */
+const RECONCILE_EVERY_MS = 24 * 60 * 60 * 1000;
 
 /** Priced at 1.00 USD. Anything absent from this set needs a real lookup. */
 const STABLE_SYMBOLS = new Set(['USDC', 'USDT', 'DAI']);
@@ -56,6 +99,39 @@ export type IndexerConfig = {
 	supabaseSecretKey: string;
 	/** Optional progress sink. The Worker passes console.log, the script prints. */
 	log?: (message: string) => void;
+	/**
+	 * Scan from block zero and reconcile the whole table against the chain,
+	 * regardless of when that last happened. `npm run index:donations:full`.
+	 */
+	fullRescan?: boolean;
+};
+
+export type LedgerIntegrityIssue =
+	| {
+			kind: 'balance_mismatch';
+			token_symbol: string;
+			amount_received: string;
+			sent_onward: string;
+			expected_balance: string;
+			balance_held: string;
+			difference: string;
+	  }
+	| { kind: 'rows_missing'; count: number; tx_hashes: string[] }
+	| { kind: 'rows_not_on_chain'; count: number; tx_hashes: string[] };
+
+/**
+ * Whether the figures add up. `ok` is false when the balance an asset's
+ * contract reports for the address is not what the recorded donations, minus
+ * recorded outflows, say it should be, or when a full reconcile found rows the
+ * chain and the table disagree on. The page withholds the total while this is
+ * false rather than publish a number known to be wrong.
+ */
+export type LedgerIntegrity = {
+	ok: boolean;
+	checked_at: string;
+	/** When the whole table was last compared against the chain from block zero. */
+	last_reconciled_at: string | null;
+	issues: LedgerIntegrityIssue[];
 };
 
 export type LedgerEntry = {
@@ -98,6 +174,7 @@ export type LedgerPayload = {
 		usd_sent_onward: number;
 	};
 	by_token: LedgerTokenTotal[];
+	integrity: LedgerIntegrity;
 	/**
 	 * The most recent RECENT_LIMIT donations, newest first, and deliberately
 	 * the only rows in the payload.
@@ -113,10 +190,24 @@ export type LedgerPayload = {
 	recent: LedgerEntry[];
 };
 
+export type ReconcileResult = {
+	/** Inbound rows the chain has and the table did not, before this run wrote. */
+	missing: { tx_hash: string; token_symbol: string; amount_token: string; block_number: number }[];
+	/** Rows the table has and the chain does not. Never deleted here, only reported. */
+	unknown: { tx_hash: string; token_symbol: string; amount_token: string }[];
+	chainRows: number;
+	tableRowsBefore: number;
+};
+
 export type IndexerStats = {
 	startBlock: number;
+	/** Last block asked for. `headBlock` minus the safety lag. */
+	endBlock: number;
 	headBlock: number;
 	coldStart: boolean;
+	/** True when this run scanned from block zero and reconciled the table. */
+	fullScan: boolean;
+	reconcile: ReconcileResult | null;
 	fetched: { native: number; internal: number; token: number };
 	inbound: number;
 	inserted: number;
@@ -174,13 +265,32 @@ function round2(value: string | number): number {
 	return Math.round(Number(value) * 100) / 100;
 }
 
+/** Exact `a - b` on decimal strings. Negative results keep their sign. */
+function subtractDecimals(a: string, b: string, scale = 18): string {
+	const difference = scaleDecimal(a, scale) - scaleDecimal(b, scale);
+	const sign = difference < 0n ? '-' : '';
+	return `${sign}${formatUnits((difference < 0n ? -difference : difference).toString(), scale)}`;
+}
+
+/** Exact equality on decimal strings, so "50000" and "50000.000000" agree. */
+function sameDecimal(a: string, b: string, scale = 18): boolean {
+	return scaleDecimal(a, scale) === scaleDecimal(b, scale);
+}
+
 /**
  * True when two payloads differ in anything a reader would see. `updated_at`
  * moves on every run, so comparing it would rewrite KV on every cron tick.
  */
 export function payloadChanged(before: LedgerPayload | null, after: LedgerPayload): boolean {
 	if (!before) return true;
-	const strip = (payload: LedgerPayload) => JSON.stringify({ ...payload, updated_at: '' });
+	// `integrity.checked_at` moves on every run too. The verdict and the issues
+	// are what a reader sees; the clock is not.
+	const strip = (payload: LedgerPayload) =>
+		JSON.stringify({
+			...payload,
+			updated_at: '',
+			integrity: payload.integrity ? { ...payload.integrity, checked_at: '' } : undefined,
+		});
 	return strip(before) !== strip(after);
 }
 
@@ -580,7 +690,58 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 		return formatUnits(String(body.result), decimals);
 	}
 
-	async function buildPayload(rows: StoredRow[]): Promise<LedgerPayload> {
+	/**
+	 * What has left the address, per token, from the outflows table. Phase 2
+	 * records the onward transfers there; until it does the table is empty and
+	 * every asset's expected balance is simply what arrived. The table records
+	 * USDC only, so any other asset sent onward will show up as a balance
+	 * mismatch until the schema grows a token column, which is the right
+	 * outcome: an untracked outflow is exactly the kind of thing the flag is for.
+	 */
+	async function sentOnwardByToken(): Promise<Map<string, string>> {
+		const outflows = await supabaseJson<{ amount_usdc: string }[]>('outflows?select=amount_usdc::text');
+		return new Map([['USDC', sumDecimals(outflows.map((row) => row.amount_usdc), 6)]]);
+	}
+
+	/**
+	 * The invariant: for every asset, what the chain says the address holds must
+	 * equal what the table says arrived minus what the table says left. Both
+	 * sides come from the same run. A gap means the table is missing rows, has
+	 * rows the chain does not, or an outflow went unrecorded, and in every one of
+	 * those cases the total is wrong and must not be published as fact.
+	 *
+	 * ETH is the one asset where a gap can also mean gas: if the address ever
+	 * sends anything, the fee leaves the balance without appearing as an
+	 * outflow. It has never sent, so today the check holds exactly. When phase 2
+	 * lands, outflows for ETH will need to carry the fee.
+	 */
+	function checkBalances(
+		byToken: LedgerTokenTotal[],
+		sentOnward: Map<string, string>,
+	): LedgerIntegrityIssue[] {
+		const issues: LedgerIntegrityIssue[] = [];
+		for (const token of byToken) {
+			const sent = sentOnward.get(token.token_symbol) ?? '0';
+			const expected = subtractDecimals(token.amount_received, sent);
+			if (sameDecimal(expected, token.balance_held)) continue;
+			issues.push({
+				kind: 'balance_mismatch',
+				token_symbol: token.token_symbol,
+				amount_received: token.amount_received,
+				sent_onward: sent,
+				expected_balance: expected,
+				balance_held: token.balance_held,
+				difference: subtractDecimals(token.balance_held, expected),
+			});
+		}
+		return issues;
+	}
+
+	async function buildPayload(
+		rows: StoredRow[],
+		reconcile: ReconcileResult | null,
+		lastReconciledAt: string | null,
+	): Promise<LedgerPayload> {
 		const priced = rows.filter((row) => row.usd_at_receipt !== null);
 		const excluded = rows.filter((row) => row.usd_at_receipt === null);
 
@@ -615,6 +776,31 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 			});
 		}
 
+		const sentOnward = await sentOnwardByToken();
+		const issues = checkBalances(byToken, sentOnward);
+
+		// A full scan inserts what it found missing in the same run, so by the
+		// time this runs those rows are in `rows`. Anything still absent, or
+		// present in the table with no counterpart on chain, is reported.
+		if (reconcile) {
+			const held = new Set(rows.map((row) => row.tx_hash.toLowerCase()));
+			const stillMissing = reconcile.missing.filter((row) => !held.has(row.tx_hash));
+			if (stillMissing.length > 0) {
+				issues.push({
+					kind: 'rows_missing',
+					count: stillMissing.length,
+					tx_hashes: stillMissing.map((row) => row.tx_hash),
+				});
+			}
+			if (reconcile.unknown.length > 0) {
+				issues.push({
+					kind: 'rows_not_on_chain',
+					count: reconcile.unknown.length,
+					tx_hashes: reconcile.unknown.map((row) => row.tx_hash),
+				});
+			}
+		}
+
 		// Only the tail is mapped. The payload never carries more than
 		// RECENT_LIMIT rows, so the work and the blob are both flat in the
 		// number of donations.
@@ -646,9 +832,16 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 				low_confidence_count: lowConfidence.length,
 				low_confidence_tokens: [...new Set(lowConfidence.map((row) => row.token_symbol))],
 				excluded_count: excluded.length,
-				usd_sent_onward: 0,
+				// USDC is the only onward asset the outflows table records, at 1.00.
+				usd_sent_onward: round2(sentOnward.get('USDC') ?? '0'),
 			},
 			by_token: byToken,
+			integrity: {
+				ok: issues.length === 0,
+				checked_at: new Date().toISOString(),
+				last_reconciled_at: lastReconciledAt,
+				issues,
+			},
 			recent: entries.reverse(),
 		};
 	}
@@ -662,15 +855,75 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 	log(`  contract cache holds ${contractCache.size} addresses`);
 
 	const head = await headBlock();
-	const stateRows = await supabaseJson<{ value: string }[]>(
-		`indexer_state?key=eq.${STATE_KEY}&select=value`,
-	);
-	const last = stateRows.length > 0 ? Number(stateRows[0].value) : null;
-	const startBlock = last === null ? 0 : last + 1;
-	log(`  scanning blocks ${startBlock} to ${head}${last === null ? ' (cold start, full backfill)' : ''}`);
+	// Stop short of the tip. See SAFETY_LAG_BLOCKS.
+	const endBlock = Math.max(0, head - SAFETY_LAG_BLOCKS);
 
-	const rows = await collectInflows(startBlock, head);
+	const stateRows = await supabaseJson<{ key: string; value: string }[]>(
+		`indexer_state?key=in.(${STATE_KEY},${RECONCILE_KEY})&select=key,value`,
+	);
+	const state = new Map(stateRows.map((row) => [row.key, row.value]));
+	const lastValue = state.get(STATE_KEY);
+	const last = lastValue === undefined ? null : Number(lastValue);
+	const lastReconciledAt = state.get(RECONCILE_KEY) ?? null;
+	const reconcileDue =
+		lastReconciledAt === null || Date.now() - Date.parse(lastReconciledAt) > RECONCILE_EVERY_MS;
+
+	// A full scan is the cold start, the daily reconcile, or an operator asking.
+	// Otherwise the window starts OVERLAP_BLOCKS behind the watermark.
+	const fullScan = config.fullRescan === true || last === null || reconcileDue;
+	const startBlock = fullScan ? 0 : Math.max(0, last + 1 - OVERLAP_BLOCKS);
+	log(
+		`  scanning blocks ${startBlock} to ${endBlock} (tip ${head}, lag ${SAFETY_LAG_BLOCKS})` +
+			(last === null
+				? ' (cold start, full backfill)'
+				: fullScan
+					? ` (full reconcile${config.fullRescan ? ', requested' : ', daily'})`
+					: ` (overlap ${OVERLAP_BLOCKS} behind watermark ${last})`),
+	);
+
+	const rows = await collectInflows(startBlock, endBlock);
 	log(`  ${rows.length} inbound rows to write`);
+
+	// On a full scan, compare what the chain has against what the table held
+	// before this run wrote anything, so a repaired gap is still reported.
+	let reconcile: ReconcileResult | null = null;
+	if (fullScan) {
+		type Held = { tx_hash: string; token_address: string | null; amount_raw: string; token_symbol: string; amount_token: string };
+		const held = await supabaseJson<Held[]>(
+			'inflows?select=tx_hash,token_address,amount_raw::text,token_symbol,amount_token::text',
+		);
+		const keyOf = (row: { tx_hash: string; token_address: string | null; amount_raw: string }) =>
+			`${row.tx_hash.toLowerCase()}|${row.token_address ?? 'native'}|${row.amount_raw}`;
+		const heldKeys = new Set(held.map(keyOf));
+		const chainKeys = new Set(rows.map(keyOf));
+		reconcile = {
+			missing: rows
+				.filter((row) => !heldKeys.has(keyOf(row)))
+				.map((row) => ({
+					tx_hash: row.tx_hash,
+					token_symbol: row.token_symbol,
+					amount_token: row.amount_token,
+					block_number: row.block_number,
+				})),
+			unknown: held
+				.filter((row) => !chainKeys.has(keyOf(row)))
+				.map((row) => ({ tx_hash: row.tx_hash, token_symbol: row.token_symbol, amount_token: row.amount_token })),
+			chainRows: rows.length,
+			tableRowsBefore: held.length,
+		};
+		if (reconcile.missing.length > 0 || reconcile.unknown.length > 0) {
+			// Loud on purpose. This line is the alarm.
+			log(
+				`RECONCILE MISMATCH: chain has ${reconcile.chainRows} inbound rows, table held ${reconcile.tableRowsBefore}. ` +
+					`Missing from table: ${reconcile.missing.length}` +
+					reconcile.missing.map((row) => ` [${row.token_symbol} ${row.amount_token} ${row.tx_hash}]`).join('') +
+					`. In table but not on chain: ${reconcile.unknown.length}` +
+					reconcile.unknown.map((row) => ` [${row.token_symbol} ${row.amount_token} ${row.tx_hash}]`).join(''),
+			);
+		} else {
+			log(`  reconcile clean: ${reconcile.chainRows} inbound rows on chain, all present in the table`);
+		}
+	}
 
 	const inserted = await upsertInflows(rows);
 
@@ -682,10 +935,14 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 		});
 	}
 
+	// The watermark is the last block asked for, not the tip.
+	const now = new Date().toISOString();
+	const stateWrites = [{ key: STATE_KEY, value: String(endBlock) }];
+	if (fullScan) stateWrites.push({ key: RECONCILE_KEY, value: now });
 	await supabase('indexer_state?on_conflict=key', {
 		method: 'POST',
 		headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-		body: JSON.stringify([{ key: STATE_KEY, value: String(head) }]),
+		body: JSON.stringify(stateWrites),
 	});
 	log(`  inserted ${inserted} new rows, ignored ${rows.length - inserted} already present`);
 
@@ -697,14 +954,20 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 	const stored = await supabaseJson<StoredRow[]>(
 		`inflows?select=${select}&order=block_time.asc,log_index.asc`,
 	);
-	const payload = await buildPayload(stored);
+	const payload = await buildPayload(stored, reconcile, fullScan ? now : lastReconciledAt);
+	if (!payload.integrity.ok) {
+		log(`INTEGRITY FAILED: ${JSON.stringify(payload.integrity.issues)}`);
+	}
 
 	return {
 		payload,
 		stats: {
 			startBlock,
+			endBlock,
 			headBlock: head,
 			coldStart: last === null,
+			fullScan,
+			reconcile,
 			fetched,
 			inbound: rows.length,
 			inserted,
