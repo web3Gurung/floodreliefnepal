@@ -19,7 +19,13 @@ const page = copyForPath(Astro.url.pathname);
 const copy = page.transparency.mosaic;
 const ui = page.ui;
 
-const { all, totals, by_token: byToken } = ledger;
+const { totals, by_token: byToken, recent } = ledger;
+
+// The payload carries the most recent RECENT_LIMIT rows only, newest first
+// (see worker/indexer.ts). This draws them oldest first. The `all` list this
+// used to read stopped being emitted with the KV write budget change, and the
+// committed ledger.json kept a stale copy until the next regeneration exposed it.
+const all = [...recent].reverse();
 
 /** One cell is the tappable floor. Nothing renders smaller than this. */
 const MAX_SPAN = 5;
