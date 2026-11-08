@@ -197,17 +197,66 @@ Three things now prevent it, all in `worker/indexer.ts`:
 ### The integrity invariant
 
 Every run checks, per asset, that the balance the token contract reports for the
-address equals what the table says arrived minus what the `outflows` table says
-left. Both sides come from the same run. The payload carries the verdict as
-`integrity.ok` with the issues listed, and while it is false the page withholds
-the total and says the figures are being verified. The rows stay, because each
-one is a real transaction. `payloadChanged` ignores `integrity.checked_at`, so
-the check costs no KV writes.
+address equals what arrived minus what left. Both sides come from the same run.
+The payload carries the verdict as `integrity.ok` with the issues listed, and
+while it is false the page withholds the total and says the figures are being
+verified. The rows stay, because each one is a real transaction.
+`payloadChanged` ignores `integrity.checked_at`, so the check costs no KV writes.
 
 This is the check that would have caught the September loss the day it
 happened: the payload already reported `balance_held` of 167,053 USDC against
 `amount_received` of 117,052 with nothing sent onward, and nothing compared the
-two. ETH will need gas accounted for once the address ever sends; it has not.
+two.
+
+**What left comes from `collectOutflows`, which sweeps the whole chain rather
+than the scan window.** Inflows accumulate in a table, so a windowed scan only
+has to find what is new. Outflows are compared against a balance that is always
+current, so a partial answer reads as money that vanished. The sweep is two
+pages of a thousand and the address has 26 transactions in its life.
+
+Three things leave a balance and only one of them is a transfer:
+
+- **Transfers out**, matched by **contract address and never by token symbol**.
+  Thirteen contracts call themselves USDC, ÚЅDС, U⁯S⁯Dꓚ and other homoglyphs,
+  and they emit Transfer events claiming this address sent 175,990 to a
+  lookalike of a real counterparty. `knownTokens`, the set of contracts the
+  table says actually arrived, is what rules them out: an asset cannot leave an
+  address that never received it.
+- **Gas**, charged on every transaction the address sends, successful or
+  reverted, and in no transfer list. It is the whole of the ETH gap:
+  0.00000518415540936 ETH over two transactions, which is exactly
+  `amount_received` minus `balance_held` for ETH.
+- **Round trip legs**, left out on both sides. See below.
+
+`outflows` is written but never read back. The payload's figures come from the
+sweep so that both halves of the check are read from the chain in one run, with
+no eventually consistent read between them. The table is the queryable record.
+
+### Round trips: this address's own money coming back
+
+`src/data/corrections.ts` lists transfers that are this address paying itself
+back. 175,990 USDC left on 17 October 2026 and the identical amount returned on
+26 October. Both legs are on the chain, so the indexer read the return as a gift
+and **the published total carried the same money twice: $352,088.91 where the
+drive had raised $176,098.91.**
+
+The balance check cannot catch this. Counting both legs leaves the same
+remainder as counting neither, because the pair cancels. What settles it is the
+timeline: the address held 175,996.884710 USDC when a round 175,990 left it down
+to 6.884710, the identical amount restored it nine days later, and no donation
+arrived in between. The last donation before the outbound was on 15 September.
+
+The list is **hand written on purpose**. A rule like "an inbound that matches an
+earlier outbound is a return" would silently swallow a real donation that
+happened to be the same size. Every entry names both legs by transaction hash.
+The inbound stays in `inflows`, because it is a real transfer and the table has
+to stay reconcilable against the chain; `buildPayload` takes it out on the way
+to the page and reports it as `totals.returned_count` and `totals.usd_returned`,
+and the page names the correction rather than letting a headline figure halve in
+silence. The outbound leg never counts as money sent onward, because it came
+back.
+
+If another round trip happens, add it there. Nothing infers one.
 
 ### The KV write budget is what sets the cadence
 

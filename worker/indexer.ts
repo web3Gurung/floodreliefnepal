@@ -11,6 +11,8 @@
  * across runs and report numbers from a previous cron tick.
  */
 
+import { returnedInboundHashes, returnedOutboundHashes } from '../src/data/corrections.ts';
+
 // ---------------------------------------------------------------- constants
 
 export const RECEIVING_ADDRESS = '0xA891BB5abf91aBf1796074a1303E75754AF1823D';
@@ -76,6 +78,18 @@ const RECONCILE_EVERY_MS = 24 * 60 * 60 * 1000;
 
 /** Priced at 1.00 USD. Anything absent from this set needs a real lookup. */
 const STABLE_SYMBOLS = new Set(['USDC', 'USDT', 'DAI']);
+
+/**
+ * The real USDC contract. The `outflows` table has one amount column and it is
+ * denominated in USDC, so only transfers of this contract go into it.
+ *
+ * Naming it matters for a second reason. Thirteen contracts have been deployed
+ * that call themselves USDC, ÚЅDС, U⁯S⁯Dꓚ and other homoglyphs, and they emit
+ * Transfer events claiming this address sent 175,990 to a lookalike of a real
+ * counterparty. Twenty-odd such events exist. They are the reason an outflow is
+ * recognised by contract address and never by token symbol.
+ */
+const USDC_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
 
 /** DefiLlama returns a confidence with every price. Below this we publish none. */
 export const MIN_PRICE_CONFIDENCE = 0.9;
@@ -150,6 +164,8 @@ export type LedgerTokenTotal = {
 	amount_received: string;
 	usd_received: number;
 	unpriced_count: number;
+	/** What left the address in this asset, gas included for ETH. */
+	sent_onward: string;
 	balance_held: string;
 };
 
@@ -172,6 +188,12 @@ export type LedgerPayload = {
 		low_confidence_tokens: string[];
 		excluded_count: number;
 		usd_sent_onward: number;
+		/**
+		 * Inbound transfers left out of every figure above because they are this
+		 * address's own money coming back, not gifts. See src/data/corrections.ts.
+		 */
+		returned_count: number;
+		usd_returned: number;
 	};
 	by_token: LedgerTokenTotal[];
 	integrity: LedgerIntegrity;
@@ -214,6 +236,10 @@ export type IndexerStats = {
 	ignored: number;
 	backfilled: number;
 	dropped: { failedNative: number; failedInternal: number; failedToken: number; outbound: number };
+	/** The outbound sweep: what left, and the gas the address burned sending it. */
+	outbound: { tokenRows: number; nativeRows: number; gasSpent: string; returnedLegs: number };
+	/** Inbound rows held in the table but kept out of the payload as returns. */
+	returnedInbound: number;
 	pricingNotes: string[];
 };
 
@@ -300,6 +326,7 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 	const log = config.log ?? (() => {});
 
 	const dropped = { failedNative: 0, failedInternal: 0, failedToken: 0, outbound: 0 };
+	const outbound = { tokenRows: 0, nativeRows: 0, gasSpent: '0', returnedLegs: 0 };
 	const pricingNotes: string[] = [];
 	const contractCache = new Map<string, boolean>();
 	const newContractCacheRows: { address: string; is_contract: boolean }[] = [];
@@ -519,7 +546,7 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 		batch_id: null;
 	};
 
-	type NativeTx = { blockNumber: string; timeStamp: string; hash: string; from: string; to: string; value: string; isError?: string; txreceipt_status?: string };
+	type NativeTx = { blockNumber: string; timeStamp: string; hash: string; from: string; to: string; value: string; gasUsed: string; gasPrice: string; isError?: string; txreceipt_status?: string };
 	type InternalTx = { blockNumber: string; timeStamp: string; hash: string; from: string; to: string; value: string; isError?: string };
 	type TokenTx = { blockNumber: string; timeStamp: string; hash: string; from: string; to: string; value: string; contractAddress: string; tokenSymbol: string; tokenDecimal: string; statusRep?: string };
 
@@ -619,6 +646,117 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 		return rows;
 	}
 
+	// ------------------------------------------------------------ outflows
+
+	type OutflowRow = {
+		tx_hash: string;
+		block_time: string;
+		to_address: string;
+		amount_usdc: string;
+		batch_id: string | null;
+	};
+
+	/**
+	 * What has left the address, per asset, read from the chain over the whole of
+	 * history rather than the scan window.
+	 *
+	 * The window is wrong for this. Inflows accumulate in a table, so a scan only
+	 * has to find what is new; outflows are compared against a balance that is
+	 * always current, so a partial answer would read as money that vanished. The
+	 * sweep is affordable because the address barely sends: 26 transactions and
+	 * 145 token transfers in its whole life, two pages of a thousand.
+	 *
+	 * Three things leave an ETH balance and only one of them is a transfer. Gas
+	 * is charged on every transaction the address sends, successful or reverted,
+	 * and it never appears in any transfer list. It is the whole of the ETH gap
+	 * here: 0.00000518415540936 ETH across two transactions, which is exactly
+	 * what the inflow total minus the balance comes to.
+	 *
+	 * An outflow is matched by contract address, never by token symbol, because
+	 * the spoof contracts all claim a symbol that reads as USDC. See USDC_ADDRESS.
+	 * `knownTokens` is the set of contracts the table says actually arrived here:
+	 * an asset cannot leave an address that never received it, so a transfer of
+	 * anything else is a fabricated event, not an outflow that needs explaining.
+	 */
+	async function collectOutflows(
+		endBlock: number,
+		knownTokens: ReadonlySet<string>,
+	): Promise<{ usdc: OutflowRow[]; sentByToken: Map<string, string> }> {
+		const native = await fetchAccountRows<NativeTx>('txlist', 0, endBlock);
+		const internal = await fetchAccountRows<InternalTx>('txlistinternal', 0, endBlock);
+		const tokens = await fetchAccountRows<TokenTx>('tokentx', 0, endBlock);
+
+		const amounts = new Map<string, string[]>();
+		const add = (symbol: string, amount: string) => {
+			const list = amounts.get(symbol) ?? [];
+			list.push(amount);
+			amounts.set(symbol, list);
+		};
+
+		// Gas first, and from every transaction the address sent. A reverted one
+		// still paid its fee, so filtering on success here would leave a gap that
+		// looks like a missing outflow.
+		let gasWei = 0n;
+		for (const tx of native) {
+			if (tx.from.toLowerCase() !== ADDRESS) continue;
+			gasWei += BigInt(tx.gasUsed) * BigInt(tx.gasPrice);
+		}
+		outbound.gasSpent = formatUnits(gasWei.toString(), 18);
+		add('ETH', outbound.gasSpent);
+
+		for (const tx of native) {
+			if (tx.from.toLowerCase() !== ADDRESS) continue;
+			if (tx.value === '0') continue;
+			if (tx.isError === '1' || tx.txreceipt_status === '0') continue;
+			if (returnedOutboundHashes.has(tx.hash.toLowerCase())) { outbound.returnedLegs += 1; continue; }
+			outbound.nativeRows += 1;
+			add('ETH', formatUnits(tx.value, 18));
+		}
+
+		// An EOA cannot appear as the sender of an internal transfer, but a
+		// 7702 delegated one can, and this address has been handed a delegation
+		// designator before. Reading the list costs one call and closes that.
+		for (const tx of internal) {
+			if (tx.from.toLowerCase() !== ADDRESS) continue;
+			if (tx.value === '0') continue;
+			if (tx.isError === '1') continue;
+			if (returnedOutboundHashes.has(tx.hash.toLowerCase())) { outbound.returnedLegs += 1; continue; }
+			outbound.nativeRows += 1;
+			add('ETH', formatUnits(tx.value, 18));
+		}
+
+		const usdc: OutflowRow[] = [];
+		for (const tx of tokens) {
+			if (tx.from.toLowerCase() !== ADDRESS) continue;
+			if (tx.value === '0') continue;
+			if (tx.statusRep === '0') continue;
+			if (!knownTokens.has(tx.contractAddress.toLowerCase())) continue;
+			if (returnedOutboundHashes.has(tx.hash.toLowerCase())) { outbound.returnedLegs += 1; continue; }
+			outbound.tokenRows += 1;
+			const amount = formatUnits(tx.value, Number(tx.tokenDecimal || '0'));
+			add(tx.tokenSymbol || 'UNKNOWN', amount);
+			if (tx.contractAddress.toLowerCase() === USDC_ADDRESS) {
+				usdc.push({
+					tx_hash: tx.hash.toLowerCase(),
+					block_time: new Date(Number(tx.timeStamp) * 1000).toISOString(),
+					to_address: tx.to.toLowerCase(),
+					amount_usdc: amount,
+					batch_id: null,
+				});
+			}
+		}
+
+		log(
+			`  outflows: ${outbound.tokenRows} token, ${outbound.nativeRows} native, ` +
+				`${outbound.gasSpent} ETH gas, ${outbound.returnedLegs} returned leg(s) left out`,
+		);
+
+		return {
+			usdc,
+			sentByToken: new Map([...amounts].map(([symbol, list]) => [symbol, sumDecimals(list)])),
+		};
+	}
+
 	// ------------------------------------------------------------ store
 
 	async function upsertInflows(rows: InflowRow[]): Promise<number> {
@@ -691,16 +829,22 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 	}
 
 	/**
-	 * What has left the address, per token, from the outflows table. Phase 2
-	 * records the onward transfers there; until it does the table is empty and
-	 * every asset's expected balance is simply what arrived. The table records
-	 * USDC only, so any other asset sent onward will show up as a balance
-	 * mismatch until the schema grows a token column, which is the right
-	 * outcome: an untracked outflow is exactly the kind of thing the flag is for.
+	 * The onward USDC transfers, stored so the table is a record of what left
+	 * beside the one of what arrived.
+	 *
+	 * Nothing reads it back. The payload's figures come from the sweep above, so
+	 * that both halves of the balance check are read from the chain in the same
+	 * run and no eventually consistent read can sit between them. The table is
+	 * the queryable record, which is the job it was added for.
 	 */
-	async function sentOnwardByToken(): Promise<Map<string, string>> {
-		const outflows = await supabaseJson<{ amount_usdc: string }[]>('outflows?select=amount_usdc::text');
-		return new Map([['USDC', sumDecimals(outflows.map((row) => row.amount_usdc), 6)]]);
+	async function recordOutflows(rows: OutflowRow[]): Promise<number> {
+		if (rows.length === 0) return 0;
+		const written = await supabaseJson<unknown[]>('outflows?on_conflict=tx_hash', {
+			method: 'POST',
+			headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+			body: JSON.stringify(rows),
+		});
+		return written.length;
 	}
 
 	/**
@@ -710,10 +854,9 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 	 * rows the chain does not, or an outflow went unrecorded, and in every one of
 	 * those cases the total is wrong and must not be published as fact.
 	 *
-	 * ETH is the one asset where a gap can also mean gas: if the address ever
-	 * sends anything, the fee leaves the balance without appearing as an
-	 * outflow. It has never sent, so today the check holds exactly. When phase 2
-	 * lands, outflows for ETH will need to carry the fee.
+	 * ETH is the one asset where a gap can also mean gas rather than a transfer,
+	 * so the sweep counts the fee on every transaction the address sent as an ETH
+	 * outflow. With that in, all four assets close to the base unit.
 	 */
 	function checkBalances(
 		byToken: LedgerTokenTotal[],
@@ -739,11 +882,20 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 
 	async function buildPayload(
 		rows: StoredRow[],
+		sentOnward: Map<string, string>,
 		reconcile: ReconcileResult | null,
 		lastReconciledAt: string | null,
 	): Promise<LedgerPayload> {
-		const priced = rows.filter((row) => row.usd_at_receipt !== null);
-		const excluded = rows.filter((row) => row.usd_at_receipt === null);
+		// The table holds every inbound transfer the chain has, which is what makes
+		// it reconcilable against the chain. A transfer that is this address's own
+		// money coming back is still a real transfer and still belongs there; it is
+		// not a donation, so it is taken out here, on the way to the page, and
+		// named rather than quietly dropped. See src/data/corrections.ts.
+		const returned = rows.filter((row) => returnedInboundHashes.has(row.tx_hash.toLowerCase()));
+		const donations = rows.filter((row) => !returnedInboundHashes.has(row.tx_hash.toLowerCase()));
+
+		const priced = donations.filter((row) => row.usd_at_receipt !== null);
+		const excluded = donations.filter((row) => row.usd_at_receipt === null);
 
 		// Two disjoint reasons, so the page can add them and state one honest
 		// line. No price at all is a different thing from a price we distrust.
@@ -756,10 +908,10 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 
 		// Grouped by token symbol, which is what the chain says and needs no
 		// interpretation. Route never leaves the database.
-		const symbols = [...new Set(rows.map((row) => row.token_symbol))];
+		const symbols = [...new Set(donations.map((row) => row.token_symbol))];
 		const byToken: LedgerTokenTotal[] = [];
 		for (const symbol of symbols) {
-			const subset = rows.filter((row) => row.token_symbol === symbol);
+			const subset = donations.filter((row) => row.token_symbol === symbol);
 			const sample = subset[0];
 			const subsetPriced = subset.filter((row) => row.usd_at_receipt !== null);
 			byToken.push({
@@ -769,6 +921,7 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 				amount_received: sumDecimals(subset.map((row) => row.amount_token)),
 				usd_received: round2(sumDecimals(subsetPriced.map((row) => row.usd_at_receipt as string), 6)),
 				unpriced_count: subset.length - subsetPriced.length,
+				sent_onward: sentOnward.get(symbol) ?? '0',
 				balance_held: await balanceOf(
 					sample.token_address,
 					inferDecimals(sample.amount_raw, sample.amount_token),
@@ -776,7 +929,6 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 			});
 		}
 
-		const sentOnward = await sentOnwardByToken();
 		const issues = checkBalances(byToken, sentOnward);
 
 		// A full scan inserts what it found missing in the same run, so by the
@@ -804,7 +956,7 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 		// Only the tail is mapped. The payload never carries more than
 		// RECENT_LIMIT rows, so the work and the blob are both flat in the
 		// number of donations.
-		const entries: LedgerEntry[] = rows.slice(-RECENT_LIMIT).map((row) => ({
+		const entries: LedgerEntry[] = donations.slice(-RECENT_LIMIT).map((row) => ({
 			tx_hash: row.tx_hash,
 			// Postgres hands back +00:00, the payload uses Z throughout.
 			block_time: new Date(row.block_time).toISOString(),
@@ -826,14 +978,24 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 			},
 			totals: {
 				usd_received: round2(sumDecimals(priced.map((row) => row.usd_at_receipt as string), 6)),
-				donation_count: rows.length,
+				donation_count: donations.length,
 				unpriced_count: unpriced.length,
 				unpriced_tokens: [...new Set(unpriced.map((row) => row.token_symbol))],
 				low_confidence_count: lowConfidence.length,
 				low_confidence_tokens: [...new Set(lowConfidence.map((row) => row.token_symbol))],
 				excluded_count: excluded.length,
-				// USDC is the only onward asset the outflows table records, at 1.00.
+				// Every dollar that has left did so as USDC, counted at 1.00. The ETH
+				// that has left is gas, which is a cost of sending rather than an
+				// amount sent on, and stating it here as money delivered would be
+				// wrong by about four thousandths of a cent.
 				usd_sent_onward: round2(sentOnward.get('USDC') ?? '0'),
+				returned_count: returned.length,
+				usd_returned: round2(
+					sumDecimals(
+						returned.filter((row) => row.usd_at_receipt !== null).map((row) => row.usd_at_receipt as string),
+						6,
+					),
+				),
 			},
 			by_token: byToken,
 			integrity: {
@@ -954,7 +1116,22 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 	const stored = await supabaseJson<StoredRow[]>(
 		`inflows?select=${select}&order=block_time.asc,log_index.asc`,
 	);
-	const payload = await buildPayload(stored, reconcile, fullScan ? now : lastReconciledAt);
+	// The outbound side. `knownTokens` comes from the table rather than this
+	// scan's window, so it is every contract that has ever arrived here.
+	const knownTokens = new Set(
+		stored.map((row) => row.token_address?.toLowerCase()).filter((a): a is string => !!a),
+	);
+	const { usdc: outflowRows, sentByToken } = await collectOutflows(endBlock, knownTokens);
+	const outflowsWritten = await recordOutflows(outflowRows);
+	if (outflowsWritten > 0) log(`  recorded ${outflowsWritten} USDC outflow row(s)`);
+
+	const payload = await buildPayload(stored, sentByToken, reconcile, fullScan ? now : lastReconciledAt);
+	if (payload.totals.returned_count > 0) {
+		log(
+			`  left ${payload.totals.returned_count} inbound row(s) out of the total as returned own money ` +
+				`(${payload.totals.usd_returned} USD)`,
+		);
+	}
 	if (!payload.integrity.ok) {
 		log(`INTEGRITY FAILED: ${JSON.stringify(payload.integrity.issues)}`);
 	}
@@ -974,6 +1151,8 @@ export async function runIndexer(config: IndexerConfig): Promise<IndexerResult> 
 			ignored: rows.length - inserted,
 			backfilled,
 			dropped,
+			outbound,
+			returnedInbound: payload.totals.returned_count,
 			pricingNotes,
 		},
 	};

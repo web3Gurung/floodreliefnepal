@@ -6,6 +6,7 @@ import Pipeline from './Pipeline.astro';
 import ledger from '../data/ledger.json';
 import { receiving, site } from '../data/site';
 import { copyForPath, dateLocaleFor, fill, langFromPath, splitBy } from '../data/copy';
+import { roundTrips } from '../data/corrections';
 
 const lang = langFromPath(Astro.url.pathname);
 const copy = copyForPath(Astro.url.pathname).transparency;
@@ -124,6 +125,20 @@ if (totals.excluded_count > 0) {
 	exclusions.push(copy.excluded.tableNote);
 }
 
+/**
+ * The round trip. One inbound transfer in the record is this address's own
+ * money coming back, so the total leaves it out, and a total that drops by half
+ * has to say why rather than quietly change. `usd_returned` is what was taken
+ * out and `doubled` is what the page published while it was still in.
+ *
+ * Driven by the payload rather than by the list in corrections.ts, so a page
+ * built from a ledger written before the fix shows nothing instead of
+ * explaining a correction that figure has not had.
+ */
+const returnedUsd = (totals as { usd_returned?: number }).usd_returned ?? 0;
+const returnedCount = (totals as { returned_count?: number }).returned_count ?? 0;
+const hasReturned = returnedCount > 0 && returnedUsd > 0;
+
 /** Past this, the feed is described as behind rather than merely timestamped. */
 const STALE_AFTER_HOURS = 6;
 
@@ -199,6 +214,52 @@ const steward = copy.steward.join(' ');
 					{exclusions.length > 0 && (
 						<p class="quiet max-w-[42rem]">{exclusions.join(' ')}</p>
 					)}
+					{hasReturned && (
+						<div class="ledger-notice mt-6 max-w-[42rem]">
+							<p class="font-medium">{copy.returned.heading}</p>
+							<p class="quiet mt-1">
+								{fill(copy.returned.body, {
+									amount: usd.format(returnedUsd),
+									total: usd.format(totals.usd_received),
+									doubled: usd.format(totals.usd_received + returnedUsd),
+								})}
+							</p>
+							<ul class="quiet mt-2 flex flex-col gap-1">
+								{roundTrips.map((trip) => (
+									<Fragment>
+										<li>
+											{copy.returned.outLabel}:{' '}
+											<a
+												class="underline"
+												href={txUrl(trip.out)}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{copy.table.checkLabel}
+												<span class="sr-only">
+													, {fill(copy.table.checkAria, { hash: trip.out })}, {ui.opensInNewTab}
+												</span>
+											</a>
+										</li>
+										<li>
+											{copy.returned.backLabel}:{' '}
+											<a
+												class="underline"
+												href={txUrl(trip.back)}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{copy.table.checkLabel}
+												<span class="sr-only">
+													, {fill(copy.table.checkAria, { hash: trip.back })}, {ui.opensInNewTab}
+												</span>
+											</a>
+										</li>
+									</Fragment>
+								))}
+							</ul>
+						</div>
+					)}
 					{/*
 					  * The static line is the truth about what this page holds:
 					  * figures read at build time. The script beside it asks the
@@ -246,6 +307,7 @@ const steward = copy.steward.join(' ');
 								sinceDrawn: copy.sinceDrawn,
 								builtCount: totals.donation_count,
 								recentLimit: recent.length,
+								expectsReturned: 'usd_returned' in totals,
 							})}
 						/>
 						<p data-ledger-line>
@@ -617,6 +679,21 @@ const steward = copy.steward.join(' ');
 				if (!feed || !feed.totals) throw new Error('malformed payload');
 				var read = Date.parse(answer.lastRun || '') || Date.parse(feed.updated_at);
 				if (!read) throw new Error('no timestamp');
+
+				/*
+				 * A feed from an indexer that predates the round trip correction is
+				 * known to count one transfer twice, and its total is roughly
+				 * double. The build has the corrected figures, so the honest move
+				 * is to keep them and let the freshness line say the feed is
+				 * behind, rather than overwrite a right number with a wrong one.
+				 *
+				 * The marker is `returned_count`, which that indexer never wrote.
+				 * Gated on the build having the field too, so this cannot freeze a
+				 * page whose own payload is the older shape.
+				 */
+				if (cfg.expectsReturned && feed.totals.returned_count === undefined) {
+					throw new Error('feed predates the round trip correction');
+				}
 
 				// The live figures replace the baked ones, which is the whole point.
 				// Unless the feed says its own figures do not add up, in which case

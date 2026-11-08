@@ -411,6 +411,15 @@ export const zh = {
 			lowConfidence: '其中 {count} 所用资产的公开价格看起来不可靠。',
 			tableNote: '表格列出实际到达的数量。',
 		},
+		returned: {
+			heading: '有一笔转入不是捐款。',
+			body:
+				'2026 年 10 月 17 日本地址转出 {amount}，10 月 26 日同样金额分文不差地回到这里。' +
+				'两段都在链上，所以读取链的索引程序把回流当成了捐款，公布的总额把同一笔钱算了两次：' +
+				'募集到 {total} 时它显示 {doubled}。上面的总额已排除这笔回流，两笔交易仍留在下面的记录中。',
+			outLabel: '转出，2026 年 10 月 17 日',
+			backLabel: '回流，2026 年 10 月 26 日',
+		},
 		table: {
 			heading: '捐款',
 			note: '共 {total}，显示最近 {shown} 笔。',
@@ -431,8 +440,11 @@ export const zh = {
 			heading: '从哪里来，现在在哪里',
 			lede: '每条色带是人们发送的一种资产。宽度是该资产在总额中的占比，所以图和数字说的是同一件事。',
 			poolLabel: '存放在本地址',
-			reservedLabel: '已转到基金',
-			reservedNote: '向基金完成第一笔转出后，这里会填上。',
+			reservedLabel: '从本地址转出',
+			reservedNote: '完成第一笔转出后，这里会填上。',
+			sentNote:
+				'这些钱已离开本地址，这笔转账和上面每一行一样可在 Etherscan 查到。' +
+				'本页记录的是到达和离开这一个地址的款项，因此到这笔转账为止。',
 			legendHeading: '每条色带是什么',
 			legendShare: '占总额的 {percent}',
 			legendCount: '{count}',
