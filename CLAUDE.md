@@ -47,7 +47,17 @@ token index trails the node tip and a scan bounded at the tip lost a $50,000
 donation on 2 September. Do not move the watermark to the tip. Every run checks
 that balance held equals received minus outflows per asset; `integrity.ok` in the
 payload carries the verdict and the page withholds the total while it is false.
+What left is swept over the whole chain each run, matched by contract address
+and never by token symbol, and counts gas as an ETH outflow.
 `npm run index:donations:full` forces a full reconcile. See `AGENTS.md`.
+
+`src/data/corrections.ts` lists transfers that are this address's own money
+coming back, hand written and never inferred. 175,990 USDC left on 17 October
+2026 and returned on 26 October, and counting the return as a donation published
+$352,088.91 where the drive had raised $176,098.91. The balance check cannot
+catch this, because the two legs cancel. Both legs are excluded, the inbound row
+stays in `inflows`, and the page names the correction. Add an entry there if it
+happens again.
 
 Content (links, drop-off hubs, SWIFT rows, sources, English copy): `src/data/site.ts`. Nepali copy: `src/data/site.np.ts`. Simplified Chinese copy: `src/data/site.zh.ts`. Posts and news on the transparency page: `src/data/media.ts`. Phrase highlights: `splitBy` in `src/data/copy.ts`. English is `/`, Nepali is `/np/`, Chinese is `/zh/`. Chinese brand is 尼泊尔洪灾救济. Footer made-by is Ronak and Ayushman.
 

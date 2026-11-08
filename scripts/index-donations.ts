@@ -46,11 +46,20 @@ function report({ payload, stats }: IndexerResult): void {
 		}
 	}
 
-	console.log('\nBy token, amount received against balance held now');
+	console.log('\nBy token: received, sent onward, and the balance those two predict');
 	for (const token of payload.by_token) {
-		const exact = token.amount_received === token.balance_held ? 'exact' : 'DIFFERS';
+		const mismatch = payload.integrity.issues.some(
+			(issue) => issue.kind === 'balance_mismatch' && issue.token_symbol === token.token_symbol,
+		);
 		console.log(
-			`  ${token.token_symbol.padEnd(8)} received ${token.amount_received.padEnd(20)} balance ${token.balance_held.padEnd(20)} ${exact.padEnd(8)} ${String(token.donation_count).padStart(3)} donations  ${token.usd_received.toFixed(2)} USD`,
+			`  ${token.token_symbol.padEnd(8)} received ${token.amount_received.padEnd(22)} sent ${token.sent_onward.padEnd(22)} balance ${token.balance_held.padEnd(22)} ${(mismatch ? 'DIFFERS' : 'closes').padEnd(8)} ${String(token.donation_count).padStart(3)} donations  ${token.usd_received.toFixed(2)} USD`,
+		);
+	}
+
+	if (payload.totals.returned_count > 0) {
+		console.log('\nLeft out of the total as this address\u2019s own money coming back');
+		console.log(
+			`  ${payload.totals.returned_count} inbound transfer(s), ${payload.totals.usd_returned.toFixed(2)} USD. See src/data/corrections.ts.`,
 		);
 	}
 
@@ -71,6 +80,14 @@ function report({ payload, stats }: IndexerResult): void {
 	console.log('\nRows dropped before storage');
 	console.log(`  failed transactions   ${dropped.failedNative + dropped.failedInternal + dropped.failedToken} (txlist ${dropped.failedNative}, internal ${dropped.failedInternal}, token ${dropped.failedToken})`);
 	console.log(`  outbound, address was the sender  ${dropped.outbound}`);
+
+	const { outbound } = stats;
+	console.log('\nOutbound sweep, read over the whole chain rather than the window');
+	console.log(`  token transfers out   ${outbound.tokenRows}`);
+	console.log(`  native sends out      ${outbound.nativeRows}`);
+	console.log(`  gas the address paid  ${outbound.gasSpent} ETH`);
+	console.log(`  round trip legs left out  ${outbound.returnedLegs}`);
+	console.log(`  USD sent onward       ${payload.totals.usd_sent_onward.toFixed(2)}`);
 
 	if (stats.pricingNotes.length > 0) {
 		console.log('\nPricing notes');

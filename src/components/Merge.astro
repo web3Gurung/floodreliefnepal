@@ -166,6 +166,15 @@ const percent = new Intl.NumberFormat('en-US', { style: 'percent', maximumFracti
 const count = new Intl.NumberFormat('en-US');
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
+/**
+ * Whether anything has actually left. The box beside the pool was drawn as a
+ * dashed outline at 42% opacity because it was a space held open for a transfer
+ * that had not happened. It has happened, so it is drawn as a filled box: an
+ * empty-looking container with $175,999.39 written under it says the opposite
+ * of what the figure says.
+ */
+const hasSent = totals.usd_sent_onward > 0;
+
 const donationWord = (n: number) =>
 	`${count.format(n)} ${n === 1 ? transparency.total.donationsOne : transparency.total.donationsMany}`;
 
@@ -194,9 +203,11 @@ function scene(layout: Layout) {
 		};
 	});
 
-	// Everything received is still here, so the pool is full. It drains when
-	// the first transfer goes out, because the fill is a function of what has
-	// not gone onward rather than a level someone chose.
+	// The fill is a function of what has not gone onward rather than a level
+	// someone chose, so the pool drained on its own when the 3 November transfer
+	// was recorded. The label beside it says "sent out of this address" and not
+	// "sent to the fund": the chain shows the money leaving and the hop it made
+	// next, and it does not show what any recipient did with it afterwards.
 	const retained =
 		totals.usd_received > 0
 			? Math.max(0, totals.usd_received - totals.usd_sent_onward) / totals.usd_received
@@ -374,7 +385,7 @@ const dotLabel = (entry: (typeof entries)[number]) =>
 								{usd.format(totals.usd_received - totals.usd_sent_onward)}
 							</text>
 
-							<g class="merge-reserved">
+							<g class={hasSent ? 'merge-sent' : 'merge-reserved'}>
 								<rect
 									x={current.layout.reserved.x}
 									y={current.layout.reserved.y}
@@ -420,7 +431,9 @@ const dotLabel = (entry: (typeof entries)[number]) =>
 								</li>
 							))}
 						</ul>
-						<p class="quiet">{copy.reservedNote}</p>
+						<p class="quiet">
+							{totals.usd_sent_onward > 0 ? copy.sentNote : copy.reservedNote}
+						</p>
 					</figcaption>
 				<p class="ledger-notice quiet" data-since-drawn="merge" hidden></p>
 
@@ -522,6 +535,12 @@ const dotLabel = (entry: (typeof entries)[number]) =>
 
 	.merge-reserved {
 		opacity: 0.42;
+	}
+
+	/* Money has left, so the box is a quantity rather than a space held open. */
+	.merge-sent rect {
+		fill: var(--accent-soft);
+		stroke: var(--accent-mid);
 	}
 
 	.merge-swatch {

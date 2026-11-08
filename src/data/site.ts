@@ -621,6 +621,17 @@ export const en = {
 				'Of those, {count} arrived in an asset whose published price looked unreliable.',
 			tableNote: 'The table lists the amount that arrived.',
 		},
+		returned: {
+			heading: 'One transfer in is not a donation.',
+			body:
+				'On 17 October 2026 this address sent out {amount}, and on 26 October the same amount to the ' +
+				'cent came back. Both legs are on the chain, so an indexer reading the chain took the return ' +
+				'for a gift and the published total counted the same money twice: it read {doubled} where the ' +
+				'drive had raised {total}. The total above leaves the return out, and both transactions stay ' +
+				'in the record below.',
+			outLabel: 'Sent out, 17 October 2026',
+			backLabel: 'Came back, 26 October 2026',
+		},
 		table: {
 			heading: 'Donations',
 			note: 'Showing the {shown} most recent of {total}.',
@@ -641,8 +652,11 @@ export const en = {
 			heading: 'Where it came from and where it sits',
 			lede: 'Each ribbon is one asset people sent. Its width is that asset\'s share of the total, so the picture reads the same way the number does.',
 			poolLabel: 'Held at this address',
-			reservedLabel: 'Sent to the fund',
-			reservedNote: 'This space fills when the first transfer to the fund goes out.',
+			reservedLabel: 'Sent out of this address',
+			reservedNote: 'This space fills when the first transfer out goes.',
+			sentNote:
+				'That much has left the address, and the transfer is on Etherscan like every row above. ' +
+				'This page records what reaches and leaves this one address, so it stops at that transfer.',
 			legendHeading: 'What each ribbon is',
 			legendShare: '{percent} of the total',
 			legendCount: '{count}',
